@@ -1,0 +1,21 @@
+# Edit hostnames to match `kubectl get nodes`. IPs come from the manual guide.
+node_a: {hostname: prefill-node, ip: <B300_NODE_A_IP>}
+node_b: {hostname: decode-node, ip: <B300_NODE_B_IP>}
+interface: eth0
+ib_devices: mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1,mlx5_8:1,mlx5_9:1,mlx5_10:1,mlx5_11:1
+gpus_per_node: 8
+runtime_root: /data/disagg/runtime
+# Lab RDMA access uses privileged workers with /dev/infiniband mounted.
+# To use a configured RDMA device plugin instead, set privileged_rdma: false
+# and rdma_resource to the actual allocatable resource name from your cluster.
+privileged_rdma: true
+rdma_resource: null
+worker_memory_request: 256Gi
+worker_memory_limit: 2Ti
+dynamo_image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.4.0@sha256:8401411dc8e968eff9310462102491509e3f93d3ce03d6febc8d5566f067a7b1
+llmd_image: vllm/vllm-openai:v0.30.0
+llmd_sidecar_image: ghcr.io/llm-d/llm-d-router-disagg-sidecar:v0.11.0
+
+# SGLang uses a complete engine-specific image, not a pip replacement in vLLM.
+dynamo_sglang_image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0
+llmd_sglang_image: lmsysorg/sglang:v0.5.20

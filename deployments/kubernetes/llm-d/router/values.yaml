@@ -1,0 +1,34 @@
+router:
+  epp:
+    replicas: 1
+    pluginsConfigFile: pd-config.yaml
+    pluginsCustomConfig:
+      pd-config.yaml: "apiVersion: llm-d.ai/v1alpha1\nkind: EndpointPickerConfig\n\
+        plugins:\n- type: always-disagg-pd-decider\n- type: prefill-filter\n- type:\
+        \ decode-filter\n- type: active-request-scorer\n- type: max-score-picker\n\
+        - type: disagg-profile-handler\n  parameters:\n    deciders:\n      prefill:\
+        \ always-disagg-pd-decider\nschedulingProfiles:\n- name: prefill\n  plugins:\n\
+        \  - pluginRef: prefill-filter\n  - pluginRef: active-request-scorer\n  -\
+        \ pluginRef: max-score-picker\n- name: decode\n  plugins:\n  - pluginRef:\
+        \ decode-filter\n  - pluginRef: active-request-scorer\n  - pluginRef: max-score-picker\n"
+  inferencePool:
+    failureMode: FailClose
+  proxy:
+    failOpen: false
+    args:
+    - --service-node
+    - envoy-sidecar
+    - --log-level
+    - warn
+    - --concurrency
+    - '8'
+    - -c
+    - /etc/envoy/envoy.yaml
+  modelServers:
+    matchLabels:
+      llm-d.ai/guide: two-node-pd
+  extraServicePorts:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8081
