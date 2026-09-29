@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: dynamo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: &id001
+      app: frontend
+  template:
+    metadata:
+      labels: *id001
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: prefill-node
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 180
+      containers:
+      - name: frontend
+        image: nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.4.0@sha256:8401411dc8e968eff9310462102491509e3f93d3ce03d6febc8d5566f067a7b1
+        command:
+        - python3
+        - -m
+        - dynamo.frontend
+        - --http-host
+        - 0.0.0.0
+        - --http-port
+        - '8000'
+        - --router-mode
+        - kv
+        - --router-kv-events
+        - --kv-cache-block-size
+        - '64'
+        env:
+        - name: HF_HOME
+          value: /runtime/hf
+        - name: HF_MODULES_CACHE
+          value: /runtime/hf_modules
+        - name: HF_HUB_OFFLINE
+          value: '1'
+        - name: TRANSFORMERS_OFFLINE
+          value: '1'
+        - name: VLLM_CACHE_ROOT
+          value: /runtime/vllm
+        - name: TRITON_CACHE_DIR
+          value: /runtime/triton
+        - name: XDG_CACHE_HOME
+          value: /runtime/cache
+        - name: TORCH_EXTENSIONS_DIR
+          value: /runtime/torch_extensions
+        - name: PYTHONHASHSEED
+          value: '0'
+        - name: VLLM_WORKER_MULTIPROC_METHOD
+          value: spawn
+        - name: VLLM_HOST_IP
+          value: 10.104.0.51
+        - name: VLLM_NIXL_SIDE_CHANNEL_HOST
+          value: 10.104.0.51
+        - name: VLLM_NIXL_SIDE_CHANNEL_PORT
+          value: '5600'
+        - name: VLLM_HTTP_TIMEOUT_KEEP_ALIVE
+          value: '120'
+        - name: UCX_NET_DEVICES
+          value: mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1,mlx5_8:1,mlx5_9:1,mlx5_10:1,mlx5_11:1
+        - name: UCX_TLS
+          value: rc_x,rc,cuda_copy,cuda_ipc
+        - name: UCX_RNDV_SCHEME
+          value: get_zcopy
+        - name: UCX_RNDV_THRESH
+          value: '0'
+        - name: NCCL_SOCKET_IFNAME
+          value: eth0
+        - name: GLOO_SOCKET_IFNAME
+          value: eth0
+        - name: NCCL_IB_DISABLE
+          value: '0'
+        - name: NIXL_LOG_LEVEL
+          value: INFO
+        - name: DYN_NAMESPACE
+          value: disagg
+        - name: DYN_DISCOVERY_BACKEND
+          value: etcd
+        - name: ETCD_ENDPOINTS
+          value: http://10.104.0.51:2379
+        - name: DYN_REQUEST_PLANE
+          value: tcp
+        - name: DYN_EVENT_PLANE
+          value: zmq
+        - name: DYN_TCP_RPC_HOST
+          value: 10.104.0.51
+        - name: DYN_TCP_RESPONSE_STREAM_HOST
+          value: 10.104.0.51
+        - name: DYN_EVENT_PLANE_HOST
+          value: 10.104.0.51
+        - name: VLLM_ALLREDUCE_USE_SYMM_MEM
+          value: '0'
+        - name: VLLM_DISABLED_KERNELS
+          value: FlashInferFP8ScaledMMLinearKernel
+        - name: VLLM_SSM_CONV_STATE_LAYOUT
+          value: DS
+        - name: VLLM_ALLOW_CHUNKED_LOCAL_ATTN_WITH_HYBRID_KV_CACHE
+          value: '1'
+        - name: DYN_VLLM_APPEND_PREFILL_OUTPUT_TOKENS
+          value: '0'
+        ports:
+        - name: http
+          containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          timeoutSeconds: 5
+          periodSeconds: 15
+        volumeMounts:
+        - name: model
+          mountPath: /model
+          readOnly: true
+        - name: runtime
+          mountPath: /runtime
+      volumes:
+      - name: model
+        hostPath:
+          path: /data/nemotron-ultra/model
+          type: Directory
+      - name: runtime
+        emptyDir: {}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
