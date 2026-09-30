@@ -1,0 +1,26 @@
+[2m2026-09-30T22:33:43.143403Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Etcd(http://etcd.deepseek-v4-pro.svc.cluster.local:2379)
+[2m2026-09-30T22:33:43.188911Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m<POD_IP> [3mport[0m[2m=[0mOS-assigned
+[2m2026-09-30T22:33:43.197651Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP response stream server using OS-assigned port
+[2m2026-09-30T22:33:43.199405Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 1 instance(s) for endpoint: deepseek-v4-pro/prefill/clear_kv_blocks
+[2m2026-09-30T22:33:44.201038Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:33:49.208954Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:33:54.212232Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:33:59.219056Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:34:04.226681Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:34:09.232703Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "error", "message": "Cannot clear KV cache while requests are active"}}
+[2m2026-09-30T22:34:14.239553Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T22:34:14.263217Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 1 instance(s) for endpoint: deepseek-v4-pro/backend/clear_kv_blocks
+[2m2026-09-30T22:34:15.264759Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845144
+{"component": "backend", "instance": 7668681235357845144, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T22:34:15.270935Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-09-30T22:34:15.270999Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-09-30T22:34:15.271042Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-09-30T22:34:15.271046Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-09-30T22:34:15.271049Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected

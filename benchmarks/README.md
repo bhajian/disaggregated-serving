@@ -73,6 +73,15 @@ python -m benchmarks.generate_dataset --workload chatbot --sessions 8 \
 
 The generator writes measured, template-inclusive `input_tokens` per turn, plus a `.meta.json` file with the seed, tokenizer and hash. The runner never silently truncates.
 
+DeepSeek V4 checkpoints ship a Python message encoder instead of a Hugging Face
+Jinja chat template. With a local copy of the pinned checkpoint's tokenizer and
+`encoding/encoding_dsv4.py`, add
+`--deepseek-v4-encoder /path/to/checkpoint/encoding/encoding_dsv4.py
+--trust-remote-code --template-kwargs '{"thinking":false}'`. The generator uses
+the official encoder for chat and tool histories and records its SHA256 in the
+dataset metadata. See the [H200 deployment guide](../deployments/05-deepseek-v4-pro-h200/)
+for a complete download and benchmark example.
+
 One JSONL row is a session:
 
 ```json
@@ -123,6 +132,8 @@ Closed-loop saturation is the default. `--session-rate 0.1` paces new sessions a
 ---
 
 ## 5. Long context: more than 250K input tokens
+
+For the DeepSeek V4 Pro H200 experiment, see the [256K comparison protocol](../deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) and [dedicated notebook](../notebooks/deepseek_v4_pro_256k.ipynb). It uses the native encoder, in-cluster load generation and an acknowledged KV-cache reset before each topology run.
 
 1. **Redeploy with a larger window.** In the worker command of your track, set `--max-model-len 262144 --max-num-seqs 4` for vLLM, or `--context-length 262144 --max-running-requests 4` for SGLang. Update `max_model_len` in `deployment.json` to match. Restart **both** roles.
 2. **Generate a matching dataset:**
@@ -191,7 +202,7 @@ The notebook shows failure and validity counts first. It then groups repeated id
 - Before claiming a disaggregation result, show evidence that KV moved over RDMA (step 7 of the deploy guides). Size pools from the measured numbers with [blueprint 09](../blueprint/09-parallelism-and-sizing.md).
 - Save GPU and driver inventory and resolved image digests with the results. Engine comparisons are **stack** comparisons.
 
-**Status:** the benchmark code is unit-tested (metrics, streaming, failures, notebook). No performance results are included in this repository, and none are fabricated.
+**Status:** the benchmark code is unit-tested (metrics, streaming, failures, notebook). The H200 site includes live functional validation and a [matched 256K topology comparison](../deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md), with [raw results and executed analysis](../results/deepseek-v4-pro-256k-comparison/). The comparison has one measured run per topology; it does not establish maximum capacity or repeatability. See the [performance runbook](../deployments/05-deepseek-v4-pro-h200/PERFORMANCE.md) for larger sweeps.
 
 ---
 

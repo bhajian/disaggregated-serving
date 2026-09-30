@@ -28,6 +28,17 @@ A working etcd connection does **not** prove RDMA works, and a failed etcd conne
 | Kubernetes worker advertises the wrong IP | Node InternalIP is not the private IP | `kubectl get nodes -o wide`. Fix the kubelet `--node-ip`. |
 | Disk usage climbs | Model copies, images, caches | `docker system df`, `du -sh /data/*/runtime/*`. Logs in the reference files are size-limited. |
 
+## DeepSeek V4 / SGLang stalls after shard loading on network storage
+
+The shard progress bar can reach 100% before GPU copies finish. On the H200
+Nebius deployment, native stacks showed concurrent copies blocked in
+`cuMemcpyHtoDAsync` / `pthread_rwlock_wrlock`. For checkpoints that fit in host
+RAM, enable `--weight-loader-prefetch-checkpoints` and allow time for the cold
+disk read; see [SGLang #29268](https://github.com/sgl-project/sglang/issues/29268)
+and the [site manifests](../deployments/05-deepseek-v4-pro-h200/). Watch disk-read
+and page-cache progress as well as GPU utilization. Do not interpret shard
+completion or frontend health as model readiness.
+
 ## Useful commands
 
 ```bash

@@ -46,3 +46,39 @@ def test_real_transformers_template_counts_ids_not_batch_encoding_keys(tmp_path)
     tokenizer.save_pretrained(tmp_path)
     counter = TokenCounter(tokenizer=str(tmp_path))
     assert counter([{'role': 'user', 'content': 'one two three four five six'}]) == 10
+
+
+def test_deepseek_encoder_requires_trust(tmp_path):
+    with pytest.raises(ValueError, match='trust-remote-code'):
+        TokenCounter(tokenizer=str(tmp_path), deepseek_v4_encoder=tmp_path / 'encoder.py')
+
+
+def test_deepseek_encoder_preserves_tool_arguments_and_counts_without_extra_bos(tmp_path):
+    from tokenizers import Tokenizer
+    from tokenizers.models import WordLevel
+    from tokenizers.pre_tokenizers import Whitespace
+    from transformers import PreTrainedTokenizerFast
+    core = Tokenizer(WordLevel({'[UNK]': 0}, unk_token='[UNK]'))
+    core.pre_tokenizer = Whitespace()
+    tokenizer = PreTrainedTokenizerFast(tokenizer_object=core, unk_token='[UNK]')
+    tokenizer.save_pretrained(tmp_path)
+    # No Jinja template: the model's Python encoder supplies its own prompt.
+    encoder = tmp_path / 'encoder.py'
+    encoder.write_text('''
+def encode_messages(messages, thinking_mode, reasoning_effort, drop_thinking):
+    assert thinking_mode == 'chat'
+    assert messages[0]['role'] == 'system'
+    assert messages[0]['tools'][0]['function']['name'] == 'read_file'
+    assert messages[2]['tool_calls'][0]['function']['arguments'] == '{"path": "a.py"}'
+    messages[1]['content'] = 'mutated'
+    return 'BOS user text assistant'
+''')
+    messages = [{'role': 'user', 'content': 'read a.py'},
+                {'role': 'assistant', 'content': None, 'tool_calls': [
+                    {'function': {'name': 'read_file', 'arguments': '{"path": "a.py"}'}}]}]
+    tools = [{'type': 'function', 'function': {'name': 'read_file'}}]
+    counter = TokenCounter(tokenizer=str(tmp_path), trust=True,
+                           template_kwargs={'thinking': False}, deepseek_v4_encoder=encoder)
+    assert counter(messages, tools) == 4
+    assert messages[0]['content'] == 'read a.py'
+    assert len(messages) == 2

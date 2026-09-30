@@ -164,5 +164,7 @@ def test_run_records_and_kustomizations(folder, engine, topology):
 def test_every_folder_has_a_readme():
     skip = {'.git', '.venv', '__pycache__', '.pytest_cache', 'build', 'results', 'router'}
     missing = [str(p.relative_to(ROOT)) for p in ROOT.rglob('*') if p.is_dir()
-               and not skip & set(p.relative_to(ROOT).parts) and not (p / 'README.md').exists()]
+               and not skip & set(p.relative_to(ROOT).parts)
+               and p.relative_to(ROOT).parts[:2] != ('datasets', 'generated')
+               and not (p / 'README.md').exists()]
     assert not missing, missing

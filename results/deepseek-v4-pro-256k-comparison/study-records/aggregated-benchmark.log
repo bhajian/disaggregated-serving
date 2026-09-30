@@ -1,0 +1,25 @@
+chatbot-2562026-1/0: success=True valid=True TTFT=63139.081690998864ms output=21
+chatbot-2562026-3/0: success=True valid=True TTFT=63929.11825899864ms output=25
+chatbot-2562026-1/1: success=True valid=True TTFT=873.6588989995653ms output=13
+chatbot-2562026-3/1: success=True valid=True TTFT=849.6541209970019ms output=13
+chatbot-2562026-1/2: success=True valid=True TTFT=320.487975001015ms output=113
+chatbot-2562026-3/2: success=True valid=True TTFT=352.3182380013168ms output=121
+chatbot-2562026-2/0: success=True valid=True TTFT=32345.434381000814ms output=256
+chatbot-2562026-0/0: success=True valid=True TTFT=32774.77336100128ms output=256
+chatbot-2562026-5/0: success=True valid=True TTFT=32249.012281998148ms output=25
+chatbot-2562026-2/1: success=True valid=True TTFT=759.1046870002174ms output=108
+chatbot-2562026-5/1: success=True valid=True TTFT=803.0889130022842ms output=19
+chatbot-2562026-4/0: success=True valid=True TTFT=31955.040603999805ms output=256
+chatbot-2562026-0/1: success=True valid=True TTFT=803.5736919991905ms output=101
+chatbot-2562026-2/2: success=True valid=True TTFT=324.42888999867137ms output=118
+chatbot-2562026-5/2: success=True valid=True TTFT=323.20578600047156ms output=108
+chatbot-2562026-7/0: success=True valid=True TTFT=31939.03880000289ms output=21
+chatbot-2562026-4/1: success=True valid=True TTFT=735.3270950006845ms output=100
+chatbot-2562026-0/2: success=True valid=True TTFT=313.5318249987904ms output=114
+chatbot-2562026-7/1: success=True valid=True TTFT=1049.9790760004544ms output=14
+chatbot-2562026-4/2: success=True valid=True TTFT=570.7174710005347ms output=71
+chatbot-2562026-7/2: success=True valid=True TTFT=305.4097179992823ms output=121
+chatbot-2562026-6/0: success=True valid=True TTFT=32453.088819002005ms output=256
+chatbot-2562026-6/1: success=True valid=True TTFT=757.3424279980827ms output=97
+chatbot-2562026-6/2: success=True valid=True TTFT=308.4829220024403ms output=66
+Results: results/20260930T225241Z-a4a27eae

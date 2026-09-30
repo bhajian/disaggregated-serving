@@ -53,6 +53,11 @@ Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on t
 | 04 | [Disaggregated](deployments/04-llm-d-disagg/) | llm-d | vLLM · SGLang | | [vLLM](deployments/04-llm-d-disagg/vllm/) · [SGLang](deployments/04-llm-d-disagg/sglang/) |
 | · | TensorRT-LLM, KV offloading | Dynamo | TensorRT-LLM · vLLM | [roadmap](ROADMAP.md) | [roadmap](ROADMAP.md) |
 
+For **Nebius MK8s with 2 × 8 H200 and DeepSeek V4 Pro**, use the
+[site deployment guide](deployments/05-deepseek-v4-pro-h200/). It includes model
+download Jobs, persistent volumes, and a LoadBalancer; the B300 defaults below
+are for the original reference topology.
+
 ## Choose your path
 
 | You are… | Follow | Outcome |
@@ -100,7 +105,8 @@ Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on t
 ## Validation status
 
 - **Offline:** `python -m pytest -q` checks the structure of every deployment file and embedded launch script. It also checks that Docker and Kubernetes files launch identical engines, that they match the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings. `python tools/validate.py` checks the manifests against upstream Kubernetes, Compose and InferencePool schemas.
-- **On hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
-- **Performance:** no results are published yet, and none are fabricated. [Benchmarks](benchmarks/) explains how to produce them.
+- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deployments/05-deepseek-v4-pro-h200/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The current deployment uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md).
+- **On the B300 reference hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
+- **Performance:** the H200 [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements.
 
 Product capabilities reflect the pinned versions in [reference/sources.md](reference/sources.md). Hardware figures are nominal vendor values. To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
