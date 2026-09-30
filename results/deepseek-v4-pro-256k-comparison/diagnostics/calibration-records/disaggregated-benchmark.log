@@ -1,0 +1,40 @@
+chatbot-2562026-3/0: success=True valid=True TTFT=32928.81516700072ms output=25
+chatbot-2562026-2/0: success=True valid=True TTFT=64389.567514999726ms output=256
+chatbot-2562026-0/0: success=True valid=True TTFT=96423.2332850006ms output=256
+chatbot-2562026-1/0: success=True valid=True TTFT=128009.1310150001ms output=25
+chatbot-2562026-3/1: success=True valid=True TTFT=127539.28063600142ms output=13
+chatbot-2562026-2/1: success=True valid=True TTFT=126182.34339899936ms output=116
+chatbot-2562026-0/1: success=True valid=True TTFT=126693.36463199943ms output=86
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/bench/benchmarks/run.py", line 235, in run
+    await asyncio.gather(*(session(i, s) for i, s in enumerate(sessions)))
+  File "/bench/benchmarks/run.py", line 210, in session
+    async with sem:
+  File "/usr/lib/python3.12/asyncio/locks.py", line 14, in __aenter__
+    await self.acquire()
+  File "/usr/lib/python3.12/asyncio/locks.py", line 386, in acquire
+    await fut
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/bench/benchmarks/run.py", line 306, in <module>
+    main()
+  File "/bench/benchmarks/run.py", line 300, in main
+    raise SystemExit(asyncio.run(run(a)))
+                     ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt

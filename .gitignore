@@ -5,6 +5,10 @@ __pycache__/
 build/
 results/*/
 results/*.csv
+# Retain the completed 256K comparison and its supporting evidence.
+!results/deepseek-v4-pro-256k-comparison/
+!results/deepseek-v4-pro-256k-comparison/**
+# Generated benchmark datasets (including the 256K-context comparison).
 datasets/generated/
 *.env
 !*.env.example

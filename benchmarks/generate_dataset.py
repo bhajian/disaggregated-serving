@@ -3,6 +3,7 @@
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import random
 from pathlib import Path
@@ -13,9 +14,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class TokenCounter:
-    def __init__(self, tokenizer=None, revision=None, url=None, template_kwargs=None, trust=False):
+    def __init__(self, tokenizer=None, revision=None, url=None, template_kwargs=None, trust=False,
+                 deepseek_v4_encoder=None):
         self.url = url
         self.kwargs = template_kwargs or {}
+        self.encoder = None
+        if deepseek_v4_encoder:
+            if url or not tokenizer or not trust:
+                raise ValueError('--deepseek-v4-encoder needs --tokenizer and --trust-remote-code')
+            unsupported = self.kwargs.keys() - {'thinking', 'reasoning_effort', 'drop_thinking'}
+            if unsupported:
+                raise ValueError(f'Unsupported DeepSeek V4 template arguments: {sorted(unsupported)}')
+            spec = importlib.util.spec_from_file_location('encoding_dsv4', deepseek_v4_encoder)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            self.encoder = module.encode_messages
         if not url:
             from transformers import AutoTokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer, revision=revision, trust_remote_code=trust)
@@ -32,6 +45,17 @@ class TokenCounter:
             return result['count'] if 'count' in result else len(result['tokens'])
         kwargs = {'tools': tools} if tools else {}
         messages = copy.deepcopy(messages)
+        if self.encoder:
+            if tools:
+                if not messages or messages[0]['role'] != 'system':
+                    messages.insert(0, {'role': 'system', 'content': ''})
+                messages[0]['tools'] = copy.deepcopy(tools)
+            prompt = self.encoder(
+                messages, thinking_mode='thinking' if self.kwargs.get('thinking', True) else 'chat',
+                reasoning_effort=self.kwargs.get('reasoning_effort'),
+                drop_thinking=self.kwargs.get('drop_thinking', True))
+            # The official encoder already includes BOS and the assistant prefix.
+            return len(self.tokenizer.encode(prompt, add_special_tokens=False))
         for message in messages:
             for call in message.get('tool_calls', []):
                 arguments = call.get('function', {}).get('arguments')
@@ -119,6 +143,7 @@ def main():
     p.add_argument('--tokenizer'); p.add_argument('--revision')
     p.add_argument('--tokenizer-url', help='vLLM worker base URL exposing /tokenize; useful for DeepSeek V4')
     p.add_argument('--trust-remote-code', action='store_true')
+    p.add_argument('--deepseek-v4-encoder', help='Checkpoint encoding/encoding_dsv4.py; requires --trust-remote-code')
     p.add_argument('--template-kwargs', default='{}')
     p.add_argument('--corpus', help='Optional local UTF-8 corpus, replacing synthetic record prose')
     p.add_argument('--out', required=True)
@@ -127,7 +152,8 @@ def main():
         p.error('Pass --tokenizer (local directory or HF ID), or --tokenizer-url.')
     if min(a.sessions, a.input_tokens, a.output_tokens, a.max_model_len) < 1:
         p.error('Counts must be positive')
-    count = TokenCounter(a.tokenizer, a.revision, a.tokenizer_url, json.loads(a.template_kwargs), a.trust_remote_code)
+    count = TokenCounter(a.tokenizer, a.revision, a.tokenizer_url, json.loads(a.template_kwargs),
+                         a.trust_remote_code, a.deepseek_v4_encoder)
     seeds = [json.loads(x) for x in (ROOT / f'datasets/seeds/{a.workload}.jsonl').read_text().splitlines()]
     rng = random.Random(a.seed)
     corpus = Path(a.corpus).read_text() if a.corpus else None
@@ -150,7 +176,10 @@ def main():
             f.write(json.dumps(row) + '\n')
             print(row['id'], [t['input_tokens'] for t in turns])
     manifest = vars(a) | {'sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
-                          'token_count_source': 'server' if a.tokenizer_url else 'local-chat-template'}
+                          'token_count_source': ('server' if a.tokenizer_url else
+                              'deepseek-v4-encoder' if a.deepseek_v4_encoder else 'local-chat-template')}
+    if a.deepseek_v4_encoder:
+        manifest['encoder_sha256'] = hashlib.sha256(Path(a.deepseek_v4_encoder).read_bytes()).hexdigest()
     out.with_suffix(out.suffix + '.meta.json').write_text(json.dumps(manifest, indent=2) + '\n')
 
 

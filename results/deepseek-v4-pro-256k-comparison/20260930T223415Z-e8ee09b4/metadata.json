@@ -1,0 +1,66 @@
+{
+  "base_url": "http://frontend.deepseek-v4-pro.svc.cluster.local:8000/v1",
+  "model": "deepseek-ai/DeepSeek-V4-Pro-0813",
+  "technology": "dynamo-disagg-k8s",
+  "backend": "sglang",
+  "dataset": "dataset.jsonl",
+  "deployment": {
+    "technology": "dynamo-disagg-k8s",
+    "topology": "disaggregated",
+    "backend": "sglang",
+    "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+    "workers": "1 x prefill TP8 + 1 x decode TP8 (one per node)",
+    "gpu_count": 16,
+    "gpu_type": "NVIDIA H200",
+    "kv_transfer": "NIXL over UCX InfiniBand",
+    "max_model_len": 262144,
+    "max_num_seqs": 4,
+    "max_num_batched_tokens": 4096,
+    "gpu_memory_utilization": 0.88,
+    "moe_runner_backend": "marlin",
+    "model": {
+      "model_id": "deepseek-ai/DeepSeek-V4-Pro-0813",
+      "revision": "72e1d3230f6c080a530b0a1d46f8eb4602340597",
+      "model_path": "/model",
+      "kv_cache_dtype": "fp8_e4m3",
+      "request_body": {
+        "chat_template_kwargs": {
+          "thinking": false
+        }
+      }
+    },
+    "weight_loader_prefetch_checkpoints": true,
+    "persistent_kernel_cache": true
+  },
+  "max_model_len": 262144,
+  "min_input_tokens": 250001,
+  "output_tokens": 256,
+  "concurrency": 4,
+  "session_rate": 0,
+  "sessions": 8,
+  "think_time": 0,
+  "warmup": 1,
+  "timeout": 3600,
+  "temperature": 0,
+  "extra_body": "{}",
+  "token_ids": false,
+  "cache_state": "mixed",
+  "metrics_url": [
+    "http://10.26.0.0:8081/metrics",
+    "http://10.26.0.46:8081/metrics"
+  ],
+  "results": "results",
+  "run_id": "20260930T223415Z-e8ee09b4",
+  "timestamp_utc": "2026-09-30T22:34:15.486537+00:00",
+  "dataset_sha256": "815a787649a2d91ad90907aeda133ade0606795d622809959c5180679e3ac492",
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "platform": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+  "resolved_extra_body": {
+    "chat_template_kwargs": {
+      "thinking": false
+    }
+  },
+  "load_mode": "closed-loop",
+  "workload": "chatbot",
+  "session_count": 8
+}

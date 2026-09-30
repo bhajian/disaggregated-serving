@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: deepseek-v4-pro
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: computeinstance-e02d5vc54q7hd11sb7
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+      containers:
+      - name: frontend
+        image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3
+        command:
+        - python3
+        - -m
+        - dynamo.frontend
+        - --http-host=0.0.0.0
+        - --http-port=8000
+        - --router-mode=kv
+        - --router-kv-events
+        - --kv-cache-block-size=256
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DYN_NAMESPACE
+          value: deepseek-v4-pro
+        - name: DYN_DISCOVERY_BACKEND
+          value: etcd
+        - name: ETCD_ENDPOINTS
+          value: http://etcd.deepseek-v4-pro.svc.cluster.local:2379
+        - name: DYN_REQUEST_PLANE
+          value: tcp
+        - name: DYN_EVENT_PLANE
+          value: zmq
+        - name: DYN_TCP_RPC_HOST
+          value: $(HOST_IP)
+        - name: DYN_EVENT_PLANE_HOST
+          value: $(HOST_IP)
+        - name: PYTHONHASHSEED
+          value: '0'
+        - name: HF_HUB_OFFLINE
+          value: '1'
+        - name: TRANSFORMERS_OFFLINE
+          value: '1'
+        - name: HF_HOME
+          value: /runtime/hf
+        - name: HF_MODULES_CACHE
+          value: /runtime/hf_modules
+        - name: XDG_CACHE_HOME
+          value: /runtime/cache
+        ports:
+        - name: http
+          containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 10
+        resources:
+          requests:
+            cpu: '4'
+            memory: 16Gi
+          limits:
+            memory: 64Gi
+        volumeMounts:
+        - name: model
+          mountPath: /model
+          readOnly: true
+        - name: runtime
+          mountPath: /runtime
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-0
+      - name: runtime
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: deepseek-v4-pro
+spec:
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  type: LoadBalancer

@@ -1,0 +1,3467 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "1",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"etcd\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"etcd\"}},\"template\":{\"metadata\":{\"labels\":{\"app\":\"etcd\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"/usr/local/bin/etcd\",\"--name=default\",\"--data-dir=/etcd-data\",\"--listen-client-urls=http://0.0.0.0:2379\",\"--advertise-client-urls=http://etcd.deepseek-v4-pro.svc.cluster.local:2379\",\"--listen-peer-urls=http://127.0.0.1:2380\",\"--initial-advertise-peer-urls=http://127.0.0.1:2380\",\"--initial-cluster=default=http://127.0.0.1:2380\"],\"image\":\"quay.io/coreos/etcd:v3.5.21\",\"name\":\"etcd\",\"ports\":[{\"containerPort\":2379,\"name\":\"client\"}],\"readinessProbe\":{\"httpGet\":{\"path\":\"/health\",\"port\":2379},\"periodSeconds\":5},\"resources\":{\"limits\":{\"memory\":\"2Gi\"},\"requests\":{\"cpu\":\"500m\",\"memory\":\"512Mi\"}},\"volumeMounts\":[{\"mountPath\":\"/etcd-data\",\"name\":\"data\"}]}],\"volumes\":[{\"emptyDir\":{},\"name\":\"data\"}]}}}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:30Z",
+                "generation": 1,
+                "name": "etcd",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "50448",
+                "uid": "934a04ae-144c-4e2f-a581-f7fea83a5df2"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app": "etcd"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "etcd"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "command": [
+                                    "/usr/local/bin/etcd",
+                                    "--name=default",
+                                    "--data-dir=/etcd-data",
+                                    "--listen-client-urls=http://0.0.0.0:2379",
+                                    "--advertise-client-urls=http://etcd.deepseek-v4-pro.svc.cluster.local:2379",
+                                    "--listen-peer-urls=http://127.0.0.1:2380",
+                                    "--initial-advertise-peer-urls=http://127.0.0.1:2380",
+                                    "--initial-cluster=default=http://127.0.0.1:2380"
+                                ],
+                                "image": "quay.io/coreos/etcd:v3.5.21",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "etcd",
+                                "ports": [
+                                    {
+                                        "containerPort": 2379,
+                                        "name": "client",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 2379,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 5,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "2Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "500m",
+                                        "memory": "512Mi"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/etcd-data",
+                                        "name": "data"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "emptyDir": {},
+                                "name": "data"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-30T20:28:35Z",
+                        "lastUpdateTime": "2026-09-30T20:28:35Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-30T20:28:30Z",
+                        "lastUpdateTime": "2026-09-30T20:28:35Z",
+                        "message": "ReplicaSet \"etcd-5d558c9c94\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 1,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "2",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"name\":\"frontend\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"frontend\"}},\"strategy\":{\"type\":\"Recreate\"},\"template\":{\"metadata\":{\"labels\":{\"app\":\"frontend\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python3\",\"-m\",\"dynamo.frontend\",\"--http-host=0.0.0.0\",\"--http-port=8000\",\"--router-mode=kv\",\"--router-kv-events\",\"--kv-cache-block-size=256\"],\"env\":[{\"name\":\"HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.hostIP\"}}},{\"name\":\"DYN_NAMESPACE\",\"value\":\"deepseek-v4-pro\"},{\"name\":\"DYN_DISCOVERY_BACKEND\",\"value\":\"etcd\"},{\"name\":\"ETCD_ENDPOINTS\",\"value\":\"http://etcd.deepseek-v4-pro.svc.cluster.local:2379\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_TCP_RPC_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"DYN_EVENT_PLANE_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"PYTHONHASHSEED\",\"value\":\"0\"},{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"TRANSFORMERS_OFFLINE\",\"value\":\"1\"},{\"name\":\"HF_HOME\",\"value\":\"/runtime/hf\"},{\"name\":\"HF_MODULES_CACHE\",\"value\":\"/runtime/hf_modules\"},{\"name\":\"XDG_CACHE_HOME\",\"value\":\"/runtime/cache\"}],\"image\":\"nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3\",\"name\":\"frontend\",\"ports\":[{\"containerPort\":8000,\"name\":\"http\"}],\"readinessProbe\":{\"httpGet\":{\"path\":\"/health\",\"port\":8000},\"periodSeconds\":10},\"resources\":{\"limits\":{\"memory\":\"64Gi\"},\"requests\":{\"cpu\":\"4\",\"memory\":\"16Gi\"}},\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\",\"readOnly\":true},{\"mountPath\":\"/runtime\",\"name\":\"runtime\"}]}],\"dnsPolicy\":\"ClusterFirstWithHostNet\",\"hostNetwork\":true,\"nodeSelector\":{\"kubernetes.io/hostname\":\"computeinstance-e02d5vc54q7hd11sb7\"},\"volumes\":[{\"name\":\"model\",\"persistentVolumeClaim\":{\"claimName\":\"model-0\"}},{\"emptyDir\":{},\"name\":\"runtime\"}]}}}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:31Z",
+                "generation": 2,
+                "name": "frontend",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "51393",
+                "uid": "6b7e57b3-cb9b-4d07-b923-5aa6a151745d"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app": "frontend"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "frontend"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "command": [
+                                    "python3",
+                                    "-m",
+                                    "dynamo.frontend",
+                                    "--http-host=0.0.0.0",
+                                    "--http-port=8000",
+                                    "--router-mode=kv",
+                                    "--router-kv-events",
+                                    "--kv-cache-block-size=256"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.hostIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "deepseek-v4-pro"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "etcd"
+                                    },
+                                    {
+                                        "name": "ETCD_ENDPOINTS",
+                                        "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_TCP_RPC_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "PYTHONHASHSEED",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "TRANSFORMERS_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "HF_HOME",
+                                        "value": "/runtime/hf"
+                                    },
+                                    {
+                                        "name": "HF_MODULES_CACHE",
+                                        "value": "/runtime/hf_modules"
+                                    },
+                                    {
+                                        "name": "XDG_CACHE_HOME",
+                                        "value": "/runtime/cache"
+                                    }
+                                ],
+                                "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "frontend",
+                                "ports": [
+                                    {
+                                        "containerPort": 8000,
+                                        "name": "http",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 8000,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 1
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "64Gi"
+                                    },
+                                    "requests": {
+                                        "cpu": "4",
+                                        "memory": "16Gi"
+                                    }
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/runtime",
+                                        "name": "runtime"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirstWithHostNet",
+                        "hostNetwork": true,
+                        "nodeSelector": {
+                            "kubernetes.io/hostname": "computeinstance-e02d5vc54q7hd11sb7"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "name": "model",
+                                "persistentVolumeClaim": {
+                                    "claimName": "model-0"
+                                }
+                            },
+                            {
+                                "emptyDir": {},
+                                "name": "runtime"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-30T20:31:21Z",
+                        "lastUpdateTime": "2026-09-30T20:31:21Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-30T20:28:31Z",
+                        "lastUpdateTime": "2026-09-30T20:31:21Z",
+                        "message": "ReplicaSet \"frontend-dd8dd4bb7\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 2,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "6",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"serving-role\":\"aggregated\"},\"name\":\"worker-0\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"worker-0\"}},\"strategy\":{\"type\":\"Recreate\"},\"template\":{\"metadata\":{\"labels\":{\"app\":\"worker-0\",\"component\":\"sglang-worker\",\"serving-role\":\"aggregated\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python3\",\"-c\",\"import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])\",\"python3\",\"-m\",\"dynamo.sglang\",\"--model-path\",\"/model\",\"--served-model-name\",\"deepseek-ai/DeepSeek-V4-Pro-0813\",\"--tensor-parallel-size\",\"8\",\"--trust-remote-code\",\"--context-length\",\"262144\",\"--max-running-requests\",\"4\",\"--chunked-prefill-size\",\"4096\",\"--mem-fraction-static\",\"0.88\",\"--page-size\",\"256\",\"--kv-cache-dtype\",\"fp8_e4m3\",\"--moe-runner-backend\",\"marlin\",\"--host\",\"0.0.0.0\",\"--port\",\"30000\",\"--enable-metrics\",\"--disable-piecewise-cuda-graph\",\"--cuda-graph-max-bs-decode\",\"4\",\"--dyn-tool-call-parser\",\"deepseek_v4\",\"--dyn-reasoning-parser\",\"deepseek_v4\",\"--kv-events-config\",\"{\\\"publisher\\\":\\\"zmq\\\",\\\"topic\\\":\\\"kv-events\\\",\\\"endpoint\\\":\\\"tcp://*:5571\\\"}\",\"--weight-loader-prefetch-checkpoints\"],\"env\":[{\"name\":\"HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.hostIP\"}}},{\"name\":\"DYN_NAMESPACE\",\"value\":\"deepseek-v4-pro\"},{\"name\":\"DYN_DISCOVERY_BACKEND\",\"value\":\"etcd\"},{\"name\":\"ETCD_ENDPOINTS\",\"value\":\"http://etcd.deepseek-v4-pro.svc.cluster.local:2379\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_TCP_RPC_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"DYN_EVENT_PLANE_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"PYTHONHASHSEED\",\"value\":\"0\"},{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"TRANSFORMERS_OFFLINE\",\"value\":\"1\"},{\"name\":\"HF_HOME\",\"value\":\"/runtime/hf\"},{\"name\":\"HF_MODULES_CACHE\",\"value\":\"/runtime/hf_modules\"},{\"name\":\"XDG_CACHE_HOME\",\"value\":\"/runtime/cache\"},{\"name\":\"TRITON_CACHE_DIR\",\"value\":\"/runtime/triton\"},{\"name\":\"TORCH_EXTENSIONS_DIR\",\"value\":\"/runtime/torch_extensions\"},{\"name\":\"NCCL_SOCKET_IFNAME\",\"value\":\"eth0\"},{\"name\":\"GLOO_SOCKET_IFNAME\",\"value\":\"eth0\"},{\"name\":\"DYN_SYSTEM_PORT\",\"value\":\"8081\"},{\"name\":\"SGLANG_JIT_DEEPGEMM_PRECOMPILE\",\"value\":\"0\"},{\"name\":\"SGLANG_JIT_DEEPGEMM_FAST_WARMUP\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"rc,cuda_copy,cuda_ipc,sm,self\"},{\"name\":\"UCX_NET_DEVICES\",\"value\":\"mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1\"},{\"name\":\"UCX_RNDV_SCHEME\",\"value\":\"get_zcopy\"},{\"name\":\"UCX_LOG_LEVEL\",\"value\":\"info\"}],\"image\":\"nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3\",\"name\":\"worker\",\"readinessProbe\":{\"httpGet\":{\"path\":\"/health\",\"port\":8081},\"periodSeconds\":15,\"timeoutSeconds\":5},\"resources\":{\"limits\":{\"memory\":\"1300Gi\",\"nvidia.com/gpu\":\"8\"},\"requests\":{\"cpu\":\"32\",\"memory\":\"512Gi\",\"nvidia.com/gpu\":\"8\"}},\"securityContext\":{\"capabilities\":{\"add\":[\"IPC_LOCK\",\"SYS_RESOURCE\"]},\"runAsUser\":0},\"startupProbe\":{\"failureThreshold\":480,\"httpGet\":{\"path\":\"/health\",\"port\":8081},\"periodSeconds\":15,\"timeoutSeconds\":5},\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\",\"readOnly\":true},{\"mountPath\":\"/dev/shm\",\"name\":\"shm\"},{\"mountPath\":\"/runtime\",\"name\":\"model\",\"subPath\":\".runtime/runtime\"},{\"mountPath\":\"/root/.cache\",\"name\":\"model\",\"subPath\":\".runtime/root-cache\"},{\"mountPath\":\"/root/.tilelang\",\"name\":\"model\",\"subPath\":\".runtime/tilelang\"}]}],\"dnsPolicy\":\"ClusterFirstWithHostNet\",\"hostNetwork\":true,\"initContainers\":[{\"command\":[\"sh\",\"-c\",\"until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done\"],\"image\":\"busybox:1.37.0\",\"name\":\"wait-for-model\",\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\",\"readOnly\":true}]},{\"command\":[\"sh\",\"-c\",\"mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang\"],\"image\":\"busybox:1.37.0\",\"name\":\"init-runtime-cache\",\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\"}]}],\"nodeSelector\":{\"kubernetes.io/hostname\":\"computeinstance-e02d5vc54q7hd11sb7\"},\"terminationGracePeriodSeconds\":180,\"volumes\":[{\"name\":\"model\",\"persistentVolumeClaim\":{\"claimName\":\"model-0\"}},{\"emptyDir\":{\"medium\":\"Memory\",\"sizeLimit\":\"128Gi\"},\"name\":\"shm\"}]}}}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:55Z",
+                "generation": 6,
+                "labels": {
+                    "serving-role": "aggregated"
+                },
+                "name": "worker-0",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "93216",
+                "uid": "c4548f69-c16b-4006-be55-18b86d12611a"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app": "worker-0"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "worker-0",
+                            "component": "sglang-worker",
+                            "serving-role": "aggregated"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "command": [
+                                    "python3",
+                                    "-c",
+                                    "import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])",
+                                    "python3",
+                                    "-m",
+                                    "dynamo.sglang",
+                                    "--model-path",
+                                    "/model",
+                                    "--served-model-name",
+                                    "deepseek-ai/DeepSeek-V4-Pro-0813",
+                                    "--tensor-parallel-size",
+                                    "8",
+                                    "--trust-remote-code",
+                                    "--context-length",
+                                    "262144",
+                                    "--max-running-requests",
+                                    "4",
+                                    "--chunked-prefill-size",
+                                    "4096",
+                                    "--mem-fraction-static",
+                                    "0.88",
+                                    "--page-size",
+                                    "256",
+                                    "--kv-cache-dtype",
+                                    "fp8_e4m3",
+                                    "--moe-runner-backend",
+                                    "marlin",
+                                    "--host",
+                                    "0.0.0.0",
+                                    "--port",
+                                    "30000",
+                                    "--enable-metrics",
+                                    "--disable-piecewise-cuda-graph",
+                                    "--cuda-graph-max-bs-decode",
+                                    "4",
+                                    "--dyn-tool-call-parser",
+                                    "deepseek_v4",
+                                    "--dyn-reasoning-parser",
+                                    "deepseek_v4",
+                                    "--kv-events-config",
+                                    "{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:5571\"}",
+                                    "--weight-loader-prefetch-checkpoints"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.hostIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "deepseek-v4-pro"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "etcd"
+                                    },
+                                    {
+                                        "name": "ETCD_ENDPOINTS",
+                                        "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_TCP_RPC_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "PYTHONHASHSEED",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "TRANSFORMERS_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "HF_HOME",
+                                        "value": "/runtime/hf"
+                                    },
+                                    {
+                                        "name": "HF_MODULES_CACHE",
+                                        "value": "/runtime/hf_modules"
+                                    },
+                                    {
+                                        "name": "XDG_CACHE_HOME",
+                                        "value": "/runtime/cache"
+                                    },
+                                    {
+                                        "name": "TRITON_CACHE_DIR",
+                                        "value": "/runtime/triton"
+                                    },
+                                    {
+                                        "name": "TORCH_EXTENSIONS_DIR",
+                                        "value": "/runtime/torch_extensions"
+                                    },
+                                    {
+                                        "name": "NCCL_SOCKET_IFNAME",
+                                        "value": "eth0"
+                                    },
+                                    {
+                                        "name": "GLOO_SOCKET_IFNAME",
+                                        "value": "eth0"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_PORT",
+                                        "value": "8081"
+                                    },
+                                    {
+                                        "name": "SGLANG_JIT_DEEPGEMM_PRECOMPILE",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "SGLANG_JIT_DEEPGEMM_FAST_WARMUP",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "UCX_TLS",
+                                        "value": "rc,cuda_copy,cuda_ipc,sm,self"
+                                    },
+                                    {
+                                        "name": "UCX_NET_DEVICES",
+                                        "value": "mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1"
+                                    },
+                                    {
+                                        "name": "UCX_RNDV_SCHEME",
+                                        "value": "get_zcopy"
+                                    },
+                                    {
+                                        "name": "UCX_LOG_LEVEL",
+                                        "value": "info"
+                                    }
+                                ],
+                                "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "worker",
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 15,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "1300Gi",
+                                        "nvidia.com/gpu": "8"
+                                    },
+                                    "requests": {
+                                        "cpu": "32",
+                                        "memory": "512Gi",
+                                        "nvidia.com/gpu": "8"
+                                    }
+                                },
+                                "securityContext": {
+                                    "capabilities": {
+                                        "add": [
+                                            "IPC_LOCK",
+                                            "SYS_RESOURCE"
+                                        ]
+                                    },
+                                    "runAsUser": 0
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 480,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 15,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shm"
+                                    },
+                                    {
+                                        "mountPath": "/runtime",
+                                        "name": "model",
+                                        "subPath": ".runtime/runtime"
+                                    },
+                                    {
+                                        "mountPath": "/root/.cache",
+                                        "name": "model",
+                                        "subPath": ".runtime/root-cache"
+                                    },
+                                    {
+                                        "mountPath": "/root/.tilelang",
+                                        "name": "model",
+                                        "subPath": ".runtime/tilelang"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirstWithHostNet",
+                        "hostNetwork": true,
+                        "initContainers": [
+                            {
+                                "command": [
+                                    "sh",
+                                    "-c",
+                                    "until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done"
+                                ],
+                                "image": "busybox:1.37.0",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "wait-for-model",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model",
+                                        "readOnly": true
+                                    }
+                                ]
+                            },
+                            {
+                                "command": [
+                                    "sh",
+                                    "-c",
+                                    "mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang"
+                                ],
+                                "image": "busybox:1.37.0",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "init-runtime-cache",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model"
+                                    }
+                                ]
+                            }
+                        ],
+                        "nodeSelector": {
+                            "kubernetes.io/hostname": "computeinstance-e02d5vc54q7hd11sb7"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 180,
+                        "volumes": [
+                            {
+                                "name": "model",
+                                "persistentVolumeClaim": {
+                                    "claimName": "model-0"
+                                }
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "128Gi"
+                                },
+                                "name": "shm"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "lastUpdateTime": "2026-09-30T22:51:06Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-30T21:44:27Z",
+                        "lastUpdateTime": "2026-09-30T22:51:06Z",
+                        "message": "ReplicaSet \"worker-0-6c45c5d59d\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 6,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "6",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"serving-role\":\"aggregated\"},\"name\":\"worker-1\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app\":\"worker-1\"}},\"strategy\":{\"type\":\"Recreate\"},\"template\":{\"metadata\":{\"labels\":{\"app\":\"worker-1\",\"component\":\"sglang-worker\",\"serving-role\":\"aggregated\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"command\":[\"python3\",\"-c\",\"import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])\",\"python3\",\"-m\",\"dynamo.sglang\",\"--model-path\",\"/model\",\"--served-model-name\",\"deepseek-ai/DeepSeek-V4-Pro-0813\",\"--tensor-parallel-size\",\"8\",\"--trust-remote-code\",\"--context-length\",\"262144\",\"--max-running-requests\",\"4\",\"--chunked-prefill-size\",\"4096\",\"--mem-fraction-static\",\"0.88\",\"--page-size\",\"256\",\"--kv-cache-dtype\",\"fp8_e4m3\",\"--moe-runner-backend\",\"marlin\",\"--host\",\"0.0.0.0\",\"--port\",\"30000\",\"--enable-metrics\",\"--disable-piecewise-cuda-graph\",\"--cuda-graph-max-bs-decode\",\"4\",\"--dyn-tool-call-parser\",\"deepseek_v4\",\"--dyn-reasoning-parser\",\"deepseek_v4\",\"--kv-events-config\",\"{\\\"publisher\\\":\\\"zmq\\\",\\\"topic\\\":\\\"kv-events\\\",\\\"endpoint\\\":\\\"tcp://*:5571\\\"}\",\"--weight-loader-prefetch-checkpoints\"],\"env\":[{\"name\":\"HOST_IP\",\"valueFrom\":{\"fieldRef\":{\"fieldPath\":\"status.hostIP\"}}},{\"name\":\"DYN_NAMESPACE\",\"value\":\"deepseek-v4-pro\"},{\"name\":\"DYN_DISCOVERY_BACKEND\",\"value\":\"etcd\"},{\"name\":\"ETCD_ENDPOINTS\",\"value\":\"http://etcd.deepseek-v4-pro.svc.cluster.local:2379\"},{\"name\":\"DYN_REQUEST_PLANE\",\"value\":\"tcp\"},{\"name\":\"DYN_EVENT_PLANE\",\"value\":\"zmq\"},{\"name\":\"DYN_TCP_RPC_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"DYN_EVENT_PLANE_HOST\",\"value\":\"$(HOST_IP)\"},{\"name\":\"PYTHONHASHSEED\",\"value\":\"0\"},{\"name\":\"HF_HUB_OFFLINE\",\"value\":\"1\"},{\"name\":\"TRANSFORMERS_OFFLINE\",\"value\":\"1\"},{\"name\":\"HF_HOME\",\"value\":\"/runtime/hf\"},{\"name\":\"HF_MODULES_CACHE\",\"value\":\"/runtime/hf_modules\"},{\"name\":\"XDG_CACHE_HOME\",\"value\":\"/runtime/cache\"},{\"name\":\"TRITON_CACHE_DIR\",\"value\":\"/runtime/triton\"},{\"name\":\"TORCH_EXTENSIONS_DIR\",\"value\":\"/runtime/torch_extensions\"},{\"name\":\"NCCL_SOCKET_IFNAME\",\"value\":\"eth0\"},{\"name\":\"GLOO_SOCKET_IFNAME\",\"value\":\"eth0\"},{\"name\":\"DYN_SYSTEM_PORT\",\"value\":\"8081\"},{\"name\":\"SGLANG_JIT_DEEPGEMM_PRECOMPILE\",\"value\":\"0\"},{\"name\":\"SGLANG_JIT_DEEPGEMM_FAST_WARMUP\",\"value\":\"1\"},{\"name\":\"UCX_TLS\",\"value\":\"rc,cuda_copy,cuda_ipc,sm,self\"},{\"name\":\"UCX_NET_DEVICES\",\"value\":\"mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1\"},{\"name\":\"UCX_RNDV_SCHEME\",\"value\":\"get_zcopy\"},{\"name\":\"UCX_LOG_LEVEL\",\"value\":\"info\"}],\"image\":\"nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3\",\"name\":\"worker\",\"readinessProbe\":{\"httpGet\":{\"path\":\"/health\",\"port\":8081},\"periodSeconds\":15,\"timeoutSeconds\":5},\"resources\":{\"limits\":{\"memory\":\"1300Gi\",\"nvidia.com/gpu\":\"8\"},\"requests\":{\"cpu\":\"32\",\"memory\":\"512Gi\",\"nvidia.com/gpu\":\"8\"}},\"securityContext\":{\"capabilities\":{\"add\":[\"IPC_LOCK\",\"SYS_RESOURCE\"]},\"runAsUser\":0},\"startupProbe\":{\"failureThreshold\":480,\"httpGet\":{\"path\":\"/health\",\"port\":8081},\"periodSeconds\":15,\"timeoutSeconds\":5},\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\",\"readOnly\":true},{\"mountPath\":\"/dev/shm\",\"name\":\"shm\"},{\"mountPath\":\"/runtime\",\"name\":\"model\",\"subPath\":\".runtime/runtime\"},{\"mountPath\":\"/root/.cache\",\"name\":\"model\",\"subPath\":\".runtime/root-cache\"},{\"mountPath\":\"/root/.tilelang\",\"name\":\"model\",\"subPath\":\".runtime/tilelang\"}]}],\"dnsPolicy\":\"ClusterFirstWithHostNet\",\"hostNetwork\":true,\"initContainers\":[{\"command\":[\"sh\",\"-c\",\"until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done\"],\"image\":\"busybox:1.37.0\",\"name\":\"wait-for-model\",\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\",\"readOnly\":true}]},{\"command\":[\"sh\",\"-c\",\"mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang\"],\"image\":\"busybox:1.37.0\",\"name\":\"init-runtime-cache\",\"volumeMounts\":[{\"mountPath\":\"/model\",\"name\":\"model\"}]}],\"nodeSelector\":{\"kubernetes.io/hostname\":\"computeinstance-e02ezxgrg5k6rxwsee\"},\"terminationGracePeriodSeconds\":180,\"volumes\":[{\"name\":\"model\",\"persistentVolumeClaim\":{\"claimName\":\"model-1\"}},{\"emptyDir\":{\"medium\":\"Memory\",\"sizeLimit\":\"128Gi\"},\"name\":\"shm\"}]}}}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:56Z",
+                "generation": 6,
+                "labels": {
+                    "serving-role": "aggregated"
+                },
+                "name": "worker-1",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "93212",
+                "uid": "9235aed3-d361-46b7-bfa2-e583cb06eef4"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 1,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app": "worker-1"
+                    }
+                },
+                "strategy": {
+                    "type": "Recreate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app": "worker-1",
+                            "component": "sglang-worker",
+                            "serving-role": "aggregated"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "command": [
+                                    "python3",
+                                    "-c",
+                                    "import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])",
+                                    "python3",
+                                    "-m",
+                                    "dynamo.sglang",
+                                    "--model-path",
+                                    "/model",
+                                    "--served-model-name",
+                                    "deepseek-ai/DeepSeek-V4-Pro-0813",
+                                    "--tensor-parallel-size",
+                                    "8",
+                                    "--trust-remote-code",
+                                    "--context-length",
+                                    "262144",
+                                    "--max-running-requests",
+                                    "4",
+                                    "--chunked-prefill-size",
+                                    "4096",
+                                    "--mem-fraction-static",
+                                    "0.88",
+                                    "--page-size",
+                                    "256",
+                                    "--kv-cache-dtype",
+                                    "fp8_e4m3",
+                                    "--moe-runner-backend",
+                                    "marlin",
+                                    "--host",
+                                    "0.0.0.0",
+                                    "--port",
+                                    "30000",
+                                    "--enable-metrics",
+                                    "--disable-piecewise-cuda-graph",
+                                    "--cuda-graph-max-bs-decode",
+                                    "4",
+                                    "--dyn-tool-call-parser",
+                                    "deepseek_v4",
+                                    "--dyn-reasoning-parser",
+                                    "deepseek_v4",
+                                    "--kv-events-config",
+                                    "{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:5571\"}",
+                                    "--weight-loader-prefetch-checkpoints"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "HOST_IP",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "status.hostIP"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "name": "DYN_NAMESPACE",
+                                        "value": "deepseek-v4-pro"
+                                    },
+                                    {
+                                        "name": "DYN_DISCOVERY_BACKEND",
+                                        "value": "etcd"
+                                    },
+                                    {
+                                        "name": "ETCD_ENDPOINTS",
+                                        "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                                    },
+                                    {
+                                        "name": "DYN_REQUEST_PLANE",
+                                        "value": "tcp"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE",
+                                        "value": "zmq"
+                                    },
+                                    {
+                                        "name": "DYN_TCP_RPC_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "DYN_EVENT_PLANE_HOST",
+                                        "value": "$(HOST_IP)"
+                                    },
+                                    {
+                                        "name": "PYTHONHASHSEED",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "HF_HUB_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "TRANSFORMERS_OFFLINE",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "HF_HOME",
+                                        "value": "/runtime/hf"
+                                    },
+                                    {
+                                        "name": "HF_MODULES_CACHE",
+                                        "value": "/runtime/hf_modules"
+                                    },
+                                    {
+                                        "name": "XDG_CACHE_HOME",
+                                        "value": "/runtime/cache"
+                                    },
+                                    {
+                                        "name": "TRITON_CACHE_DIR",
+                                        "value": "/runtime/triton"
+                                    },
+                                    {
+                                        "name": "TORCH_EXTENSIONS_DIR",
+                                        "value": "/runtime/torch_extensions"
+                                    },
+                                    {
+                                        "name": "NCCL_SOCKET_IFNAME",
+                                        "value": "eth0"
+                                    },
+                                    {
+                                        "name": "GLOO_SOCKET_IFNAME",
+                                        "value": "eth0"
+                                    },
+                                    {
+                                        "name": "DYN_SYSTEM_PORT",
+                                        "value": "8081"
+                                    },
+                                    {
+                                        "name": "SGLANG_JIT_DEEPGEMM_PRECOMPILE",
+                                        "value": "0"
+                                    },
+                                    {
+                                        "name": "SGLANG_JIT_DEEPGEMM_FAST_WARMUP",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "UCX_TLS",
+                                        "value": "rc,cuda_copy,cuda_ipc,sm,self"
+                                    },
+                                    {
+                                        "name": "UCX_NET_DEVICES",
+                                        "value": "mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1"
+                                    },
+                                    {
+                                        "name": "UCX_RNDV_SCHEME",
+                                        "value": "get_zcopy"
+                                    },
+                                    {
+                                        "name": "UCX_LOG_LEVEL",
+                                        "value": "info"
+                                    }
+                                ],
+                                "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "worker",
+                                "readinessProbe": {
+                                    "failureThreshold": 3,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 15,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {
+                                    "limits": {
+                                        "memory": "1300Gi",
+                                        "nvidia.com/gpu": "8"
+                                    },
+                                    "requests": {
+                                        "cpu": "32",
+                                        "memory": "512Gi",
+                                        "nvidia.com/gpu": "8"
+                                    }
+                                },
+                                "securityContext": {
+                                    "capabilities": {
+                                        "add": [
+                                            "IPC_LOCK",
+                                            "SYS_RESOURCE"
+                                        ]
+                                    },
+                                    "runAsUser": 0
+                                },
+                                "startupProbe": {
+                                    "failureThreshold": 480,
+                                    "httpGet": {
+                                        "path": "/health",
+                                        "port": 8081,
+                                        "scheme": "HTTP"
+                                    },
+                                    "periodSeconds": 15,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/dev/shm",
+                                        "name": "shm"
+                                    },
+                                    {
+                                        "mountPath": "/runtime",
+                                        "name": "model",
+                                        "subPath": ".runtime/runtime"
+                                    },
+                                    {
+                                        "mountPath": "/root/.cache",
+                                        "name": "model",
+                                        "subPath": ".runtime/root-cache"
+                                    },
+                                    {
+                                        "mountPath": "/root/.tilelang",
+                                        "name": "model",
+                                        "subPath": ".runtime/tilelang"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirstWithHostNet",
+                        "hostNetwork": true,
+                        "initContainers": [
+                            {
+                                "command": [
+                                    "sh",
+                                    "-c",
+                                    "until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done"
+                                ],
+                                "image": "busybox:1.37.0",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "wait-for-model",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model",
+                                        "readOnly": true
+                                    }
+                                ]
+                            },
+                            {
+                                "command": [
+                                    "sh",
+                                    "-c",
+                                    "mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang"
+                                ],
+                                "image": "busybox:1.37.0",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "init-runtime-cache",
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/model",
+                                        "name": "model"
+                                    }
+                                ]
+                            }
+                        ],
+                        "nodeSelector": {
+                            "kubernetes.io/hostname": "computeinstance-e02ezxgrg5k6rxwsee"
+                        },
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {},
+                        "terminationGracePeriodSeconds": 180,
+                        "volumes": [
+                            {
+                                "name": "model",
+                                "persistentVolumeClaim": {
+                                    "claimName": "model-1"
+                                }
+                            },
+                            {
+                                "emptyDir": {
+                                    "medium": "Memory",
+                                    "sizeLimit": "128Gi"
+                                },
+                                "name": "shm"
+                            }
+                        ]
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 1,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "lastUpdateTime": "2026-09-30T22:51:06Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    },
+                    {
+                        "lastTransitionTime": "2026-09-30T21:44:28Z",
+                        "lastUpdateTime": "2026-09-30T22:51:06Z",
+                        "message": "ReplicaSet \"worker-1-5d77668546\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    }
+                ],
+                "observedGeneration": 6,
+                "readyReplicas": 1,
+                "replicas": 1,
+                "terminatingReplicas": 0,
+                "updatedReplicas": 1
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T20:27:17Z",
+                "generateName": "download-0-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "d256fca6-aa7f-46c8-bd3f-734bb7a6e8e2",
+                    "batch.kubernetes.io/job-name": "download-0",
+                    "controller-uid": "d256fca6-aa7f-46c8-bd3f-734bb7a6e8e2",
+                    "job-name": "download-0",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "download-0-sf5x5",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "download-0",
+                        "uid": "d256fca6-aa7f-46c8-bd3f-734bb7a6e8e2"
+                    }
+                ],
+                "resourceVersion": "59907",
+                "uid": "8e06252d-7f5f-4e5d-89e3-b18f043ab115"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "bash",
+                            "-c",
+                            "set -eu\npip install --no-cache-dir 'huggingface_hub==0.35.3'\npython -u - \u003c\u003c'PYTHON'\nfrom huggingface_hub import snapshot_download\nfrom pathlib import Path\nrevision = '72e1d3230f6c080a530b0a1d46f8eb4602340597'\nsnapshot_download('deepseek-ai/DeepSeek-V4-Pro-0813', revision=revision, local_dir='/model', max_workers=8)\nPath('/model/DEPLOYED_REVISION').write_text(revision + '\\n')\nprint('DOWNLOAD_COMPLETE', flush=True)\nPYTHON\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "HF_TOKEN",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "HF_TOKEN",
+                                        "name": "hf-token"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HF_HOME",
+                                "value": "/model/.hf"
+                            },
+                            {
+                                "name": "HF_XET_HIGH_PERFORMANCE",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "python:3.12-slim",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "download",
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "8",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "computeinstance-e02d5vc54q7hd11sb7",
+                "nodeSelector": {
+                    "kubernetes.io/hostname": "computeinstance-e02d5vc54q7hd11sb7"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "OnFailure",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "model",
+                        "persistentVolumeClaim": {
+                            "claimName": "model-0"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "8",
+                    "memory": "16Gi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T21:00:03Z",
+                        "observedGeneration": 1,
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:27:22Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T21:00:01Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T21:00:01Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:27:22Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "8",
+                            "memory": "16Gi"
+                        },
+                        "containerID": "containerd://92ce62e71c600629c4c748461cb8400e376c7afa6bea2c9ec1221b2c354a3179",
+                        "image": "docker.io/library/python:3.12-slim",
+                        "imageID": "docker.io/library/python@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+                        "lastState": {},
+                        "name": "download",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "8",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://92ce62e71c600629c4c748461cb8400e376c7afa6bea2c9ec1221b2c354a3179",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T21:00:00Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T20:27:44Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.0",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.0"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Succeeded",
+                "podIP": "10.24.71.235",
+                "podIPs": [
+                    {
+                        "ip": "10.24.71.235"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "requests": {
+                        "memory": "16Gi"
+                    }
+                },
+                "startTime": "2026-09-30T20:27:22Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T20:27:17Z",
+                "generateName": "download-1-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "0d53dab0-5a1e-4b51-bf38-aaa6c2e7d50e",
+                    "batch.kubernetes.io/job-name": "download-1",
+                    "controller-uid": "0d53dab0-5a1e-4b51-bf38-aaa6c2e7d50e",
+                    "job-name": "download-1",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "download-1-4cm4r",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "download-1",
+                        "uid": "0d53dab0-5a1e-4b51-bf38-aaa6c2e7d50e"
+                    }
+                ],
+                "resourceVersion": "59864",
+                "uid": "0ee1f017-1378-41c6-a24a-75beb48be3f6"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "bash",
+                            "-c",
+                            "set -eu\npip install --no-cache-dir 'huggingface_hub==0.35.3'\npython -u - \u003c\u003c'PYTHON'\nfrom huggingface_hub import snapshot_download\nfrom pathlib import Path\nrevision = '72e1d3230f6c080a530b0a1d46f8eb4602340597'\nsnapshot_download('deepseek-ai/DeepSeek-V4-Pro-0813', revision=revision, local_dir='/model', max_workers=8)\nPath('/model/DEPLOYED_REVISION').write_text(revision + '\\n')\nprint('DOWNLOAD_COMPLETE', flush=True)\nPYTHON\n"
+                        ],
+                        "env": [
+                            {
+                                "name": "HF_TOKEN",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "HF_TOKEN",
+                                        "name": "hf-token"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "HF_HOME",
+                                "value": "/model/.hf"
+                            },
+                            {
+                                "name": "HF_XET_HIGH_PERFORMANCE",
+                                "value": "1"
+                            }
+                        ],
+                        "image": "python:3.12-slim",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "download",
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "8",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "computeinstance-e02ezxgrg5k6rxwsee",
+                "nodeSelector": {
+                    "kubernetes.io/hostname": "computeinstance-e02ezxgrg5k6rxwsee"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "OnFailure",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "model",
+                        "persistentVolumeClaim": {
+                            "claimName": "model-1"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "8",
+                    "memory": "16Gi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:59:57Z",
+                        "observedGeneration": 1,
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:27:24Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:59:56Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:59:56Z",
+                        "observedGeneration": 1,
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:27:24Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "8",
+                            "memory": "16Gi"
+                        },
+                        "containerID": "containerd://18033898b73660d49d708e71c45981c57c7368f7240ba111f3c9055d5be68bd2",
+                        "image": "docker.io/library/python:3.12-slim",
+                        "imageID": "docker.io/library/python@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+                        "lastState": {},
+                        "name": "download",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "8",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://18033898b73660d49d708e71c45981c57c7368f7240ba111f3c9055d5be68bd2",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T20:59:55Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T20:27:41Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.46",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.46"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Succeeded",
+                "podIP": "10.24.78.183",
+                "podIPs": [
+                    {
+                        "ip": "10.24.78.183"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "memory": "64Gi"
+                    },
+                    "requests": {
+                        "cpu": "7990m",
+                        "memory": "16Gi"
+                    }
+                },
+                "startTime": "2026-09-30T20:27:24Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T20:28:30Z",
+                "generateName": "etcd-5d558c9c94-",
+                "generation": 1,
+                "labels": {
+                    "app": "etcd",
+                    "pod-template-hash": "5d558c9c94",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "etcd-5d558c9c94-qgmxl",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "etcd-5d558c9c94",
+                        "uid": "59d5cf26-fb3a-49f3-9c0f-b44b5a95766d"
+                    }
+                ],
+                "resourceVersion": "50455",
+                "uid": "97234431-8ac9-43b5-ba63-02acd98b9857"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "/usr/local/bin/etcd",
+                            "--name=default",
+                            "--data-dir=/etcd-data",
+                            "--listen-client-urls=http://0.0.0.0:2379",
+                            "--advertise-client-urls=http://etcd.deepseek-v4-pro.svc.cluster.local:2379",
+                            "--listen-peer-urls=http://127.0.0.1:2380",
+                            "--initial-advertise-peer-urls=http://127.0.0.1:2380",
+                            "--initial-cluster=default=http://127.0.0.1:2380"
+                        ],
+                        "image": "quay.io/coreos/etcd:v3.5.21",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "etcd",
+                        "ports": [
+                            {
+                                "containerPort": 2379,
+                                "name": "client",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 2379,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "memory": "2Gi"
+                            },
+                            "requests": {
+                                "cpu": "500m",
+                                "memory": "512Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/etcd-data",
+                                "name": "data"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "computeinstance-e02ezxgrg5k6rxwsee",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "emptyDir": {},
+                        "name": "data"
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "500m",
+                    "memory": "512Mi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:28:31Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:28:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:28:35Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:28:35Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:28:30Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "500m",
+                            "memory": "512Mi"
+                        },
+                        "containerID": "containerd://0e1ab41d828e965a20f6bd391707fa655744d391e9972d51589636c32d79883d",
+                        "image": "quay.io/coreos/etcd:v3.5.21",
+                        "imageID": "quay.io/coreos/etcd@sha256:a3ccd299377af4b9968d8cbaaf9722fe354297f11908f74a846075e1e5f4ee89",
+                        "lastState": {},
+                        "name": "etcd",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "memory": "2Gi"
+                            },
+                            "requests": {
+                                "cpu": "500m",
+                                "memory": "512Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-30T20:28:34Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/etcd-data",
+                                "name": "data"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.46",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.46"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.24.78.4",
+                "podIPs": [
+                    {
+                        "ip": "10.24.78.4"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "memory": "2Gi"
+                    },
+                    "requests": {
+                        "cpu": "489m",
+                        "memory": "512Mi"
+                    }
+                },
+                "startTime": "2026-09-30T20:28:30Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T20:31:10Z",
+                "generateName": "frontend-dd8dd4bb7-",
+                "generation": 1,
+                "labels": {
+                    "app": "frontend",
+                    "pod-template-hash": "dd8dd4bb7",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "frontend-dd8dd4bb7-kjppr",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "frontend-dd8dd4bb7",
+                        "uid": "599dded7-f36e-41d1-8c35-cb43d10555ae"
+                    }
+                ],
+                "resourceVersion": "51392",
+                "uid": "188d4f19-aa75-460c-8531-f9c4743e9e17"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "python3",
+                            "-m",
+                            "dynamo.frontend",
+                            "--http-host=0.0.0.0",
+                            "--http-port=8000",
+                            "--router-mode=kv",
+                            "--router-kv-events",
+                            "--kv-cache-block-size=256"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOST_IP",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "status.hostIP"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DYN_NAMESPACE",
+                                "value": "deepseek-v4-pro"
+                            },
+                            {
+                                "name": "DYN_DISCOVERY_BACKEND",
+                                "value": "etcd"
+                            },
+                            {
+                                "name": "ETCD_ENDPOINTS",
+                                "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                            },
+                            {
+                                "name": "DYN_REQUEST_PLANE",
+                                "value": "tcp"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE",
+                                "value": "zmq"
+                            },
+                            {
+                                "name": "DYN_TCP_RPC_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "PYTHONHASHSEED",
+                                "value": "0"
+                            },
+                            {
+                                "name": "HF_HUB_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "TRANSFORMERS_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "HF_HOME",
+                                "value": "/runtime/hf"
+                            },
+                            {
+                                "name": "HF_MODULES_CACHE",
+                                "value": "/runtime/hf_modules"
+                            },
+                            {
+                                "name": "XDG_CACHE_HOME",
+                                "value": "/runtime/cache"
+                            }
+                        ],
+                        "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "frontend",
+                        "ports": [
+                            {
+                                "containerPort": 8000,
+                                "hostPort": 8000,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 8000,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "4",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "runtime"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirstWithHostNet",
+                "enableServiceLinks": true,
+                "hostNetwork": true,
+                "nodeName": "computeinstance-e02d5vc54q7hd11sb7",
+                "nodeSelector": {
+                    "kubernetes.io/hostname": "computeinstance-e02d5vc54q7hd11sb7"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "model",
+                        "persistentVolumeClaim": {
+                            "claimName": "model-0"
+                        }
+                    },
+                    {
+                        "emptyDir": {},
+                        "name": "runtime"
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "4",
+                    "memory": "16Gi"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:31:10Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:31:10Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:31:21Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:31:21Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T20:31:10Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "4",
+                            "memory": "16Gi"
+                        },
+                        "containerID": "containerd://c81a10e055074137812111887096d1c58ecca2aea93890a78e31d400437c385f",
+                        "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0",
+                        "imageID": "nvcr.io/nvidia/ai-dynamo/sglang-runtime@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "lastState": {},
+                        "name": "frontend",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "memory": "64Gi"
+                            },
+                            "requests": {
+                                "cpu": "4",
+                                "memory": "16Gi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-30T20:31:11Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 1000
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "runtime"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.0",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.0"
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.26.0.0",
+                "podIPs": [
+                    {
+                        "ip": "10.26.0.0"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "memory": "64Gi"
+                    },
+                    "requests": {
+                        "cpu": "3996m",
+                        "memory": "16Gi"
+                    }
+                },
+                "startTime": "2026-09-30T20:31:10Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T22:48:36Z",
+                "generateName": "worker-0-6c45c5d59d-",
+                "generation": 1,
+                "labels": {
+                    "app": "worker-0",
+                    "component": "sglang-worker",
+                    "pod-template-hash": "6c45c5d59d",
+                    "serving-role": "aggregated",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "worker-0-6c45c5d59d-mdrc8",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "worker-0-6c45c5d59d",
+                        "uid": "bf4267d1-49bf-49be-a7d3-e153bc5b99c2"
+                    }
+                ],
+                "resourceVersion": "95336",
+                "uid": "7c23cac5-529d-475f-9c80-96225b39d457"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "python3",
+                            "-c",
+                            "import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])",
+                            "python3",
+                            "-m",
+                            "dynamo.sglang",
+                            "--model-path",
+                            "/model",
+                            "--served-model-name",
+                            "deepseek-ai/DeepSeek-V4-Pro-0813",
+                            "--tensor-parallel-size",
+                            "8",
+                            "--trust-remote-code",
+                            "--context-length",
+                            "262144",
+                            "--max-running-requests",
+                            "4",
+                            "--chunked-prefill-size",
+                            "4096",
+                            "--mem-fraction-static",
+                            "0.88",
+                            "--page-size",
+                            "256",
+                            "--kv-cache-dtype",
+                            "fp8_e4m3",
+                            "--moe-runner-backend",
+                            "marlin",
+                            "--host",
+                            "0.0.0.0",
+                            "--port",
+                            "30000",
+                            "--enable-metrics",
+                            "--disable-piecewise-cuda-graph",
+                            "--cuda-graph-max-bs-decode",
+                            "4",
+                            "--dyn-tool-call-parser",
+                            "deepseek_v4",
+                            "--dyn-reasoning-parser",
+                            "deepseek_v4",
+                            "--kv-events-config",
+                            "{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:5571\"}",
+                            "--weight-loader-prefetch-checkpoints"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOST_IP",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "status.hostIP"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DYN_NAMESPACE",
+                                "value": "deepseek-v4-pro"
+                            },
+                            {
+                                "name": "DYN_DISCOVERY_BACKEND",
+                                "value": "etcd"
+                            },
+                            {
+                                "name": "ETCD_ENDPOINTS",
+                                "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                            },
+                            {
+                                "name": "DYN_REQUEST_PLANE",
+                                "value": "tcp"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE",
+                                "value": "zmq"
+                            },
+                            {
+                                "name": "DYN_TCP_RPC_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "PYTHONHASHSEED",
+                                "value": "0"
+                            },
+                            {
+                                "name": "HF_HUB_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "TRANSFORMERS_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "HF_HOME",
+                                "value": "/runtime/hf"
+                            },
+                            {
+                                "name": "HF_MODULES_CACHE",
+                                "value": "/runtime/hf_modules"
+                            },
+                            {
+                                "name": "XDG_CACHE_HOME",
+                                "value": "/runtime/cache"
+                            },
+                            {
+                                "name": "TRITON_CACHE_DIR",
+                                "value": "/runtime/triton"
+                            },
+                            {
+                                "name": "TORCH_EXTENSIONS_DIR",
+                                "value": "/runtime/torch_extensions"
+                            },
+                            {
+                                "name": "NCCL_SOCKET_IFNAME",
+                                "value": "eth0"
+                            },
+                            {
+                                "name": "GLOO_SOCKET_IFNAME",
+                                "value": "eth0"
+                            },
+                            {
+                                "name": "DYN_SYSTEM_PORT",
+                                "value": "8081"
+                            },
+                            {
+                                "name": "SGLANG_JIT_DEEPGEMM_PRECOMPILE",
+                                "value": "0"
+                            },
+                            {
+                                "name": "SGLANG_JIT_DEEPGEMM_FAST_WARMUP",
+                                "value": "1"
+                            },
+                            {
+                                "name": "UCX_TLS",
+                                "value": "rc,cuda_copy,cuda_ipc,sm,self"
+                            },
+                            {
+                                "name": "UCX_NET_DEVICES",
+                                "value": "mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1"
+                            },
+                            {
+                                "name": "UCX_RNDV_SCHEME",
+                                "value": "get_zcopy"
+                            },
+                            {
+                                "name": "UCX_LOG_LEVEL",
+                                "value": "info"
+                            }
+                        ],
+                        "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "worker",
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 8081,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 15,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 5
+                        },
+                        "resources": {
+                            "limits": {
+                                "memory": "1300Gi",
+                                "nvidia.com/gpu": "8"
+                            },
+                            "requests": {
+                                "cpu": "32",
+                                "memory": "512Gi",
+                                "nvidia.com/gpu": "8"
+                            }
+                        },
+                        "securityContext": {
+                            "capabilities": {
+                                "add": [
+                                    "IPC_LOCK",
+                                    "SYS_RESOURCE"
+                                ]
+                            },
+                            "runAsUser": 0
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 480,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 8081,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 15,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 5
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true
+                            },
+                            {
+                                "mountPath": "/dev/shm",
+                                "name": "shm"
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "model",
+                                "subPath": ".runtime/runtime"
+                            },
+                            {
+                                "mountPath": "/root/.cache",
+                                "name": "model",
+                                "subPath": ".runtime/root-cache"
+                            },
+                            {
+                                "mountPath": "/root/.tilelang",
+                                "name": "model",
+                                "subPath": ".runtime/tilelang"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirstWithHostNet",
+                "enableServiceLinks": true,
+                "hostNetwork": true,
+                "initContainers": [
+                    {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done"
+                        ],
+                        "image": "busybox:1.37.0",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "wait-for-model",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true
+                            }
+                        ]
+                    },
+                    {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang"
+                        ],
+                        "image": "busybox:1.37.0",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "init-runtime-cache",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "nodeName": "computeinstance-e02d5vc54q7hd11sb7",
+                "nodeSelector": {
+                    "kubernetes.io/hostname": "computeinstance-e02d5vc54q7hd11sb7"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 180,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoSchedule",
+                        "key": "nvidia.com/gpu",
+                        "operator": "Exists"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "model",
+                        "persistentVolumeClaim": {
+                            "claimName": "model-0"
+                        }
+                    },
+                    {
+                        "emptyDir": {
+                            "medium": "Memory",
+                            "sizeLimit": "128Gi"
+                        },
+                        "name": "shm"
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "32",
+                    "memory": "512Gi",
+                    "nvidia.com/gpu": "8"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:39Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:36Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "32",
+                            "memory": "512Gi",
+                            "nvidia.com/gpu": "8"
+                        },
+                        "allocatedResourcesStatus": [
+                            {
+                                "name": "nvidia.com/gpu",
+                                "resources": [
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-3f2d21b9-8c6b-266a-03f3-612e3762033c"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-2bba7034-0766-afd5-5c78-2ead7f08544c"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-5e4bf185-b6a4-98d1-1156-b8880d0c2452"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-4dd87f20-3094-f56c-a2b9-03b7ace90d49"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-3facfcae-71c6-0241-69b7-a25540df4a3b"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-309d5fa9-c046-7540-5e73-16c7d812586f"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-3a850dc8-00ed-2723-b35e-154cef5e1680"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-5f31efc3-7d4b-a755-4a5a-f7f38a672f10"
+                                    }
+                                ]
+                            }
+                        ],
+                        "containerID": "containerd://ebf129167f261b16c33bb7c87cd1b9d91b26f46bfb33ac15dc220dd9f52a15ac",
+                        "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0",
+                        "imageID": "nvcr.io/nvidia/ai-dynamo/sglang-runtime@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "lastState": {},
+                        "name": "worker",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "memory": "1300Gi",
+                                "nvidia.com/gpu": "8"
+                            },
+                            "requests": {
+                                "cpu": "32",
+                                "memory": "512Gi",
+                                "nvidia.com/gpu": "8"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-30T22:48:40Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            },
+                            {
+                                "mountPath": "/dev/shm",
+                                "name": "shm"
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "model"
+                            },
+                            {
+                                "mountPath": "/root/.cache",
+                                "name": "model"
+                            },
+                            {
+                                "mountPath": "/root/.tilelang",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.0",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.0"
+                    }
+                ],
+                "initContainerStatuses": [
+                    {
+                        "containerID": "containerd://2b5f5c66f5163ff7337f87cddb3f0cab35ef3bf494117bcef6f90d58e1154784",
+                        "image": "docker.io/library/busybox:1.37.0",
+                        "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                        "lastState": {},
+                        "name": "wait-for-model",
+                        "ready": true,
+                        "resources": {},
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://2b5f5c66f5163ff7337f87cddb3f0cab35ef3bf494117bcef6f90d58e1154784",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T22:48:37Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T22:48:37Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    10
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    },
+                    {
+                        "containerID": "containerd://a5709a28682b86aa817048470f7afab8ca54ca603b778661c6880e0bad950248",
+                        "image": "docker.io/library/busybox:1.37.0",
+                        "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                        "lastState": {},
+                        "name": "init-runtime-cache",
+                        "ready": true,
+                        "resources": {},
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://a5709a28682b86aa817048470f7afab8ca54ca603b778661c6880e0bad950248",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T22:48:38Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T22:48:38Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    10
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.26.0.0",
+                "podIPs": [
+                    {
+                        "ip": "10.26.0.0"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "memory": "1300Gi"
+                    },
+                    "requests": {
+                        "cpu": "31979m",
+                        "memory": "512Gi"
+                    }
+                },
+                "startTime": "2026-09-30T22:48:36Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "creationTimestamp": "2026-09-30T22:48:36Z",
+                "generateName": "worker-1-5d77668546-",
+                "generation": 1,
+                "labels": {
+                    "app": "worker-1",
+                    "component": "sglang-worker",
+                    "pod-template-hash": "5d77668546",
+                    "serving-role": "aggregated",
+                    "topology.kubernetes.io/region": "eu-north2"
+                },
+                "name": "worker-1-5d77668546-gscv2",
+                "namespace": "deepseek-v4-pro",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "worker-1-5d77668546",
+                        "uid": "0d53a8f8-92ba-42de-8c54-1e75ba15e1b1"
+                    }
+                ],
+                "resourceVersion": "95432",
+                "uid": "e4f6309f-ca2c-42d0-8e82-39d90d63bbca"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "python3",
+                            "-c",
+                            "import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])",
+                            "python3",
+                            "-m",
+                            "dynamo.sglang",
+                            "--model-path",
+                            "/model",
+                            "--served-model-name",
+                            "deepseek-ai/DeepSeek-V4-Pro-0813",
+                            "--tensor-parallel-size",
+                            "8",
+                            "--trust-remote-code",
+                            "--context-length",
+                            "262144",
+                            "--max-running-requests",
+                            "4",
+                            "--chunked-prefill-size",
+                            "4096",
+                            "--mem-fraction-static",
+                            "0.88",
+                            "--page-size",
+                            "256",
+                            "--kv-cache-dtype",
+                            "fp8_e4m3",
+                            "--moe-runner-backend",
+                            "marlin",
+                            "--host",
+                            "0.0.0.0",
+                            "--port",
+                            "30000",
+                            "--enable-metrics",
+                            "--disable-piecewise-cuda-graph",
+                            "--cuda-graph-max-bs-decode",
+                            "4",
+                            "--dyn-tool-call-parser",
+                            "deepseek_v4",
+                            "--dyn-reasoning-parser",
+                            "deepseek_v4",
+                            "--kv-events-config",
+                            "{\"publisher\":\"zmq\",\"topic\":\"kv-events\",\"endpoint\":\"tcp://*:5571\"}",
+                            "--weight-loader-prefetch-checkpoints"
+                        ],
+                        "env": [
+                            {
+                                "name": "HOST_IP",
+                                "valueFrom": {
+                                    "fieldRef": {
+                                        "apiVersion": "v1",
+                                        "fieldPath": "status.hostIP"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "DYN_NAMESPACE",
+                                "value": "deepseek-v4-pro"
+                            },
+                            {
+                                "name": "DYN_DISCOVERY_BACKEND",
+                                "value": "etcd"
+                            },
+                            {
+                                "name": "ETCD_ENDPOINTS",
+                                "value": "http://etcd.deepseek-v4-pro.svc.cluster.local:2379"
+                            },
+                            {
+                                "name": "DYN_REQUEST_PLANE",
+                                "value": "tcp"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE",
+                                "value": "zmq"
+                            },
+                            {
+                                "name": "DYN_TCP_RPC_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "DYN_EVENT_PLANE_HOST",
+                                "value": "$(HOST_IP)"
+                            },
+                            {
+                                "name": "PYTHONHASHSEED",
+                                "value": "0"
+                            },
+                            {
+                                "name": "HF_HUB_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "TRANSFORMERS_OFFLINE",
+                                "value": "1"
+                            },
+                            {
+                                "name": "HF_HOME",
+                                "value": "/runtime/hf"
+                            },
+                            {
+                                "name": "HF_MODULES_CACHE",
+                                "value": "/runtime/hf_modules"
+                            },
+                            {
+                                "name": "XDG_CACHE_HOME",
+                                "value": "/runtime/cache"
+                            },
+                            {
+                                "name": "TRITON_CACHE_DIR",
+                                "value": "/runtime/triton"
+                            },
+                            {
+                                "name": "TORCH_EXTENSIONS_DIR",
+                                "value": "/runtime/torch_extensions"
+                            },
+                            {
+                                "name": "NCCL_SOCKET_IFNAME",
+                                "value": "eth0"
+                            },
+                            {
+                                "name": "GLOO_SOCKET_IFNAME",
+                                "value": "eth0"
+                            },
+                            {
+                                "name": "DYN_SYSTEM_PORT",
+                                "value": "8081"
+                            },
+                            {
+                                "name": "SGLANG_JIT_DEEPGEMM_PRECOMPILE",
+                                "value": "0"
+                            },
+                            {
+                                "name": "SGLANG_JIT_DEEPGEMM_FAST_WARMUP",
+                                "value": "1"
+                            },
+                            {
+                                "name": "UCX_TLS",
+                                "value": "rc,cuda_copy,cuda_ipc,sm,self"
+                            },
+                            {
+                                "name": "UCX_NET_DEVICES",
+                                "value": "mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1"
+                            },
+                            {
+                                "name": "UCX_RNDV_SCHEME",
+                                "value": "get_zcopy"
+                            },
+                            {
+                                "name": "UCX_LOG_LEVEL",
+                                "value": "info"
+                            }
+                        ],
+                        "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "worker",
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 8081,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 15,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 5
+                        },
+                        "resources": {
+                            "limits": {
+                                "memory": "1300Gi",
+                                "nvidia.com/gpu": "8"
+                            },
+                            "requests": {
+                                "cpu": "32",
+                                "memory": "512Gi",
+                                "nvidia.com/gpu": "8"
+                            }
+                        },
+                        "securityContext": {
+                            "capabilities": {
+                                "add": [
+                                    "IPC_LOCK",
+                                    "SYS_RESOURCE"
+                                ]
+                            },
+                            "runAsUser": 0
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 480,
+                            "httpGet": {
+                                "path": "/health",
+                                "port": 8081,
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 15,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 5
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true
+                            },
+                            {
+                                "mountPath": "/dev/shm",
+                                "name": "shm"
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "model",
+                                "subPath": ".runtime/runtime"
+                            },
+                            {
+                                "mountPath": "/root/.cache",
+                                "name": "model",
+                                "subPath": ".runtime/root-cache"
+                            },
+                            {
+                                "mountPath": "/root/.tilelang",
+                                "name": "model",
+                                "subPath": ".runtime/tilelang"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirstWithHostNet",
+                "enableServiceLinks": true,
+                "hostNetwork": true,
+                "initContainers": [
+                    {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "until grep -qx 72e1d3230f6c080a530b0a1d46f8eb4602340597 /model/DEPLOYED_REVISION; do sleep 15; done"
+                        ],
+                        "image": "busybox:1.37.0",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "wait-for-model",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true
+                            }
+                        ]
+                    },
+                    {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "mkdir -p /model/.runtime/runtime /model/.runtime/root-cache /model/.runtime/tilelang"
+                        ],
+                        "image": "busybox:1.37.0",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "init-runtime-cache",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "nodeName": "computeinstance-e02ezxgrg5k6rxwsee",
+                "nodeSelector": {
+                    "kubernetes.io/hostname": "computeinstance-e02ezxgrg5k6rxwsee"
+                },
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 180,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoSchedule",
+                        "key": "nvidia.com/gpu",
+                        "operator": "Exists"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "model",
+                        "persistentVolumeClaim": {
+                            "claimName": "model-1"
+                        }
+                    },
+                    {
+                        "emptyDir": {
+                            "medium": "Memory",
+                            "sizeLimit": "128Gi"
+                        },
+                        "name": "shm"
+                    }
+                ]
+            },
+            "status": {
+                "allocatedResources": {
+                    "cpu": "32",
+                    "memory": "512Gi",
+                    "nvidia.com/gpu": "8"
+                },
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:37Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:38Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:51:06Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-30T22:48:36Z",
+                        "observedGeneration": 1,
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "32",
+                            "memory": "512Gi",
+                            "nvidia.com/gpu": "8"
+                        },
+                        "allocatedResourcesStatus": [
+                            {
+                                "name": "nvidia.com/gpu",
+                                "resources": [
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-35be1d2b-c16e-9dad-f56d-a409419ca6fd"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-bd11b93a-4ea9-ee74-9099-29982f4e07e9"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-13444ae1-ccde-2584-9042-d6262039182a"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-cda6700d-31ed-f695-7b9c-0e3fd5cb82f7"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-7a307299-1412-ae83-da51-e46b7f27a77a"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-efd69a2c-c38f-a37c-13e5-12904135d977"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-d75a9092-e3ea-27ac-c549-b93d2264abeb"
+                                    },
+                                    {
+                                        "health": "Healthy",
+                                        "resourceID": "GPU-86c1370d-d227-38db-802a-ae859c4acfb8"
+                                    }
+                                ]
+                            }
+                        ],
+                        "containerID": "containerd://83ecc96f7922e8a2d901927ed6b680e3ac73e0d141d67c259f647cfde10f580f",
+                        "image": "sha256:a0bf2eb3798ab5fb0bfda5d26898ee25729a1f69ccf9973795eca98977ecd4a5",
+                        "imageID": "nvcr.io/nvidia/ai-dynamo/sglang-runtime@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+                        "lastState": {},
+                        "name": "worker",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "memory": "1300Gi",
+                                "nvidia.com/gpu": "8"
+                            },
+                            "requests": {
+                                "cpu": "32",
+                                "memory": "512Gi",
+                                "nvidia.com/gpu": "8"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-30T22:48:39Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            },
+                            {
+                                "mountPath": "/dev/shm",
+                                "name": "shm"
+                            },
+                            {
+                                "mountPath": "/runtime",
+                                "name": "model"
+                            },
+                            {
+                                "mountPath": "/root/.cache",
+                                "name": "model"
+                            },
+                            {
+                                "mountPath": "/root/.tilelang",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "10.26.0.46",
+                "hostIPs": [
+                    {
+                        "ip": "10.26.0.46"
+                    }
+                ],
+                "initContainerStatuses": [
+                    {
+                        "containerID": "containerd://fce75ae53aed66607900c100709c82927df9ed5a40492151933a7d2e7055e7d1",
+                        "image": "docker.io/library/busybox:1.37.0",
+                        "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                        "lastState": {},
+                        "name": "wait-for-model",
+                        "ready": true,
+                        "resources": {},
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://fce75ae53aed66607900c100709c82927df9ed5a40492151933a7d2e7055e7d1",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T22:48:37Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T22:48:37Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    10
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    },
+                    {
+                        "containerID": "containerd://b4a2b095ceeae05f323100f8157eafb1719f6a451f46a4ee83012567fb2cb2f0",
+                        "image": "docker.io/library/busybox:1.37.0",
+                        "imageID": "docker.io/library/busybox@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+                        "lastState": {},
+                        "name": "init-runtime-cache",
+                        "ready": true,
+                        "resources": {},
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://b4a2b095ceeae05f323100f8157eafb1719f6a451f46a4ee83012567fb2cb2f0",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-30T22:48:37Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-30T22:48:37Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0,
+                                    10
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/model",
+                                "name": "model"
+                            }
+                        ]
+                    }
+                ],
+                "observedGeneration": 1,
+                "phase": "Running",
+                "podIP": "10.26.0.46",
+                "podIPs": [
+                    {
+                        "ip": "10.26.0.46"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "resources": {
+                    "limits": {
+                        "memory": "1300Gi"
+                    },
+                    "requests": {
+                        "cpu": "31979m",
+                        "memory": "512Gi"
+                    }
+                },
+                "startTime": "2026-09-30T22:48:36Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "PersistentVolumeClaim",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolumeClaim\",\"metadata\":{\"annotations\":{},\"name\":\"model-0\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"accessModes\":[\"ReadWriteOnce\"],\"resources\":{\"requests\":{\"storage\":\"1500Gi\"}},\"storageClassName\":\"compute-csi-default-sc\"}}\n",
+                    "pv.kubernetes.io/bind-completed": "yes",
+                    "pv.kubernetes.io/bound-by-controller": "yes",
+                    "volume.beta.kubernetes.io/storage-provisioner": "compute.csi.nebius.com",
+                    "volume.kubernetes.io/selected-node": "computeinstance-e02d5vc54q7hd11sb7",
+                    "volume.kubernetes.io/storage-provisioner": "compute.csi.nebius.com"
+                },
+                "creationTimestamp": "2026-09-30T20:27:16Z",
+                "finalizers": [
+                    "kubernetes.io/pvc-protection"
+                ],
+                "name": "model-0",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "49984",
+                "uid": "bbccd682-40ea-4bba-8266-c77a1ce941fc"
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1500Gi"
+                    }
+                },
+                "storageClassName": "compute-csi-default-sc",
+                "volumeMode": "Filesystem",
+                "volumeName": "pvc-bbccd682-40ea-4bba-8266-c77a1ce941fc"
+            },
+            "status": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "capacity": {
+                    "storage": "1500Gi"
+                },
+                "phase": "Bound"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "PersistentVolumeClaim",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolumeClaim\",\"metadata\":{\"annotations\":{},\"name\":\"model-1\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"accessModes\":[\"ReadWriteOnce\"],\"resources\":{\"requests\":{\"storage\":\"1500Gi\"}},\"storageClassName\":\"compute-csi-default-sc\"}}\n",
+                    "pv.kubernetes.io/bind-completed": "yes",
+                    "pv.kubernetes.io/bound-by-controller": "yes",
+                    "volume.beta.kubernetes.io/storage-provisioner": "compute.csi.nebius.com",
+                    "volume.kubernetes.io/selected-node": "computeinstance-e02ezxgrg5k6rxwsee",
+                    "volume.kubernetes.io/storage-provisioner": "compute.csi.nebius.com"
+                },
+                "creationTimestamp": "2026-09-30T20:27:17Z",
+                "finalizers": [
+                    "kubernetes.io/pvc-protection"
+                ],
+                "name": "model-1",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "50011",
+                "uid": "39e19dcc-83af-4ab1-9fe4-60a0d80c1b47"
+            },
+            "spec": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "resources": {
+                    "requests": {
+                        "storage": "1500Gi"
+                    }
+                },
+                "storageClassName": "compute-csi-default-sc",
+                "volumeMode": "Filesystem",
+                "volumeName": "pvc-39e19dcc-83af-4ab1-9fe4-60a0d80c1b47"
+            },
+            "status": {
+                "accessModes": [
+                    "ReadWriteOnce"
+                ],
+                "capacity": {
+                    "storage": "1500Gi"
+                },
+                "phase": "Bound"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"etcd\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"ports\":[{\"name\":\"client\",\"port\":2379,\"targetPort\":2379}],\"selector\":{\"app\":\"etcd\"}}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:30Z",
+                "name": "etcd",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "50383",
+                "uid": "00cc3fad-9080-4b91-884c-b4675794b144"
+            },
+            "spec": {
+                "clusterIP": "10.25.79.90",
+                "clusterIPs": [
+                    "10.25.79.90"
+                ],
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "client",
+                        "port": 2379,
+                        "protocol": "TCP",
+                        "targetPort": 2379
+                    }
+                ],
+                "selector": {
+                    "app": "etcd"
+                },
+                "sessionAffinity": "None",
+                "type": "ClusterIP"
+            },
+            "status": {
+                "loadBalancer": {}
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"frontend\",\"namespace\":\"deepseek-v4-pro\"},\"spec\":{\"ports\":[{\"name\":\"http\",\"port\":8000,\"targetPort\":8000}],\"selector\":{\"app\":\"frontend\"},\"type\":\"LoadBalancer\"}}\n"
+                },
+                "creationTimestamp": "2026-09-30T20:28:31Z",
+                "finalizers": [
+                    "service.kubernetes.io/load-balancer-cleanup"
+                ],
+                "name": "frontend",
+                "namespace": "deepseek-v4-pro",
+                "resourceVersion": "50421",
+                "uid": "53787232-60a5-4d5f-b55c-ed8bb19c0db0"
+            },
+            "spec": {
+                "allocateLoadBalancerNodePorts": true,
+                "clusterIP": "10.25.189.111",
+                "clusterIPs": [
+                    "10.25.189.111"
+                ],
+                "externalTrafficPolicy": "Cluster",
+                "internalTrafficPolicy": "Cluster",
+                "ipFamilies": [
+                    "IPv4"
+                ],
+                "ipFamilyPolicy": "SingleStack",
+                "ports": [
+                    {
+                        "name": "http",
+                        "nodePort": 31137,
+                        "port": 8000,
+                        "protocol": "TCP",
+                        "targetPort": 8000
+                    }
+                ],
+                "selector": {
+                    "app": "frontend"
+                },
+                "sessionAffinity": "None",
+                "type": "LoadBalancer"
+            },
+            "status": {
+                "loadBalancer": {
+                    "ingress": [
+                        {
+                            "ip": "185.82.71.31",
+                            "ipMode": "VIP"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-0
+  namespace: deepseek-v4-pro
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: compute-csi-default-sc
+  resources:
+    requests:
+      storage: 1500Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download-0
+  namespace: deepseek-v4-pro
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: computeinstance-e02d5vc54q7hd11sb7
+      containers:
+      - name: download
+        image: python:3.12-slim
+        command:
+        - bash
+        - -c
+        - 'set -eu
+
+          pip install --no-cache-dir ''huggingface_hub==0.35.3''
+
+          python -u - <<''PYTHON''
+
+          from huggingface_hub import snapshot_download
+
+          from pathlib import Path
+
+          revision = ''72e1d3230f6c080a530b0a1d46f8eb4602340597''
+
+          snapshot_download(''deepseek-ai/DeepSeek-V4-Pro-0813'', revision=revision,
+          local_dir=''/model'', max_workers=8)
+
+          Path(''/model/DEPLOYED_REVISION'').write_text(revision + ''\n'')
+
+          print(''DOWNLOAD_COMPLETE'', flush=True)
+
+          PYTHON
+
+          '
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: HF_HOME
+          value: /model/.hf
+        - name: HF_XET_HIGH_PERFORMANCE
+          value: '1'
+        resources:
+          requests:
+            cpu: '8'
+            memory: 16Gi
+          limits:
+            memory: 64Gi
+        volumeMounts:
+        - name: model
+          mountPath: /model
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-1
+  namespace: deepseek-v4-pro
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: compute-csi-default-sc
+  resources:
+    requests:
+      storage: 1500Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: download-1
+  namespace: deepseek-v4-pro
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: computeinstance-e02ezxgrg5k6rxwsee
+      containers:
+      - name: download
+        image: python:3.12-slim
+        command:
+        - bash
+        - -c
+        - 'set -eu
+
+          pip install --no-cache-dir ''huggingface_hub==0.35.3''
+
+          python -u - <<''PYTHON''
+
+          from huggingface_hub import snapshot_download
+
+          from pathlib import Path
+
+          revision = ''72e1d3230f6c080a530b0a1d46f8eb4602340597''
+
+          snapshot_download(''deepseek-ai/DeepSeek-V4-Pro-0813'', revision=revision,
+          local_dir=''/model'', max_workers=8)
+
+          Path(''/model/DEPLOYED_REVISION'').write_text(revision + ''\n'')
+
+          print(''DOWNLOAD_COMPLETE'', flush=True)
+
+          PYTHON
+
+          '
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: HF_HOME
+          value: /model/.hf
+        - name: HF_XET_HIGH_PERFORMANCE
+          value: '1'
+        resources:
+          requests:
+            cpu: '8'
+            memory: 16Gi
+          limits:
+            memory: 64Gi
+        volumeMounts:
+        - name: model
+          mountPath: /model
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-1

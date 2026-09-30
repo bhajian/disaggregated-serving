@@ -1,0 +1,29 @@
+[2m2026-09-30T22:28:10.726947Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Etcd(http://etcd.deepseek-v4-pro.svc.cluster.local:2379)
+[2m2026-09-30T22:28:10.772575Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m10.24.71.142 [3mport[0m[2m=[0mOS-assigned
+[2m2026-09-30T22:28:10.781189Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP response stream server using OS-assigned port
+[2m2026-09-30T22:28:10.782555Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 1 instance(s) for endpoint: deepseek-v4-pro/prefill/clear_kv_blocks
+[2m2026-09-30T22:28:11.784431Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845142
+{"component": "prefill", "instance": 7668681235357845142, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T22:28:11.860995Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 1 instance(s) for endpoint: deepseek-v4-pro/backend/clear_kv_blocks
+[2m2026-09-30T22:28:12.862505Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357845144
+{"component": "backend", "instance": 7668681235357845144, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T22:28:12.868636Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-09-30T22:28:12.868713Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-09-30T22:28:12.868758Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-09-30T22:28:12.868762Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-09-30T22:28:12.868765Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+[2m2026-09-30T22:28:12.868851Z[0m [33m WARN[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Instance removal watcher stream ended; reconnecting [3mendpoint[0m[2m=[0mclear_kv_blocks
+[2m2026-09-30T22:28:12.871527Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871558Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871562Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871566Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871569Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871572Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871576Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871594Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871597Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871599Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871601Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871603Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871605Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
+[2m2026-09-30T22:28:12.871607Z[0m [31mERROR[0m [2mdynamo_runtime::storage::kv[0m[2m:[0m KeyValueStoreManager.watch failed adding existing key to channel [3mbucket_name[0m[2m=[0m"v1/instances" [3merr[0m[2m=[0mchannel closed
