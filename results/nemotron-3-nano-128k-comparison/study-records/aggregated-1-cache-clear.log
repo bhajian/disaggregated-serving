@@ -1,0 +1,13 @@
+[2m2026-09-30T23:41:08.574045Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Etcd(http://etcd.deepseek-v4-pro.svc.cluster.local:2379)
+[2m2026-09-30T23:41:08.612898Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m10.24.71.32 [3mport[0m[2m=[0mOS-assigned
+[2m2026-09-30T23:41:08.620334Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP response stream server using OS-assigned port
+[2m2026-09-30T23:41:08.621550Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 2 instance(s) for endpoint: nemotron-3-nano/backend/clear_kv_blocks
+[2m2026-09-30T23:41:09.622975Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357846962
+{"component": "backend", "instance": 7668681235357846962, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T23:41:09.638151Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357846964
+{"component": "backend", "instance": 7668681235357846964, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-09-30T23:41:09.650991Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-09-30T23:41:09.651041Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-09-30T23:41:09.651068Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-09-30T23:41:09.651071Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-09-30T23:41:09.651074Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected

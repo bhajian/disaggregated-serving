@@ -1,0 +1,38 @@
+{
+  "worker-0": {
+    "mlx5_5/port_xmit_data": 45072114522,
+    "mlx5_5/port_rcv_data": 22146456,
+    "mlx5_3/port_xmit_data": 45072114186,
+    "mlx5_3/port_rcv_data": 22570941,
+    "mlx5_1/port_xmit_data": 45072114370,
+    "mlx5_1/port_rcv_data": 22007032,
+    "mlx5_6/port_xmit_data": 45072114382,
+    "mlx5_6/port_rcv_data": 22012461,
+    "mlx5_4/port_xmit_data": 45072115158,
+    "mlx5_4/port_rcv_data": 22017419,
+    "mlx5_2/port_xmit_data": 45072115018,
+    "mlx5_2/port_rcv_data": 21966257,
+    "mlx5_0/port_xmit_data": 45072114022,
+    "mlx5_0/port_rcv_data": 22054051,
+    "mlx5_7/port_xmit_data": 45072114544,
+    "mlx5_7/port_rcv_data": 22533614
+  },
+  "worker-1": {
+    "mlx5_0/port_xmit_data": 22044973,
+    "mlx5_0/port_rcv_data": 45072104944,
+    "mlx5_7/port_xmit_data": 22524272,
+    "mlx5_7/port_rcv_data": 45072105202,
+    "mlx5_5/port_xmit_data": 22137136,
+    "mlx5_5/port_rcv_data": 45072105202,
+    "mlx5_3/port_xmit_data": 22561781,
+    "mlx5_3/port_rcv_data": 45072105026,
+    "mlx5_1/port_xmit_data": 21997808,
+    "mlx5_1/port_rcv_data": 45072105146,
+    "mlx5_6/port_xmit_data": 22003169,
+    "mlx5_6/port_rcv_data": 45072105090,
+    "mlx5_4/port_xmit_data": 22007601,
+    "mlx5_4/port_rcv_data": 45072105340,
+    "mlx5_2/port_xmit_data": 21956447,
+    "mlx5_2/port_rcv_data": 45072105208
+  }
+}

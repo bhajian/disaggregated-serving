@@ -1,0 +1,70 @@
+{
+  "base_url": "http://frontend.deepseek-v4-pro.svc.cluster.local:8000/v1",
+  "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+  "technology": "dynamo-agg-k8s",
+  "backend": "sglang",
+  "dataset": "dataset.jsonl",
+  "deployment": {
+    "technology": "dynamo-agg-k8s",
+    "topology": "aggregated",
+    "backend": "sglang",
+    "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+    "workers": "2 x aggregated TP8 (one per node)",
+    "gpu_count": 16,
+    "gpu_type": "NVIDIA H200",
+    "kv_transfer": "none",
+    "max_model_len": 131072,
+    "max_num_seqs": 4,
+    "max_num_batched_tokens": 4096,
+    "gpu_memory_utilization": 0.88,
+    "model": {
+      "model_id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+      "revision": "bf77c3174f68ad409e1c2aa60daeb46e32d1c606",
+      "model_path": "/model",
+      "kv_cache_dtype": "auto",
+      "request_body": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "weight_dtype": "bfloat16"
+    },
+    "weight_loader_prefetch_checkpoints": true,
+    "persistent_kernel_cache": true,
+    "max_total_tokens": 1048576,
+    "attention_backend": "flashinfer",
+    "mamba_radix_cache_strategy": "no_buffer",
+    "disable_overlap_schedule": true
+  },
+  "max_model_len": 131072,
+  "min_input_tokens": 128000,
+  "output_tokens": 256,
+  "concurrency": 4,
+  "session_rate": 0,
+  "sessions": 32,
+  "think_time": 0,
+  "warmup": 1,
+  "timeout": 3600,
+  "temperature": 0,
+  "extra_body": "{}",
+  "token_ids": false,
+  "cache_state": "mixed",
+  "metrics_url": [
+    "http://10.26.0.0:8081/metrics",
+    "http://10.26.0.46:8081/metrics"
+  ],
+  "results": "results",
+  "run_id": "20260930T234109Z-195ac77a",
+  "timestamp_utc": "2026-09-30T23:41:09.890323+00:00",
+  "dataset_sha256": "0b3eaee6efc900ffce4bba9262fe90906e7b1468b56546c27c1ebd15d9e8bc39",
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "platform": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+  "resolved_extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "load_mode": "closed-loop",
+  "workload": "chatbot",
+  "session_count": 32
+}

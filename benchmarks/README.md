@@ -135,6 +135,10 @@ Closed-loop saturation is the default. `--session-rate 0.1` paces new sessions a
 
 For the DeepSeek V4 Pro H200 experiment, see the [256K comparison protocol](../deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) and [dedicated notebook](../notebooks/deepseek_v4_pro_256k.ipynb). It uses the native encoder, in-cluster load generation and an acknowledged KV-cache reset before each topology run.
 
+For Nemotron 3 Nano, the [128K protocol](../deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md)
+uses its native chat template, 32 sessions and three repeats per topology. Its
+[notebook](../notebooks/nemotron_3_nano_128k.ipynb) reports run means and ranges.
+
 1. **Redeploy with a larger window.** In the worker command of your track, set `--max-model-len 262144 --max-num-seqs 4` for vLLM, or `--context-length 262144 --max-running-requests 4` for SGLang. Update `max_model_len` in `deployment.json` to match. Restart **both** roles.
 2. **Generate a matching dataset:**
 

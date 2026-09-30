@@ -1,0 +1,23 @@
+Model discovery passed
+{
+  "status": "passed",
+  "endpoint": "http://185.82.71.31:8000",
+  "requests": [
+    {
+      "stream": false,
+      "answer": "42"
+    },
+    {
+      "stream": true,
+      "answer": "42"
+    },
+    {
+      "stream": false,
+      "answer": "42"
+    },
+    {
+      "stream": true,
+      "answer": "42"
+    }
+  ]
+}

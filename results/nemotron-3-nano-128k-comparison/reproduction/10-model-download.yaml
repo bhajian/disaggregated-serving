@@ -1,0 +1,132 @@
+# Uses the existing model-0/model-1 PVCs; never overwrites DeepSeek weights.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nemotron-download-0
+  namespace: deepseek-v4-pro
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: computeinstance-e02d5vc54q7hd11sb7
+      containers:
+      - name: download
+        image: python:3.12-slim
+        command:
+        - bash
+        - -c
+        - 'set -eu
+
+          pip install --no-cache-dir ''huggingface_hub==0.35.3''
+
+          python -u - <<''PYTHON''
+
+          from huggingface_hub import snapshot_download
+
+          from pathlib import Path
+
+          revision = ''bf77c3174f68ad409e1c2aa60daeb46e32d1c606''
+
+          snapshot_download(''nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16'', revision=revision,
+          local_dir=''/model/.models/nemotron-3-nano-bf16'', max_workers=8)
+
+          Path(''/model/.models/nemotron-3-nano-bf16/DEPLOYED_REVISION'').write_text(revision
+          + ''\n'')
+
+          print(''DOWNLOAD_COMPLETE'', flush=True)
+
+          PYTHON
+
+          '
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: HF_HOME
+          value: /model/.models/nemotron-3-nano-bf16/.hf
+        - name: HF_XET_HIGH_PERFORMANCE
+          value: '1'
+        resources:
+          requests:
+            cpu: '8'
+            memory: 16Gi
+          limits:
+            memory: 64Gi
+        volumeMounts:
+        - name: model
+          mountPath: /model
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-0
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nemotron-download-1
+  namespace: deepseek-v4-pro
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: computeinstance-e02ezxgrg5k6rxwsee
+      containers:
+      - name: download
+        image: python:3.12-slim
+        command:
+        - bash
+        - -c
+        - 'set -eu
+
+          pip install --no-cache-dir ''huggingface_hub==0.35.3''
+
+          python -u - <<''PYTHON''
+
+          from huggingface_hub import snapshot_download
+
+          from pathlib import Path
+
+          revision = ''bf77c3174f68ad409e1c2aa60daeb46e32d1c606''
+
+          snapshot_download(''nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16'', revision=revision,
+          local_dir=''/model/.models/nemotron-3-nano-bf16'', max_workers=8)
+
+          Path(''/model/.models/nemotron-3-nano-bf16/DEPLOYED_REVISION'').write_text(revision
+          + ''\n'')
+
+          print(''DOWNLOAD_COMPLETE'', flush=True)
+
+          PYTHON
+
+          '
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: HF_HOME
+          value: /model/.models/nemotron-3-nano-bf16/.hf
+        - name: HF_XET_HIGH_PERFORMANCE
+          value: '1'
+        resources:
+          requests:
+            cpu: '8'
+            memory: 16Gi
+          limits:
+            memory: 64Gi
+        volumeMounts:
+        - name: model
+          mountPath: /model
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-1

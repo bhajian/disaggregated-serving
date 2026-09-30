@@ -17,6 +17,7 @@ Runnable implementations of the [blueprint](../blueprint/). Each track is one co
 | 03 | [Disaggregated](03-dynamo-disagg-sglang/) | Dynamo | SGLang | prefill + decode, NIXL over IB | [guide](03-dynamo-disagg-sglang/docker/) | [guide](03-dynamo-disagg-sglang/kubernetes/) | Experimental |
 | 04 | [Disaggregated](04-llm-d-disagg/) | llm-d | vLLM / SGLang | prefill + decode, NIXL over IB | n/a | [vLLM](04-llm-d-disagg/vllm/) · [SGLang](04-llm-d-disagg/sglang/) | Generated manifests, Qwen 480B |
 | 05 | [DeepSeek V4 Pro / H200](05-deepseek-v4-pro-h200/) | Dynamo | SGLang | 2 × TP8 aggregated, or prefill TP8 + decode TP8 | n/a | [guide](05-deepseek-v4-pro-h200/) | Nebius deployment; see guide for validation |
+| 06 | [Nemotron 3 Nano / H200](06-nemotron-3-nano-h200/) | Dynamo | SGLang | 2 × TP8 aggregated, or prefill TP8 + decode TP8 | n/a | [guide](06-nemotron-3-nano-h200/) | 128K comparison; reuses track 05's PVCs and serving slots |
 | · | Dynamo + TensorRT-LLM | Dynamo | TensorRT-LLM | agg and disagg | planned | planned | [Roadmap](../ROADMAP.md) |
 | · | KV-cache offloading | Dynamo | vLLM | tiers: DRAM, NVMe with GDS | planned | planned | [Roadmap](../ROADMAP.md) |
 

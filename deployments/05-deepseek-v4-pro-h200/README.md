@@ -8,6 +8,11 @@ one TP8 prefill worker and one TP8 decode worker with NIXL/InfiniBand KV transfe
 Both configurations use a 262,144-token context window and four running requests
 per worker. The public LoadBalancer remains on port 8000.
 
+The shared cluster was subsequently switched to the [Nemotron 3 Nano profile](../06-nemotron-3-nano-h200/)
+for its 128K comparison. This folder remains the saved DeepSeek configuration;
+its weights and PVCs are retained. Restore this folder's `30-frontend.yaml` as
+well as the selected worker manifest when switching back from Nemotron.
+
 The original reference manifests target B300/Nemotron and cannot be applied
 unchanged here: model paths, quantization kernels, memory limits, node placement,
 and storage must match H200. This folder uses the Marlin MoE backend, a 1300Gi

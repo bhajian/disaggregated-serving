@@ -1,0 +1,18 @@
+{
+  "workload": "chatbot",
+  "input_tokens": 128000,
+  "max_model_len": 131072,
+  "output_tokens": 256,
+  "sessions": 32,
+  "seed": 1282026,
+  "tokenizer": "build/nemotron-128k/tokenizer",
+  "revision": null,
+  "tokenizer_url": null,
+  "trust_remote_code": false,
+  "deepseek_v4_encoder": null,
+  "template_kwargs": "{\"enable_thinking\":false}",
+  "corpus": null,
+  "out": "datasets/generated/nemotron-3-nano-chatbot-128k-32.jsonl",
+  "sha256": "0b3eaee6efc900ffce4bba9262fe90906e7b1468b56546c27c1ebd15d9e8bc39",
+  "token_count_source": "local-chat-template"
+}

@@ -2,8 +2,10 @@
 
 This experiment compares the same DeepSeek V4 Pro checkpoint on 16 H200 GPUs:
 one TP8 prefill plus one TP8 decode worker, followed by two TP8 aggregated replicas.
-The final live deployment remains aggregated at a 262,144-token context window.
-Both workers are healthy, using the original weights and bound PVCs.
+At completion of this experiment, the deployment was aggregated at a 262,144-token
+context window, with healthy workers using the original weights and bound PVCs.
+The shared cluster subsequently switched to the [Nemotron 128K experiment](../06-nemotron-3-nano-h200/BENCHMARK-128K.md);
+the DeepSeek weights and these results are preserved.
 
 ## Results — completed 30 September 2026
 
