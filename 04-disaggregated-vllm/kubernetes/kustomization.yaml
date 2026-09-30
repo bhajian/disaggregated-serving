@@ -1,0 +1,11 @@
+# Lets you apply the whole folder at once:  kubectl apply -k <this folder>
+# The README walks through applying each file individually instead.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-namespace.yaml
+  - 01-site-config.yaml
+  - 10-etcd.yaml
+  - 20-frontend.yaml
+  - 30-prefill.yaml
+  - 31-decode.yaml

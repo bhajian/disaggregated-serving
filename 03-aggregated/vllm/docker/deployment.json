@@ -1,0 +1,27 @@
+{
+  "_comment": "Hand-written run record. benchmarks.run copies it into every result. Update it when you change the manifests.",
+  "technology": "dynamo-agg-compose",
+  "topology": "aggregated",
+  "backend": "vllm",
+  "image": "nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.4.0@sha256:8401411dc8e968eff9310462102491509e3f93d3ce03d6febc8d5566f067a7b1",
+  "workers": "2 x aggregated TP8 (one per node)",
+  "gpu_count": 16,
+  "kv_transfer": "none",
+  "max_model_len": 32768,
+  "max_num_seqs": 32,
+  "max_num_batched_tokens": 8192,
+  "gpu_memory_utilization": 0.8,
+  "model": {
+    "model_id": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4",
+    "revision": "252a02f921642313abde19b29a723a16602fe25e",
+    "model_path": "/data/nemotron-ultra/model",
+    "kv_cache_dtype": "fp8",
+    "request_body": {
+      "chat_template_kwargs": {
+        "enable_thinking": false,
+        "force_nonempty_content": true
+      }
+    }
+  },
+  "_single_node": "Running only Node A? Set gpu_count to 8 and workers to \"1 x aggregated TP8\"."
+}

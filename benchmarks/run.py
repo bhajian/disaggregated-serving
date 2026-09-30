@@ -248,7 +248,7 @@ async def run(a):
                    cache_state=a.cache_state, temperature=a.temperature,
                    extra_body_json=json.dumps(extra, sort_keys=True), image=deployment.get('image', 'unrecorded'),
                    model_revision=deployment.get('model', {}).get('revision', 'unrecorded'),
-                   gpu_count=16, deployment_sha256=hashlib.sha256(json.dumps(deployment, sort_keys=True).encode()).hexdigest())
+                   gpu_count=deployment.get('gpu_count', 16), deployment_sha256=hashlib.sha256(json.dumps(deployment, sort_keys=True).encode()).hexdigest())
     write_csv(out / 'summary.csv', [summary])
     (out / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
     print('Results:', out)
@@ -260,7 +260,12 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--base-url', required=True, help='API URL including /v1')
     p.add_argument('--model', required=True)
-    p.add_argument('--technology', choices=['dynamo-compose', 'dynamo-k8s', 'llmd-k8s'], required=True)
+    p.add_argument('--technology', required=True, choices=[
+        'dynamo-agg-compose', 'dynamo-agg-k8s',        # 03-aggregated
+        'dynamo-disagg-compose', 'dynamo-disagg-k8s',  # 04/05 disaggregated
+        'llmd-k8s',                                    # 07-llm-d
+        'dynamo-compose', 'dynamo-k8s'],               # legacy labels (= disaggregated)
+        help='Must match the "technology" field of --deployment when both are given')
     p.add_argument('--backend', choices=['vllm', 'sglang'],
                    help='Inferred from deployment.json; defaults to vllm without a deployment record')
     p.add_argument('--dataset', required=True); p.add_argument('--deployment')

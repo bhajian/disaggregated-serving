@@ -1,0 +1,199 @@
+# 06 · Benchmarking and comparing deployments
+
+[Home](../README.md) › 06 · Benchmarking
+
+**Goal:** measure every track with the **same workload**, then compare aggregated with disaggregated and vLLM with SGLang, without fooling yourself.
+
+**Contents**
+
+1. [The comparison experiment](#1-the-comparison-experiment)
+2. [Workloads and datasets](#2-workloads-and-datasets)
+3. [Running one measurement](#3-running-one-measurement)
+4. [Sweeps](#4-sweeps)
+5. [Long context: more than 250K input tokens](#5-long-context-more-than-250k-input-tokens)
+6. [Metrics](#6-metrics)
+7. [Outputs and the comparison notebook](#7-outputs-and-the-comparison-notebook)
+8. [Rules for a fair comparison](#8-rules-for-a-fair-comparison)
+
+The code lives in [benchmarks/](../benchmarks/), seed data in [datasets/](../datasets/), and the report in [notebooks/compare.ipynb](../notebooks/compare.ipynb).
+
+---
+
+## 1. The comparison experiment
+
+```mermaid
+flowchart LR
+    ds["One dataset file<br/>generated once"] --> A["03 aggregated<br/>(vLLM or SGLang)"]
+    ds --> D["04 or 05 disaggregated<br/>(same engine)"]
+    A --> R[("results/")]
+    D --> R
+    R --> N["notebooks/compare.ipynb<br/>TTFT · ITL · throughput"]
+```
+
+1. Generate the dataset **once** (section 2).
+2. Deploy one track, verify it (step 6 of its guide), run the sweep (section 4), then tear it down.
+3. Repeat for the next track with **the same dataset file** and the same concurrency levels.
+4. Run `python -m benchmarks.collect` and open the notebook.
+
+| Question | Compare |
+|---|---|
+| Does disaggregation help this workload? | 03 aggregated vLLM against 04 disaggregated vLLM |
+| Does it help on SGLang? | 03 aggregated SGLang against 05 disaggregated SGLang |
+| Which engine is faster here? | 04 against 05 (or 03 vLLM against 03 SGLang). This is a **stack** comparison: engine, image and KV dtype all differ. |
+| Dynamo against llm-d orchestration | 04 against [07](../07-llm-d/), same engine and model |
+
+Every run records its `technology` and `backend` from the track's `deployment.json`, so the notebook keeps the cohorts apart.
+
+| Technology label | Deployment |
+|---|---|
+| `dynamo-agg-compose`, `dynamo-agg-k8s` | 03 aggregated |
+| `dynamo-disagg-compose`, `dynamo-disagg-k8s` | 04 and 05 disaggregated (backend tells them apart) |
+| `llmd-k8s` | 07 llm-d |
+| `dynamo-compose`, `dynamo-k8s` | Legacy labels from earlier versions of this repository (disaggregated) |
+
+---
+
+## 2. Workloads and datasets
+
+`datasets/seeds/chatbot.jsonl` and `agentic.jsonl` are small, original, synthetic fixtures. The generator expands them into deterministic, token-counted sessions with unique prefixes:
+
+- **chatbot:** three-turn conversations over a long shared context.
+- **agentic:** three requests around recorded `read_file` / `run_tests` tool calls and results, preserving tool-call IDs and history.
+
+This is **recorded workload replay**. Later turns use fixed recorded history, not the model's previous answer. It measures serving behavior under agent-like context growth and prefix reuse. It does not measure answer quality or tool-call accuracy, and no model-generated commands are executed. For production realism, supply redacted traces in the same format or pass `--corpus` with representative text.
+
+Generate a dataset that fits the deployed 32K context:
+
+```bash
+python -m benchmarks.generate_dataset --workload chatbot --sessions 8 \
+  --input-tokens 8000 --output-tokens 256 --max-model-len 32768 \
+  --tokenizer /data/nemotron-ultra/model --trust-remote-code \
+  --template-kwargs '{"enable_thinking":false,"force_nonempty_content":true}' \
+  --out datasets/generated/nemotron-chatbot-8k.jsonl
+```
+
+The generator writes measured, template-inclusive `input_tokens` per turn, plus a `.meta.json` file with the seed, tokenizer and hash. The runner never silently truncates.
+
+One JSONL row is a session:
+
+```json
+{"id":"unique-session-id","workload":"agentic","turns":[{"messages":[{"role":"user","content":"Investigate this incident."}],"input_tokens":8}]}
+```
+
+---
+
+## 3. Running one measurement
+
+```bash
+python -m benchmarks.run \
+  --base-url http://10.104.0.51:8000/v1 \
+  --model nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4 \
+  --technology dynamo-disagg-compose \
+  --deployment 04-disaggregated-vllm/docker/deployment.json \
+  --dataset datasets/generated/nemotron-chatbot-8k.jsonl \
+  --max-model-len 32768 --output-tokens 256 \
+  --concurrency 4 --warmup 1 --timeout 3600 --cache-state uncontrolled \
+  --metrics-url http://10.104.0.51:8081/metrics \
+  --metrics-url http://10.104.0.7:8081/metrics
+```
+
+- `--deployment` must be the `deployment.json` of the track you deployed. The runner checks that `--technology`, `--model` and `--max-model-len` match it, and merges the model's request defaults (for example, disabling thinking for Nemotron).
+- `--metrics-url` snapshots each worker's Prometheus metrics before and after the run.
+- Run the client **in the private network**, on a host with enough CPU and RAM for large prompts. For Kubernetes use `http://<node-a-ip>:8000/v1` rather than a port-forward.
+- Authentication, if you add it, is read from `BENCHMARK_API_KEY` and never saved.
+- `--token-ids` requests vLLM's `return_token_ids` extension for exact per-token ITL. It is rejected for SGLang.
+
+---
+
+## 4. Sweeps
+
+```bash
+CONCURRENCIES='1 2 4 8' REPETITIONS=3 bash tools/sweep.sh \
+  --base-url http://10.104.0.51:8000/v1 \
+  --model nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4 \
+  --technology dynamo-disagg-compose \
+  --deployment 04-disaggregated-vllm/docker/deployment.json \
+  --dataset datasets/generated/nemotron-chatbot-8k.jsonl \
+  --max-model-len 32768 --output-tokens 256
+```
+
+The sweep stops on errors or invalid measurements, so failures cannot disappear into an average. Collect all runs afterwards with `python -m benchmarks.collect`.
+
+Closed-loop saturation is the default. `--session-rate 0.1` paces new sessions at 0.1 per second under the concurrency cap. `--think-time 1` inserts one second between turns.
+
+---
+
+## 5. Long context: more than 250K input tokens
+
+1. **Redeploy with a larger window.** In the worker command of your track, set `--max-model-len 262144 --max-num-seqs 4` for vLLM, or `--context-length 262144 --max-running-requests 4` for SGLang. Update `max_model_len` in `deployment.json` to match. Restart **both** roles.
+2. **Generate a matching dataset:**
+
+   ```bash
+   python -m benchmarks.generate_dataset --workload agentic --sessions 8 \
+     --input-tokens 256000 --output-tokens 512 --max-model-len 262144 \
+     --tokenizer /data/nemotron-ultra/model --trust-remote-code \
+     --template-kwargs '{"enable_thinking":false,"force_nonempty_content":true}' \
+     --out datasets/generated/nemotron-agentic-256k.jsonl
+   ```
+
+3. **Run** with `--max-model-len 262144 --min-input-tokens 250001 --output-tokens 512`. The runner verifies the real server-side token counts.
+
+A 262,144-token input cannot also reserve output inside a 262,144-token window, so leave headroom for every turn. Increase context and concurrency step by step while watching GPU memory and transfer errors. For models whose tokenizer is not a standard Hugging Face tokenizer, see [reference/models.md](../reference/models.md).
+
+---
+
+## 6. Metrics
+
+| Column | Definition |
+|---|---|
+| `ttft_ms` | Request start to first generated payload (content, reasoning, tool-call payload or explicit token ID). Role-only and empty deltas are excluded. |
+| `first_content_ms` | Request start to first visible text. May follow reasoning, or be absent for a tool-only response. |
+| `e2e_ms` | Request start to stream completion or error |
+| `tpot_ms` | `(last output arrival − first output arrival) / (completion_tokens − 1)` |
+| `output_tps` | Per-request completion tokens divided by end-to-end seconds |
+| `decode_tps` | `(completion_tokens − 1) / output-arrival span`, the reciprocal of TPOT |
+| `output_throughput_tps` | Valid successful output tokens divided by experiment wall time |
+| `input_throughput_tps` | Valid input tokens divided by wall time. Includes cached input, so it is not fresh prefill work. |
+| `total_throughput_tps` | Input plus output tokens divided by wall time |
+| `itl_ms_*` | Token arrival intervals, **only** when every event carries one explicit token ID and totals match server usage |
+| `chunk_interval_ms_*` | Intervals between streamed chunks, which may contain several tokens |
+| `client_queue_ms` | Time waiting for a concurrency slot in the load generator. Separate from TTFT. |
+
+Distributions include the mean, p50, p90, p95, p99 and max. Client timings include network, proxy and parser buffering, so they do not isolate engine prefill, transfer or scheduler time.
+
+**How to read aggregated against disaggregated:** disaggregation usually shows its benefit in **tail ITL/TPOT under concurrency with long prompts**. TTFT can rise slightly because of the transfer. Throughput depends on whether one prefill to one decode suits your input:output ratio.
+
+---
+
+## 7. Outputs and the comparison notebook
+
+Each run creates `results/<UTC timestamp>-<id>/`:
+
+- `requests.csv`: one row per request, including errors
+- `requests.jsonl`: every streamed event with its arrival time, for auditing. It can contain generated text.
+- `summary.csv` and `summary.json`: the run's distributions and configuration identifiers
+- `metadata.json`: exact arguments, dataset hash and the full `deployment.json`
+- `metrics-before-*.prom` / `metrics-after-*.prom`: worker metric snapshots
+
+```bash
+python -m benchmarks.collect          # rebuilds results/summary.csv from all runs
+jupyter lab notebooks/compare.ipynb   # or open it in your IDE
+```
+
+The notebook shows failure and validity counts first. It then groups repeated identical configurations and compares model × technology × backend with charts, which it can export as PNG or CSV. It never pools different datasets or deployments.
+
+---
+
+## 8. Rules for a fair comparison
+
+- Use the same dataset file, output budget, sampling settings, reasoning mode, GPU count and client placement across the tracks being compared.
+- Use at least three repetitions and more than eight sessions before quoting p99 figures.
+- `--cache-state` is a label, not a flush. For cold-cache runs, restart the workers before each repetition.
+- Before claiming a disaggregation result, show evidence that KV moved over RDMA (step 7 of the deploy guides).
+- Save GPU and driver inventory and resolved image digests with the results. Engine comparisons are **stack** comparisons.
+
+**Status:** the benchmark code is unit-tested (metrics, streaming, failures, notebook). No performance results are included in this repository, and none are fabricated.
+
+---
+
+**Next:** [07 · llm-d (optional)](../07-llm-d/) · [08 · Production readiness](../08-production-readiness/)

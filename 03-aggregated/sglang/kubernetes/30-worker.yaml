@@ -1,0 +1,120 @@
+# ---------------------------------------------------------------------------
+# AGGREGATED worker: each replica runs prefill AND decode on its own 8 GPUs.
+# 8 GPUs, tensor parallel 8, host networking (the nodes' private IPs and, for
+# disaggregation, the InfiniBand HCAs are used directly).
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: dynamo-agg-sglang
+spec:
+  replicas: 2                            # one per GPU node. Single-node lab: set to 1.
+  strategy: {type: Recreate}           # a worker owns all 8 GPUs: stop old before starting new
+  selector:
+    matchLabels: {app: worker}
+  template:
+    metadata:
+      labels: {app: worker}
+    spec:
+      affinity:
+        # Run only on the two labelled GPU nodes ...
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - {key: llm-serving/node, operator: In, values: [node-a, node-b]}
+        # ... and never two replicas on the same node.
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector: {matchLabels: {app: worker}}
+              topologyKey: kubernetes.io/hostname
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 180
+      containers:
+        - name: worker
+          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0
+          command: ["bash", "-c"]
+          args:
+            - |
+                set -e
+                # Refuse to start if this node holds a different checkpoint revision.
+                grep -qx 252a02f921642313abde19b29a723a16602fe25e /model/DEPLOYED_REVISION \
+                  || { echo "Checkpoint revision mismatch in /model/DEPLOYED_REVISION"; exit 1; }
+                # Aggregated: no --disaggregation-* flags, no KV transfer config.
+                exec python3 -m dynamo.sglang \
+                  --model-path /model \
+                  --served-model-name nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4 \
+                  --tensor-parallel-size 8 \
+                  --trust-remote-code \
+                  --context-length 32768 \
+                  --max-running-requests 32 \
+                  --chunked-prefill-size 8192 \
+                  --mem-fraction-static 0.80 \
+                  --page-size 64 \
+                  --kv-cache-dtype auto \
+                  --host 0.0.0.0 \
+                  --port 30000 \
+                  --enable-metrics \
+                  --disable-piecewise-cuda-graph \
+                  --dyn-tool-call-parser qwen3_coder \
+                  --dyn-reasoning-parser nemotron3 \
+                  --kv-events-config '{"publisher":"zmq","topic":"kv-events","endpoint":"tcp://*:5571"}'
+          env:
+            # This node's IP, injected by Kubernetes (hostNetwork => node InternalIP).
+            - name: HOST_IP
+              valueFrom: {fieldRef: {fieldPath: status.hostIP}}
+            # Site settings from 01-site-config.yaml.
+            - name: IP_IFACE
+              valueFrom: {configMapKeyRef: {name: site-config, key: IP_IFACE}}
+            # Dynamo control plane. etcd is reached through its Service DNS name.
+            - {name: DYN_NAMESPACE, value: dynamo-agg-sglang}
+            - {name: DYN_DISCOVERY_BACKEND, value: etcd}
+            - {name: ETCD_ENDPOINTS, value: "http://etcd.dynamo-agg-sglang.svc.cluster.local:2379"}
+            - {name: DYN_REQUEST_PLANE, value: tcp}
+            - {name: DYN_EVENT_PLANE, value: zmq}
+            # Do NOT set DYN_TCP_RESPONSE_STREAM_HOST (breaks the Dynamo 1.4.0 frontend).
+            - {name: DYN_TCP_RPC_HOST, value: "$(HOST_IP)"}
+            - {name: DYN_EVENT_PLANE_HOST, value: "$(HOST_IP)"}
+            - {name: PYTHONHASHSEED, value: "0"}
+            - {name: HF_HUB_OFFLINE, value: "1"}
+            - {name: TRANSFORMERS_OFFLINE, value: "1"}
+            - {name: HF_HOME, value: /runtime/hf}
+            - {name: HF_MODULES_CACHE, value: /runtime/hf_modules}
+            - {name: XDG_CACHE_HOME, value: /runtime/cache}
+            - {name: TRITON_CACHE_DIR, value: /runtime/triton}
+            - {name: TORCH_EXTENSIONS_DIR, value: /runtime/torch_extensions}
+            - {name: NCCL_SOCKET_IFNAME, value: "$(IP_IFACE)"}
+            - {name: GLOO_SOCKET_IFNAME, value: "$(IP_IFACE)"}
+            - {name: DYN_SYSTEM_PORT, value: "8081"}     # worker /health and /metrics
+            # Nemotron 3 Ultra on SGLang.
+            - {name: SGLANG_DISABLE_DEEP_GEMM, value: "1"}
+          resources:
+            requests: {cpu: "16", memory: 256Gi, nvidia.com/gpu: "8"}
+            limits: {memory: 2Ti, nvidia.com/gpu: "8"}
+          securityContext:
+            runAsUser: 0                 # aggregated: no RDMA devices, no privileged mode
+          # Large checkpoints load and compile slowly: allow up to 2 hours to start.
+          # No liveness probe: a long prefill must not get the worker killed.
+          startupProbe:
+            httpGet: {path: /health, port: 8081}
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 480
+          readinessProbe:
+            httpGet: {path: /health, port: 8081}
+            periodSeconds: 15
+            timeoutSeconds: 5
+          volumeMounts:
+            - {name: model, mountPath: /model, readOnly: true}
+            - {name: runtime, mountPath: /runtime}
+            - {name: shm, mountPath: /dev/shm}
+      volumes:
+        - name: model
+          hostPath: {path: /data/nemotron-ultra/model, type: Directory}           # EDIT if needed; same revision on every node
+        - name: runtime
+          hostPath: {path: /data/nemotron-ultra/runtime/dynamo-agg-sglang/worker, type: DirectoryOrCreate}
+        - name: shm
+          emptyDir: {medium: Memory, sizeLimit: 64Gi}
