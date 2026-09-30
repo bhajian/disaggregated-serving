@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def render(tmp_path, target, model='nemotron-ultra', extra=()):
-    return subprocess.run([sys.executable, str(ROOT / 'scripts/render.py'), '--target', target,
+    return subprocess.run([sys.executable, str(ROOT / 'tools/render.py'), '--target', target,
                            '--model', model, '--out', str(tmp_path), *extra], capture_output=True, text=True)
 
 

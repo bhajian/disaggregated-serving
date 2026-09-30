@@ -1,0 +1,9 @@
+# Aggregated serving | Dynamo + SGLang
+# A dedicated namespace: deleting it removes everything this track created.
+# "privileged" Pod Security is needed for hostNetwork, hostPath and RDMA devices.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dynamo-agg-sglang
+  labels:
+    pod-security.kubernetes.io/enforce: privileged

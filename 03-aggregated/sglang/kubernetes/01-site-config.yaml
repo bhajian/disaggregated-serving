@@ -1,0 +1,15 @@
+# ---------------------------------------------------------------------------
+# EDIT ME: the only site-specific settings for this track.
+# (Node placement uses node labels; see README.md step 1. Model path: see the
+#  hostPath volumes in the worker manifest.)
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: site-config
+  namespace: dynamo-agg-sglang
+data:
+  # Ethernet interface carrying the nodes' private IPs (NCCL/Gloo bootstrap).
+  IP_IFACE: eth0
+  # Aggregated serving does not move KV cache between nodes, so no InfiniBand
+  # devices are configured here. Compare with the disaggregated tracks.

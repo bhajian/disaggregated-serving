@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------------------
+# Dynamo frontend: OpenAI-compatible HTTP API (port 8000) + KV-aware router.
+# Runs on Node A with host networking so workers and frontend talk over the
+# nodes' private IPs, exactly like the Docker deployment.
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: dynamo-agg-sglang
+spec:
+  replicas: 1
+  strategy: {type: Recreate}           # host port 8000 can only be bound once per node
+  selector:
+    matchLabels: {app: frontend}
+  template:
+    metadata:
+      labels: {app: frontend}
+    spec:
+      nodeSelector:
+        llm-serving/node: node-a         # label set in README step 1
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet # lets host-network pods resolve the etcd Service
+      automountServiceAccountToken: false
+      containers:
+        - name: frontend
+          image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0
+          command:
+            - python3
+            - -m
+            - dynamo.frontend
+            - --http-host=0.0.0.0        # restrict 8000 to the private network with your firewall
+            - --http-port=8000
+            - --router-mode=kv           # pick the worker with the best KV-cache prefix overlap
+            - --router-kv-events         # workers stream cache events to the router
+            - --kv-cache-block-size=64   # must equal the workers' --page-size
+          env:
+            # This node's IP, injected by Kubernetes (hostNetwork => node InternalIP).
+            - name: HOST_IP
+              valueFrom: {fieldRef: {fieldPath: status.hostIP}}
+            # Site settings from 01-site-config.yaml.
+            - name: IP_IFACE
+              valueFrom: {configMapKeyRef: {name: site-config, key: IP_IFACE}}
+            # Dynamo control plane. etcd is reached through its Service DNS name.
+            - {name: DYN_NAMESPACE, value: dynamo-agg-sglang}
+            - {name: DYN_DISCOVERY_BACKEND, value: etcd}
+            - {name: ETCD_ENDPOINTS, value: "http://etcd.dynamo-agg-sglang.svc.cluster.local:2379"}
+            - {name: DYN_REQUEST_PLANE, value: tcp}
+            - {name: DYN_EVENT_PLANE, value: zmq}
+            # Do NOT set DYN_TCP_RESPONSE_STREAM_HOST (breaks the Dynamo 1.4.0 frontend).
+            - {name: DYN_TCP_RPC_HOST, value: "$(HOST_IP)"}
+            - {name: DYN_EVENT_PLANE_HOST, value: "$(HOST_IP)"}
+            - {name: PYTHONHASHSEED, value: "0"}
+            - {name: HF_HUB_OFFLINE, value: "1"}
+            - {name: TRANSFORMERS_OFFLINE, value: "1"}
+            - {name: HF_HOME, value: /runtime/hf}
+            - {name: HF_MODULES_CACHE, value: /runtime/hf_modules}
+            - {name: XDG_CACHE_HOME, value: /runtime/cache}
+          ports:
+            - {name: http, containerPort: 8000}
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: "4", memory: 16Gi}
+            limits: {memory: 64Gi}
+          volumeMounts:
+            - {name: model, mountPath: /model, readOnly: true}   # tokenizer + chat template
+            - {name: runtime, mountPath: /runtime}
+      volumes:
+        - name: model
+          hostPath: {path: /data/nemotron-ultra/model, type: Directory}    # EDIT if your model lives elsewhere
+        - name: runtime
+          emptyDir: {}
+---
+# ClusterIP Service for in-cluster clients and `kubectl port-forward`.
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: dynamo-agg-sglang
+spec:
+  selector: {app: frontend}
+  ports:
+    - {name: http, port: 8000, targetPort: 8000}
