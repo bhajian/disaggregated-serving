@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 700" width="1360" height="700" role="img" aria-label="Five model families drawn as layer stacks: dense attention, mixture of experts, multi-head latent attention, hybrid Mamba-attention, and sliding-window attention, with the relative KV cache per token and the serving implications of each.">
+<title>Five model families drawn as layer stacks: dense attention, mixture of experts, multi-head latent attention, hybrid Mamba-attention, and sliding-window attention, with the relative KV cache per token and the serving implications of each.</title>
+<style>
+text { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #0F172A; }
+.title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.subtitle { font-size: 13.5px; fill: #475569; }
+.h { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lbl { font-size: 13px; font-weight: 600; }
+.lbl-lg { font-size: 15px; font-weight: 700; }
+.sub { font-size: 11.5px; fill: #475569; }
+.small { font-size: 11px; fill: #475569; }
+.tiny { font-size: 10px; fill: #475569; }
+.note { font-size: 11.5px; fill: #475569; font-style: italic; }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; fill: #475569; }
+.edge { font-size: 11.5px; font-weight: 600; fill: #475569; }
+.edge-kv { font-size: 12px; font-weight: 700; fill: #E11D48; }
+.num { font-size: 11px; font-weight: 700; fill: #FFFFFF; }
+</style>
+<defs></defs>
+<rect x="0.5" y="0.5" width="1359" height="699" rx="18" fill="#FFFFFF" stroke="#E2E8F0"/>
+<text x="36" y="46" class="title">Model architecture decides the serving design</text>
+<text x="36" y="70" class="subtitle">What grows with context, what disaggregation must move, and which parallelism fits.</text>
+<rect x="48" y="96" width="240" height="540" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="168.0" y="124" class="lbl-lg" text-anchor="middle" style="fill:#C2410C">Dense (GQA)</text>
+<text x="168.0" y="142" class="small" text-anchor="middle">Llama 3 · Qwen3 dense</text>
+<rect x="62" y="164" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="70" y="171" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="128.0" y="193.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="232" y="178" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="249.0" y="192" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="62" y="222" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="70" y="229" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="128.0" y="251.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="232" y="236" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="249.0" y="250" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="62" y="280" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="70" y="287" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="128.0" y="309.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="232" y="294" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="249.0" y="308" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="62" y="338" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="70" y="345" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="128.0" y="367.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="232" y="352" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="249.0" y="366" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<text x="168.0" y="408" class="tiny" text-anchor="middle">repeated × N layers</text>
+<text x="64" y="444" class="h" text-anchor="start" style="fill:#475569">KV PER TOKEN</text>
+<rect x="64" y="454" width="208" height="14" rx="7" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="64" y="454" width="208.0" height="14" rx="7" fill="#E11D48" stroke="#E11D48" stroke-width="0"/>
+<text x="64" y="486" class="sub" text-anchor="start" style="fill:#0F172A">full · every layer</text>
+<text x="64" y="524" class="h" text-anchor="start" style="fill:#475569">SERVING IMPLICATIONS</text>
+<circle cx="68" cy="546" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="78" y="550" class="sub" text-anchor="start" style="fill:#0F172A">KV of every layer</text>
+<circle cx="68" cy="572" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="78" y="576" class="sub" text-anchor="start" style="fill:#0F172A">TP inside NVLink</text>
+<circle cx="68" cy="598" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="78" y="602" class="sub" text-anchor="start" style="fill:#0F172A">simplest to serve</text>
+<rect x="304" y="96" width="240" height="540" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="424.0" y="124" class="lbl-lg" text-anchor="middle" style="fill:#C2410C">MoE</text>
+<text x="424.0" y="142" class="small" text-anchor="middle">Qwen3 MoE · gpt-oss · Mixtral</text>
+<rect x="318" y="164" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="326" y="171" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="376.0" y="193.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="434" y="173" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="173" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="173" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="434" y="189" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="189" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="189" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="488" y="178" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="505.0" y="192" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="318" y="222" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="326" y="229" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="376.0" y="251.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="434" y="231" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="231" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="231" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="434" y="247" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="247" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="247" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="488" y="236" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="505.0" y="250" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="318" y="280" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="326" y="287" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="376.0" y="309.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="434" y="289" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="289" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="289" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="434" y="305" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="305" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="305" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="488" y="294" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="505.0" y="308" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="318" y="338" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="326" y="345" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="376.0" y="367.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="434" y="347" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="347" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="347" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="434" y="363" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="450" y="363" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="466" y="363" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="488" y="352" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="505.0" y="366" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<text x="424.0" y="408" class="tiny" text-anchor="middle">repeated × N layers</text>
+<text x="320" y="444" class="h" text-anchor="start" style="fill:#475569">KV PER TOKEN</text>
+<rect x="320" y="454" width="208" height="14" rx="7" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="320" y="454" width="208.0" height="14" rx="7" fill="#E11D48" stroke="#E11D48" stroke-width="0"/>
+<text x="320" y="486" class="sub" text-anchor="start" style="fill:#0F172A">same as dense</text>
+<text x="320" y="524" class="h" text-anchor="start" style="fill:#475569">SERVING IMPLICATIONS</text>
+<circle cx="324" cy="546" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="334" y="550" class="sub" text-anchor="start" style="fill:#0F172A">KV only (experts are weights)</text>
+<circle cx="324" cy="572" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="334" y="576" class="sub" text-anchor="start" style="fill:#0F172A">EP for experts, TP/DP attention</text>
+<circle cx="324" cy="598" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="334" y="602" class="sub" text-anchor="start" style="fill:#0F172A">decode loves wide EP</text>
+<rect x="560" y="96" width="240" height="540" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="680.0" y="124" class="lbl-lg" text-anchor="middle" style="fill:#C2410C">MLA</text>
+<text x="680.0" y="142" class="small" text-anchor="middle">DeepSeek V3/R1 · Kimi K2</text>
+<rect x="574" y="164" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="582" y="171" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="632.0" y="193.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Latent attn</text>
+<rect x="690" y="173" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="173" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="173" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="690" y="189" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="189" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="189" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="756" y="178" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="767.0" y="192" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<rect x="574" y="222" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="582" y="229" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="632.0" y="251.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Latent attn</text>
+<rect x="690" y="231" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="231" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="231" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="690" y="247" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="247" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="247" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="756" y="236" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="767.0" y="250" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<rect x="574" y="280" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="582" y="287" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="632.0" y="309.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Latent attn</text>
+<rect x="690" y="289" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="289" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="289" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="690" y="305" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="305" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="305" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="756" y="294" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="767.0" y="308" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<rect x="574" y="338" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="582" y="345" width="100" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="632.0" y="367.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Latent attn</text>
+<rect x="690" y="347" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="347" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="347" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="690" y="363" width="13" height="13" rx="2" fill="#FB923C" stroke="#FB923C" stroke-width="1"/>
+<rect x="706" y="363" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="722" y="363" width="13" height="13" rx="2" fill="#FFFFFF" stroke="#FB923C" stroke-width="1"/>
+<rect x="756" y="352" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="767.0" y="366" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<text x="680.0" y="408" class="tiny" text-anchor="middle">repeated × N layers</text>
+<text x="576" y="444" class="h" text-anchor="start" style="fill:#475569">KV PER TOKEN</text>
+<rect x="576" y="454" width="208" height="14" rx="7" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="576" y="454" width="62.4" height="14" rx="7" fill="#E11D48" stroke="#E11D48" stroke-width="0"/>
+<text x="576" y="486" class="sub" text-anchor="start" style="fill:#0F172A">compressed latent</text>
+<text x="576" y="524" class="h" text-anchor="start" style="fill:#475569">SERVING IMPLICATIONS</text>
+<circle cx="580" cy="546" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="590" y="550" class="sub" text-anchor="start" style="fill:#0F172A">small latent KV per layer</text>
+<circle cx="580" cy="572" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="590" y="576" class="sub" text-anchor="start" style="fill:#0F172A">DP attention + wide EP</text>
+<circle cx="580" cy="598" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="590" y="602" class="sub" text-anchor="start" style="fill:#0F172A">cheap P/D transfer</text>
+<rect x="816" y="96" width="240" height="540" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="936.0" y="124" class="lbl-lg" text-anchor="middle" style="fill:#C2410C">Hybrid SSM</text>
+<text x="936.0" y="142" class="small" text-anchor="middle">Nemotron 3 · Nemotron-H · Jamba</text>
+<rect x="830" y="164" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="838" y="171" width="116" height="34" rx="6" fill="#F0FDF4" stroke="#4ADE80" stroke-width="1"/>
+<text x="896.0" y="193.0" class="lbl" text-anchor="middle" style="fill:#15803D">Mamba</text>
+<rect x="966" y="176" width="24" height="24" rx="4" fill="#4ADE80" stroke="#15803D" stroke-width="1"/>
+<text x="998" y="193" class="tiny" text-anchor="start">state</text>
+<rect x="830" y="222" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="838" y="229" width="116" height="34" rx="6" fill="#F0FDF4" stroke="#4ADE80" stroke-width="1"/>
+<text x="896.0" y="251.0" class="lbl" text-anchor="middle" style="fill:#15803D">Mamba</text>
+<rect x="966" y="234" width="24" height="24" rx="4" fill="#4ADE80" stroke="#15803D" stroke-width="1"/>
+<text x="998" y="251" class="tiny" text-anchor="start">state</text>
+<rect x="830" y="280" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="838" y="287" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="896.0" y="309.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Attention</text>
+<rect x="1000" y="294" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="1017.0" y="308" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="830" y="338" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="838" y="345" width="116" height="34" rx="6" fill="#F0FDF4" stroke="#4ADE80" stroke-width="1"/>
+<text x="896.0" y="367.0" class="lbl" text-anchor="middle" style="fill:#15803D">Mamba</text>
+<rect x="966" y="350" width="24" height="24" rx="4" fill="#4ADE80" stroke="#15803D" stroke-width="1"/>
+<text x="998" y="367" class="tiny" text-anchor="start">state</text>
+<text x="936.0" y="408" class="tiny" text-anchor="middle">repeated × N layers</text>
+<text x="832" y="444" class="h" text-anchor="start" style="fill:#475569">KV PER TOKEN</text>
+<rect x="832" y="454" width="208" height="14" rx="7" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="832" y="454" width="72.8" height="14" rx="7" fill="#E11D48" stroke="#E11D48" stroke-width="0"/>
+<text x="832" y="486" class="sub" text-anchor="start" style="fill:#0F172A">few layers + fixed state</text>
+<text x="832" y="524" class="h" text-anchor="start" style="fill:#475569">SERVING IMPLICATIONS</text>
+<circle cx="836" cy="546" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="846" y="550" class="sub" text-anchor="start" style="fill:#0F172A">KV of attention layers</text>
+<circle cx="836" cy="572" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="846" y="576" class="sub" text-anchor="start" style="fill:#0F172A">+ fixed Mamba state per seq</text>
+<circle cx="836" cy="598" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="846" y="602" class="sub" text-anchor="start" style="fill:#0F172A">prefix cache at block edges</text>
+<rect x="1072" y="96" width="240" height="540" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="1192.0" y="124" class="lbl-lg" text-anchor="middle" style="fill:#C2410C">Sliding window</text>
+<text x="1192.0" y="142" class="small" text-anchor="middle">gpt-oss · Gemma 3</text>
+<rect x="1086" y="164" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="1094" y="171" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="1152.0" y="193.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Local attn</text>
+<rect x="1268" y="178" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="1279.0" y="192" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<rect x="1086" y="222" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="1094" y="229" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="1152.0" y="251.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Local attn</text>
+<rect x="1268" y="236" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="1279.0" y="250" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<rect x="1086" y="280" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="1094" y="287" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="1152.0" y="309.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Global attn</text>
+<rect x="1256" y="294" width="34" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="1273.0" y="308" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">KV</text>
+<rect x="1086" y="338" width="212" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="1094" y="345" width="116" height="34" rx="6" fill="#EFF6FF" stroke="#60A5FA" stroke-width="1"/>
+<text x="1152.0" y="367.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Local attn</text>
+<rect x="1268" y="352" width="22" height="20" rx="4" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.2"/>
+<text x="1279.0" y="366" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">kv</text>
+<text x="1192.0" y="408" class="tiny" text-anchor="middle">repeated × N layers</text>
+<text x="1088" y="444" class="h" text-anchor="start" style="fill:#475569">KV PER TOKEN</text>
+<rect x="1088" y="454" width="208" height="14" rx="7" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>
+<rect x="1088" y="454" width="93.60000000000001" height="14" rx="7" fill="#E11D48" stroke="#E11D48" stroke-width="0"/>
+<text x="1088" y="486" class="sub" text-anchor="start" style="fill:#0F172A">bounded by window</text>
+<text x="1088" y="524" class="h" text-anchor="start" style="fill:#475569">SERVING IMPLICATIONS</text>
+<circle cx="1092" cy="546" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="1102" y="550" class="sub" text-anchor="start" style="fill:#0F172A">window KV + global layers</text>
+<circle cx="1092" cy="572" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="1102" y="576" class="sub" text-anchor="start" style="fill:#0F172A">TP inside NVLink</text>
+<circle cx="1092" cy="598" r="3" fill="#FB923C" stroke="none" stroke-width="1"/>
+<text x="1102" y="602" class="sub" text-anchor="start" style="fill:#0F172A">long context stays cheap</text>
+<text x="680" y="668" class="note" text-anchor="middle">Bars are illustrative relative sizes, not measurements. KV per token = 2 × layers × KV heads × head dim × bytes for attention layers.</text>
+</svg>

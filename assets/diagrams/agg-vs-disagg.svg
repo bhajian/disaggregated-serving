@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 720" width="1360" height="720" role="img" aria-label="Side-by-side comparison. Aggregated: a router sends whole requests to replicas that run prefill and decode on the same GPUs, so long prefills stall decoding. Disaggregated: prefill and decode run in separate pools and the KV cache moves between them over RDMA.">
+<title>Side-by-side comparison. Aggregated: a router sends whole requests to replicas that run prefill and decode on the same GPUs, so long prefills stall decoding. Disaggregated: prefill and decode run in separate pools and the KV cache moves between them over RDMA.</title>
+<style>
+text { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #0F172A; }
+.title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.subtitle { font-size: 13.5px; fill: #475569; }
+.h { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lbl { font-size: 13px; font-weight: 600; }
+.lbl-lg { font-size: 15px; font-weight: 700; }
+.sub { font-size: 11.5px; fill: #475569; }
+.small { font-size: 11px; fill: #475569; }
+.tiny { font-size: 10px; fill: #475569; }
+.note { font-size: 11.5px; fill: #475569; font-style: italic; }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; fill: #475569; }
+.edge { font-size: 11.5px; font-weight: 600; fill: #475569; }
+.edge-kv { font-size: 12px; font-weight: 700; fill: #E11D48; }
+.num { font-size: 11px; font-weight: 700; fill: #FFFFFF; }
+</style>
+<defs><marker id="a475569" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="aE11D48" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E11D48"/></marker></defs>
+<rect x="0.5" y="0.5" width="1359" height="719" rx="18" fill="#FFFFFF" stroke="#E2E8F0"/>
+<text x="36" y="46" class="title">Aggregated vs disaggregated serving</text>
+<text x="36" y="70" class="subtitle">Same GPUs, same model. Disaggregation adds one edge, the KV-cache transfer, and removes phase interference.</text>
+<rect x="36" y="96" width="630" height="600" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="56" y="124" class="h" text-anchor="start" style="fill:#475569">AGGREGATED</text>
+<text x="56" y="146" class="lbl-lg" text-anchor="start">Replicated monolith</text>
+<rect x="221.0" y="170" width="260" height="48" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="351.0" y="192.0" class="lbl" text-anchor="middle" style="fill:#4338CA">Router</text>
+<text x="351.0" y="208.0" class="sub" text-anchor="middle">KV-aware · picks workers</text>
+<rect x="66" y="270" width="270" height="250" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="82" y="294" class="lbl" text-anchor="start">Replica 1</text>
+<text x="320" y="294" class="small" text-anchor="end">8 GPUs · TP8</text>
+<rect x="82" y="308" width="238" height="44" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.3"/>
+<text x="201.0" y="328.0" class="lbl" text-anchor="middle" style="fill:#C2410C">Prefill</text>
+<text x="201.0" y="344.0" class="sub" text-anchor="middle">compute-bound</text>
+<rect x="82" y="360" width="238" height="44" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.3"/>
+<text x="201.0" y="380.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Decode</text>
+<text x="201.0" y="396.0" class="sub" text-anchor="middle">memory-bandwidth-bound</text>
+<line x1="82" y1="466" x2="320" y2="466" stroke="#94A3B8" stroke-width="1"/>
+<rect x="82" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="100" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="118" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="136" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="154" y="446" width="91" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<rect x="248" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="266" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="284" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="302" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<text x="82" y="482" class="tiny" text-anchor="start">GPU time →</text>
+<polyline points="351.0,218 351.0,244 201,244 201,268" fill="none" stroke="#475569" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="366" y="270" width="270" height="250" rx="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="382" y="294" class="lbl" text-anchor="start">Replica 2</text>
+<text x="620" y="294" class="small" text-anchor="end">8 GPUs · TP8</text>
+<rect x="382" y="308" width="238" height="44" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.3"/>
+<text x="501.0" y="328.0" class="lbl" text-anchor="middle" style="fill:#C2410C">Prefill</text>
+<text x="501.0" y="344.0" class="sub" text-anchor="middle">compute-bound</text>
+<rect x="382" y="360" width="238" height="44" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.3"/>
+<text x="501.0" y="380.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Decode</text>
+<text x="501.0" y="396.0" class="sub" text-anchor="middle">memory-bandwidth-bound</text>
+<line x1="382" y1="466" x2="620" y2="466" stroke="#94A3B8" stroke-width="1"/>
+<rect x="382" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="400" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="418" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="436" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="454" y="446" width="91" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<rect x="548" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="566" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="584" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="602" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<text x="382" y="482" class="tiny" text-anchor="start">GPU time →</text>
+<polyline points="351.0,218 351.0,244 501,244 501,268" fill="none" stroke="#475569" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<text x="201.0" y="238" class="edge" text-anchor="end">whole request</text>
+<line x1="154" y1="440" x2="245" y2="440" stroke="#E11D48" stroke-width="2"/>
+<text x="200" y="434" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">decode stalls</text>
+<line x1="56" y1="542" x2="646" y2="542" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="560" class="lbl" text-anchor="start" style="font-size:12px">Scaling unit</text>
+<text x="176" y="560" class="sub" text-anchor="start">a whole replica (prefill + decode together)</text>
+<line x1="56" y1="572" x2="646" y2="572" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="590" class="lbl" text-anchor="start" style="font-size:12px">Between nodes</text>
+<text x="176" y="590" class="sub" text-anchor="start">no KV movement, no RDMA needed</text>
+<line x1="56" y1="602" x2="646" y2="602" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="620" class="lbl" text-anchor="start" style="font-size:12px">Weak spot</text>
+<text x="176" y="620" class="sub" text-anchor="start">long prompts stall other users’ tokens (ITL spikes)</text>
+<line x1="56" y1="632" x2="646" y2="632" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="650" class="lbl" text-anchor="start" style="font-size:12px">Best for</text>
+<text x="176" y="650" class="sub" text-anchor="start">short prompts, simple operations, first baseline</text>
+<rect x="694" y="96" width="630" height="600" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="714" y="124" class="h" text-anchor="start" style="fill:#475569">DISAGGREGATED</text>
+<text x="714" y="146" class="lbl-lg" text-anchor="start">Phase-specialized services</text>
+<rect x="879.0" y="170" width="260" height="48" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="1009.0" y="192.0" class="lbl" text-anchor="middle" style="fill:#4338CA">Router</text>
+<text x="1009.0" y="208.0" class="sub" text-anchor="middle">KV-aware · picks workers</text>
+<rect x="724" y="270" width="240" height="250" rx="12" fill="#FFF7ED" stroke="#F97316" stroke-width="1.4"/>
+<text x="740" y="294" class="lbl" text-anchor="start" style="fill:#C2410C">Prefill pool</text>
+<text x="948" y="294" class="tiny" text-anchor="end">compute-bound</text>
+<rect x="740" y="308" width="208" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="844.0" y="333.0" class="lbl" text-anchor="middle" style="fill:#0F172A">Worker 1 · 8 GPUs</text>
+<rect x="740" y="358" width="208" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="844.0" y="383.0" class="lbl" text-anchor="middle" style="fill:#0F172A">Worker 2 · 8 GPUs</text>
+<rect x="740" y="408" width="208" height="22" rx="8" fill="#FFFFFF" stroke="#F97316" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="844" y="423" class="tiny" text-anchor="middle">+ add workers for this phase only</text>
+<line x1="740" y1="466" x2="948" y2="466" stroke="#94A3B8" stroke-width="1"/>
+<rect x="740" y="446" width="47" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<rect x="790" y="446" width="47" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<rect x="840" y="446" width="47" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<rect x="890" y="446" width="47" height="16" rx="2" fill="#F97316" stroke="#F97316" stroke-width="0.5"/>
+<text x="740" y="482" class="tiny" text-anchor="start">GPU time →</text>
+<rect x="1054" y="270" width="240" height="250" rx="12" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.4"/>
+<text x="1070" y="294" class="lbl" text-anchor="start" style="fill:#1D4ED8">Decode pool</text>
+<text x="1278" y="294" class="tiny" text-anchor="end">memory-bandwidth-bound</text>
+<rect x="1070" y="308" width="208" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1174.0" y="333.0" class="lbl" text-anchor="middle" style="fill:#0F172A">Worker 1 · 8 GPUs</text>
+<rect x="1070" y="358" width="208" height="40" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1174.0" y="383.0" class="lbl" text-anchor="middle" style="fill:#0F172A">Worker 2 · 8 GPUs</text>
+<rect x="1070" y="408" width="208" height="22" rx="8" fill="#FFFFFF" stroke="#3B82F6" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="1174" y="423" class="tiny" text-anchor="middle">+ add workers for this phase only</text>
+<line x1="1070" y1="466" x2="1278" y2="466" stroke="#94A3B8" stroke-width="1"/>
+<rect x="1070" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1088" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1106" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1124" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1142" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1160" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1178" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1196" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1214" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1232" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<rect x="1250" y="446" width="15" height="16" rx="2" fill="#3B82F6" stroke="#3B82F6" stroke-width="0.5"/>
+<text x="1070" y="482" class="tiny" text-anchor="start">GPU time →</text>
+<polyline points="949.0,218 949.0,244 844,244 844,268" fill="none" stroke="#475569" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<text x="852" y="238" class="edge" text-anchor="start">① prompt</text>
+<polyline points="1174,268 1174,244 1069.0,244 1069.0,220" fill="none" stroke="#475569" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<text x="1166" y="238" class="edge" text-anchor="end">③ tokens</text>
+<polyline points="964,350 1054,350" fill="none" stroke="#E11D48" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#aE11D48)"/>
+<text x="1009.0" y="338" class="edge-kv" text-anchor="middle">② KV cache</text>
+<text x="1009.0" y="376" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">RDMA · NIXL</text>
+<text x="1009.0" y="392" class="tiny" text-anchor="middle" style="fill:#E11D48">or NVLink</text>
+<line x1="714" y1="542" x2="1304" y2="542" stroke="#E2E8F0" stroke-width="1"/>
+<text x="714" y="560" class="lbl" text-anchor="start" style="font-size:12px">Scaling unit</text>
+<text x="834" y="560" class="sub" text-anchor="start">each phase independently (P:D ratio)</text>
+<line x1="714" y1="572" x2="1304" y2="572" stroke="#E2E8F0" stroke-width="1"/>
+<text x="714" y="590" class="lbl" text-anchor="start" style="font-size:12px">Between nodes</text>
+<text x="834" y="590" class="sub" text-anchor="start">KV cache per request: needs RDMA or NVLink</text>
+<line x1="714" y1="602" x2="1304" y2="602" stroke="#E2E8F0" stroke-width="1"/>
+<text x="714" y="620" class="lbl" text-anchor="start" style="font-size:12px">Strength</text>
+<text x="834" y="620" class="sub" text-anchor="start">steady ITL; tune batch &amp; parallelism per phase</text>
+<line x1="714" y1="632" x2="1304" y2="632" stroke="#E2E8F0" stroke-width="1"/>
+<text x="714" y="650" class="lbl" text-anchor="start" style="font-size:12px">Best for</text>
+<text x="834" y="650" class="sub" text-anchor="start">long prompts, strict latency SLOs, large MoE</text>
+</svg>

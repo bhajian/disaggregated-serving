@@ -43,7 +43,7 @@ def main():
     crd = next(d for d in crds if d and d['metadata']['name'] == 'inferencepools.inference.networking.k8s.io')
     inference = normalize(next(v['schema']['openAPIV3Schema'] for v in crd['spec']['versions'] if v['name'] == 'v1'))
     count = 0
-    roots = a.root or ['03-aggregated', '04-disaggregated-vllm', '05-disaggregated-sglang', '07-llm-d']
+    roots = a.root or ['deployments']
     for path in sorted(p for r in roots for p in Path(r).rglob('*.yaml')):
         if path.name in ('kustomization.yaml', 'values.yaml'):
             continue

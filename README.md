@@ -1,62 +1,65 @@
-# LLM Serving Reference Architecture: Aggregated and Disaggregated Inference with NVIDIA Dynamo
+# LLM Inference Blueprint
 
-A reference architecture and set of deployments for serving large language models on multi-GPU servers. It takes you from a single aggregated replica to **disaggregated prefill/decode serving**, where the KV cache moves between nodes over **InfiniBand with GPUDirect RDMA**. Every step runs on **Docker Compose or Kubernetes**, with **vLLM or SGLang** as the engine.
+**A reference architecture and deployment kit for serving large language models in production.**
 
-Every deployment file is hand-written and commented, and every step is explained. You can read exactly what runs, deploy it, and measure it.
+This repository describes the LLM serving stack as an **operating system for inference**:
 
-```mermaid
-flowchart LR
-    client(["Clients<br/>OpenAI API"]) --> fe["Dynamo frontend<br/>+ KV-aware router"]
-    fe -.-|"discovery"| etcd[("etcd")]
-    subgraph agg["Aggregated · section 03"]
-        a1["Replica · Node A<br/>prefill + decode"]
-        a2["Replica · Node B<br/>prefill + decode"]
-    end
-    subgraph dis["Disaggregated · sections 04 / 05"]
-        p["Prefill · Node A"] ==>|"KV cache<br/>NIXL · InfiniBand RDMA"| d["Decode · Node B"]
-    end
-    fe --> agg
-    fe --> dis
-```
+- **Control plane:** llm-d or NVIDIA Dynamo.
+- **Engines:** TensorRT-LLM, vLLM or SGLang.
+- **Models:** dense, MoE, MLA and hybrid Mamba architectures.
+- **Hardware:** Hopper, Blackwell and Rubin GPUs, connected by NVLink and InfiniBand or RoCE, with storage attached directly to GPUs for KV-cache offloading.
 
----
+It turns that architecture into **hand-written, runnable deployments** of aggregated and disaggregated serving, plus a benchmark kit that measures every option the same way.
 
-## Table of contents
+![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected to GPUs through GPUDirect Storage](assets/diagrams/serving-stack.svg)
 
-| # | Section | What you get |
-|---|---|---|
-| 01 | [**Architecture and concepts**](01-architecture/) | Reference architecture diagrams. Prefill, decode and the KV cache. Aggregated versus disaggregated serving. How the KV cache moves over **NVLink, InfiniBand and GPUDirect RDMA**. Dynamo components. |
-| 02 | [**Prerequisites**](02-prerequisites/) | Hardware, software, ports, RDMA test, model download, Docker or Kubernetes setup |
-| 03 | [**Aggregated serving (baseline)**](03-aggregated/) | Dynamo + vLLM or SGLang, one or two full replicas. Start here. |
-| 04 | [**Disaggregated serving · vLLM**](04-disaggregated-vllm/) | Prefill on Node A, decode on Node B, KV transfer with NIXL over InfiniBand |
-| 05 | [**Disaggregated serving · SGLang**](05-disaggregated-sglang/) | The same split with SGLang workers |
-| 06 | [**Benchmarking and comparison**](06-benchmarking/) | One dataset, every track: TTFT, ITL, throughput, and a comparison notebook |
-| 07 | [**llm-d (optional)**](07-llm-d/) | An alternative Kubernetes-native disaggregation stack, for comparison |
-| 08 | [**Production readiness**](08-production-readiness/) | What to change between PoC and production: operator, HA, security, RDMA device plugin, observability |
-| 09 | [**KV-cache offloading (future work)**](09-kv-cache-offloading/) | Design and roadmap: KV tiers in host DRAM, **local NVMe with GPUDirect Storage**, and shared storage |
-| · | [Reference](reference/) | Model switching, vLLM versus SGLang mapping, troubleshooting, pinned sources, the original manual walkthrough |
+## Why disaggregated serving
 
-### Deployment matrix
+Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on the same GPUs makes them interfere with each other and forces one scaling unit. **Disaggregated serving splits them into services that scale independently. It is the microservices pattern applied to inference.** There is one difference: prefill hands decode *gigabytes* of KV cache per request, so the GPU fabric becomes part of the architecture.
 
-Every cell links to a folder with a step-by-step README: deploy, verify, see results, clean up.
-
-| Track | Docker Compose | Kubernetes |
-|---|---|---|
-| 03 · Aggregated · vLLM | [03-aggregated/vllm/docker](03-aggregated/vllm/docker/) | [03-aggregated/vllm/kubernetes](03-aggregated/vllm/kubernetes/) |
-| 03 · Aggregated · SGLang | [03-aggregated/sglang/docker](03-aggregated/sglang/docker/) | [03-aggregated/sglang/kubernetes](03-aggregated/sglang/kubernetes/) |
-| 04 · Disaggregated · vLLM | [04-disaggregated-vllm/docker](04-disaggregated-vllm/docker/) | [04-disaggregated-vllm/kubernetes](04-disaggregated-vllm/kubernetes/) |
-| 05 · Disaggregated · SGLang | [05-disaggregated-sglang/docker](05-disaggregated-sglang/docker/) | [05-disaggregated-sglang/kubernetes](05-disaggregated-sglang/kubernetes/) |
-| 07 · llm-d · vLLM / SGLang | n/a | [07-llm-d/kubernetes](07-llm-d/kubernetes/) |
+![Disaggregated serving is the microservices pattern for inference](assets/diagrams/microservices-analogy.svg)
 
 ---
+
+## What's inside
+
+| Part | For | Contents |
+|---|---|---|
+| **[Blueprint](blueprint/)** | Architects, platform and ML engineers | 11 chapters: the stack, design principles, disaggregation, control planes, engines, model architectures, hardware and fabrics, KV caching and offloading, parallelism and sizing, operations, decision guide |
+| **[Deployments](deployments/)** | Engineers running PoCs and labs | Step-by-step Docker Compose and Kubernetes deployments: aggregated, Dynamo disaggregated on vLLM and SGLang, llm-d disaggregated |
+| **[Benchmarks](benchmarks/)** | Anyone comparing options | Long-context chat and agentic workloads, TTFT/ITL/throughput metrics, a comparison notebook |
+| **[Reference](reference/)** | Operators | Model catalog and switching, vLLM ↔ SGLang mapping, troubleshooting, pinned sources |
+| **[Roadmap](ROADMAP.md)** | Everyone | TensorRT-LLM tracks, KV-cache offloading with GPUDirect Storage, wide-EP on NVL72 |
+
+## Blueprint chapters
+
+| # | Chapter | # | Chapter |
+|---|---|---|---|
+| 01 | [The serving stack](blueprint/01-serving-stack.md) | 07 | [Hardware, network and storage](blueprint/07-hardware-network-storage.md) |
+| 02 | [Design principles](blueprint/02-design-principles.md) | 08 | [KV cache and offloading](blueprint/08-kv-cache-and-offloading.md) |
+| 03 | [The disaggregation pattern](blueprint/03-disaggregation-pattern.md) | 09 | [Parallelism and sizing](blueprint/09-parallelism-and-sizing.md) |
+| 04 | [Orchestration layer: Dynamo and llm-d](blueprint/04-orchestration-layer.md) | 10 | [Production operations](blueprint/10-production-operations.md) |
+| 05 | [Inference engines: TensorRT-LLM, vLLM, SGLang](blueprint/05-inference-engines.md) | 11 | [Decision guide](blueprint/11-decision-guide.md) |
+| 06 | [Model architectures](blueprint/06-model-architectures.md) | | |
+
+## Deployment matrix
+
+| # | Track | Control plane | Engine | Docker | Kubernetes |
+|---|---|---|---|---|---|
+| 00 | [Prerequisites](deployments/00-prerequisites/) | | | ✓ | ✓ |
+| 01 | [Aggregated (baseline)](deployments/01-aggregated/) | Dynamo | vLLM · SGLang | [vLLM](deployments/01-aggregated/vllm/docker/) · [SGLang](deployments/01-aggregated/sglang/docker/) | [vLLM](deployments/01-aggregated/vllm/kubernetes/) · [SGLang](deployments/01-aggregated/sglang/kubernetes/) |
+| 02 | [Disaggregated](deployments/02-dynamo-disagg-vllm/) | Dynamo | vLLM | [guide](deployments/02-dynamo-disagg-vllm/docker/) | [guide](deployments/02-dynamo-disagg-vllm/kubernetes/) |
+| 03 | [Disaggregated](deployments/03-dynamo-disagg-sglang/) | Dynamo | SGLang | [guide](deployments/03-dynamo-disagg-sglang/docker/) | [guide](deployments/03-dynamo-disagg-sglang/kubernetes/) |
+| 04 | [Disaggregated](deployments/04-llm-d-disagg/) | llm-d | vLLM · SGLang | | [vLLM](deployments/04-llm-d-disagg/vllm/) · [SGLang](deployments/04-llm-d-disagg/sglang/) |
+| · | TensorRT-LLM, KV offloading | Dynamo | TensorRT-LLM · vLLM | [roadmap](ROADMAP.md) | [roadmap](ROADMAP.md) |
 
 ## Choose your path
 
 | You are… | Follow | Outcome |
 |---|---|---|
-| **Learning** how LLM serving and disaggregation work | 01 → 02 → 03 on a single node → 04 | A running aggregated deployment, then a disaggregated one, and an understanding of every flag |
-| **Running a customer PoC** | 01 §7 → 02 → 03 (two nodes) → 04 or 05 → 06 with the customer's workload | A like-for-like measurement of aggregated against disaggregated on the customer's traffic shape |
-| **Planning production** | The PoC path, then 08, then 09 | A gap list from reference deployment to production, and the offloading roadmap |
+| **Learning** LLM serving | [Blueprint 01–03](blueprint/) → [deployments 00](deployments/00-prerequisites/) → [01](deployments/01-aggregated/) on one node → [02](deployments/02-dynamo-disagg-vllm/) | A working aggregated and disaggregated deployment, with every flag explained |
+| **Running a customer PoC** | [Decision guide](blueprint/11-decision-guide.md) → [deployments](deployments/) (baseline + disaggregated) → [benchmarks](benchmarks/) on the customer's traffic | Like-for-like evidence for the right topology |
+| **Designing production** | [Blueprint 02, 04–10](blueprint/) → [production operations](blueprint/10-production-operations.md) → [roadmap](ROADMAP.md) | A sized, SLO-driven architecture and its gap list |
 
 ---
 
@@ -64,56 +67,40 @@ Every cell links to a folder with a step-by-step README: deploy, verify, see res
 
 ```text
 .
-├── README.md                     ← you are here
-├── cluster.env.example           site settings for the Docker path (IPs, interface, IB devices, paths)
-├── 01-architecture/              concepts and diagrams
-├── 02-prerequisites/             hardware, network, RDMA test, model download
-├── 03-aggregated/
-│   ├── vllm/   {docker, kubernetes}
-│   └── sglang/ {docker, kubernetes}
-├── 04-disaggregated-vllm/        {docker, kubernetes}
-├── 05-disaggregated-sglang/      {docker, kubernetes}
-├── 06-benchmarking/              how to measure and compare
-├── 07-llm-d/kubernetes/          {vllm, sglang}   (optional alternative stack)
-├── 08-production-readiness/
-├── 09-kv-cache-offloading/       future work: NVMe + GPUDirect Storage KV tiers
-├── reference/                    models, vLLM vs SGLang, troubleshooting, sources, manual walkthrough
-├── benchmarks/                   benchmark code (python -m benchmarks.*)
-├── datasets/seeds/               synthetic seed workloads
-├── notebooks/compare.ipynb       comparison report
-├── tools/                        optional helpers: download, preflight, render, validate, sweep
-├── configs/                      model catalog and cluster inputs for the tools
-└── tests/                        offline consistency and unit tests
+├── blueprint/                 architecture and best practices (11 chapters)
+├── deployments/               runnable reference deployments
+│   ├── 00-prerequisites/      hosts, network, RDMA test, model download
+│   ├── 01-aggregated/         Dynamo · {vllm, sglang} · {docker, kubernetes}
+│   ├── 02-dynamo-disagg-vllm/ Dynamo P/D · vLLM · {docker, kubernetes}
+│   ├── 03-dynamo-disagg-sglang/ Dynamo P/D · SGLang · {docker, kubernetes}
+│   ├── 04-llm-d-disagg/       llm-d P/D · {vllm, sglang} · kubernetes
+│   └── cluster.env.example    site settings for Docker deployments
+├── benchmarks/                benchmark code and methodology
+├── datasets/seeds/            synthetic seed workloads
+├── notebooks/compare.ipynb    comparison report
+├── assets/diagrams/           SVG diagrams and their source
+├── reference/                 models, vLLM vs SGLang, troubleshooting, sources, manual walkthrough
+├── tools/                     optional helpers: download, preflight, render, validate, sweep
+├── configs/                   model catalog and cluster inputs for the tools
+├── tests/                     offline consistency and unit tests
+├── ROADMAP.md
+└── CONTRIBUTING.md
 ```
 
-Each deployment folder contains:
+## Reference implementation
 
-- **Docker:** `node-a.yaml`, `node-b.yaml`, `deployment.json` (the run record for benchmarks) and a README.
-- **Kubernetes:** numbered manifests (`00-namespace`, `01-site-config`, `10-etcd`, `20-frontend`, `30-*` workers), a `kustomization.yaml`, `deployment.json` and a README.
-
----
-
-## Reference stack
-
-| Component | Version / value |
+| Layer | Implemented with |
 |---|---|
-| Hardware | 2 servers × 8 NVIDIA B300, NVLink within each node, 8 × 800 Gb/s InfiniBand rails per node |
-| Model | NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4, revision `252a02f9…` ([other models](reference/models.md)) |
-| Orchestration | NVIDIA Dynamo 1.4.0: frontend, KV-aware router, etcd discovery, TCP request plane, ZMQ event plane |
-| Engines | vLLM 0.26.0 (Dynamo vLLM runtime, pinned by digest) · SGLang 0.5.16 base (Dynamo SGLang runtime) |
-| KV transfer | NIXL over UCX, `rc_x`/`rc` + CUDA transports, GPUDirect RDMA |
-| Parallelism | TP8 per worker. 32K context, 32 sequences and 0.80 memory share as the starting point. |
-
-Full pins and upstream references are in [reference/sources.md](reference/sources.md).
+| Control plane | NVIDIA Dynamo 1.4.0 (frontend, KV router, etcd). llm-d v0.10 guide with router v0.11. |
+| Engines | vLLM 0.26.0 in the Dynamo runtime (pinned by digest), SGLang 0.5.16 in the Dynamo runtime. vLLM 0.30.0 and SGLang 0.5.20 for llm-d. |
+| Model | NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4 (hybrid Mamba + attention MoE), pinned revision |
+| Data movement | NCCL (TP8), NIXL over UCX with GPUDirect RDMA |
+| Hardware | 2 × 8 × NVIDIA B300, NVLink within each node, 8 × 800 Gb/s InfiniBand rails per node |
 
 ## Validation status
 
-- **Deployment files:** YAML, Compose and Kubernetes structure, and every embedded launch script are checked by the offline test suite (`python -m pytest -q`). The tests also check that the hand-written files launch the same engine flags and environment as the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings.
-- **On hardware:** the disaggregated vLLM worker configuration reproduces the [manual deployment](reference/manual-docker-walkthrough.md), in which both workers initialized and registered with this image and model revision. End-to-end RDMA KV transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** on the reference hosts.
-- **Performance:** no benchmark results are included, and none are fabricated. Section 06 explains how to produce them.
+- **Offline:** `python -m pytest -q` checks the structure of every deployment file and embedded launch script. It also checks that Docker and Kubernetes files launch identical engines, that they match the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings. `python tools/validate.py` checks the manifests against upstream Kubernetes, Compose and InferencePool schemas.
+- **On hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
+- **Performance:** no results are published yet, and none are fabricated. [Benchmarks](benchmarks/) explains how to produce them.
 
-## Conventions
-
-- Run commands **from the repository root**. Each step says which node it runs on.
-- Only one track runs at a time, because each uses all 8 GPUs per node and the same host ports. Stop one before starting the next.
-- Tracks are self-contained. Docker files read site values from `cluster.env`. Kubernetes manifests take placement from node labels and site values from `01-site-config.yaml`.
+Product capabilities reflect the pinned versions in [reference/sources.md](reference/sources.md). Hardware figures are nominal vendor values. To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).

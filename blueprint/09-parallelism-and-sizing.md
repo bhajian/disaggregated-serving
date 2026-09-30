@@ -1,0 +1,75 @@
+# 09 · Parallelism and sizing
+
+[Home](../README.md) › [Blueprint](README.md) › 09 · Parallelism and sizing
+
+## Parallelism: what it splits and where it belongs
+
+| Strategy | Splits | Communication | Place it on | Typical use |
+|---|---|---|---|---|
+| **Tensor (TP)** | Every layer's matrices across GPUs | All-reduce **every layer** | NVLink domain (≤ 8 on HGX) | Fit a large model, lower per-token latency |
+| **Expert (EP)** | MoE experts across GPUs | All-to-all per MoE layer | NVLink; **wide EP** on NVL72 | Large MoE, especially decode |
+| **Data-parallel attention (DP attention)** | Attention by sequence, with experts shared via EP | Gather/scatter around MoE layers | NVLink | MLA models (DeepSeek-class) |
+| **Pipeline (PP)** | Layers into stages across GPUs or nodes | Point-to-point activations between stages | Scale-out fabric acceptable | Models too large for one NVLink domain |
+| **Context / sequence (CP)** | One very long prompt across GPUs | Ring or all-gather of KV | NVLink | Very long-context prefill |
+| **Replicas (DP)** | Independent copies of the model | None between replicas | Anywhere | Throughput scaling |
+| **P/D disaggregation** | Phases across pools | KV transfer per request | GPUDirect RDMA or NVLink | Latency SLOs, long inputs |
+
+**Rule:** the more often a strategy communicates, the closer to NVLink it must live. TP and EP run every layer; PP and P/D run once per stage or per request ([principle 4](02-design-principles.md#4-keep-tight-collectives-inside-the-scale-up-domain)).
+
+Prefill and decode can use **different** parallelism: for example, TP8 for prefill and wide EP for decode on a large MoE. Supporting that is one of disaggregation's main benefits.
+
+## Memory budget per GPU
+
+```text
+HBM usable            = HBM × memory_fraction                 (e.g. 0.80–0.90)
+weights per GPU       = model_bytes / (TP × PP)               (EP divides the expert weights)
+KV budget per GPU     = HBM usable − weights per GPU − activations/workspace
+max resident tokens   = (KV budget per GPU × TP) / KV_bytes_per_token
+concurrent sequences  ≈ max resident tokens / average (ISL + OSL)
+```
+
+*Reference example (illustrative).* Nemotron 3 Ultra NVFP4 is about 352 GB of weights. At TP8 that is about 44 GB per GPU. A B300 has 288 GB, and at 0.80 about 230 GB is usable. That leaves on the order of 150–180 GB per GPU for KV, Mamba state and workspace, which is why 32K contexts at 32 sequences are a conservative starting point.
+
+## Sizing the pools from SLOs
+
+Size from traffic and SLOs, then verify with measurements ([principle 8](02-design-principles.md#8-size-from-slos-not-from-peak-flops)).
+
+**Inputs.** Arrival rate λ (requests/s), average input ISL and output OSL (tokens), the p99 TTFT and p99 ITL targets, and prefix-reuse rate *r* (the fraction of input tokens served from cache).
+
+**Measured per worker** (with this repository's benchmarks, at your SLOs):
+
+- **Tp**: prefill tokens/s one prefill worker sustains while meeting TTFT.
+- **Sd**: concurrent sequences one decode worker sustains while meeting ITL, limited by compute *and* by KV memory.
+
+```text
+Prefill workers   N_P = ⌈ λ × ISL × (1 − r) / Tp ⌉
+Decode sequences  L   = λ × OSL × ITL                 (Little's law: sequences in flight)
+Decode workers    N_D = ⌈ L / Sd ⌉
+```
+
+**Worked example (illustrative numbers).** λ = 2 req/s, ISL = 16,000, OSL = 500, r = 0, ITL target 30 ms.
+
+| Quantity | Value |
+|---|---|
+| Prefill demand | 2 × 16,000 = 32,000 tokens/s |
+| With Tp = 40,000 tokens/s per worker | N_P = 1 (0.8 utilized) |
+| Sequences in decode | 2 × 500 × 0.03 s = 30 |
+| With Sd = 64 per worker | N_D = 1 |
+| **P:D** | **1:1**, which is the reference deployment's shape |
+
+Now double the input length to 32,000 tokens. Prefill demand becomes 64,000 tokens/s, so N_P = 2 while N_D stays 1. The ratio becomes **2:1**. An aggregated design would have to add whole replicas to absorb the same change. This is the scaling argument for disaggregation in numbers.
+
+Add headroom (N+1 per pool) for failures and bursts. Re-measure Tp and Sd whenever the model, engine, precision or context limit changes. Prefix reuse (*r*) reduces prefill demand directly, which is why KV-aware routing and [offloading](08-kv-cache-and-offloading.md) change the sizing.
+
+## Sizing workflow
+
+1. Characterize the traffic: λ over the day, ISL/OSL distributions, prefix reuse. Use redacted production traces if possible.
+2. Choose the model precision and the context limit.
+3. Pick parallelism per phase from the table above and the NVLink domain size ([chapter 07](07-hardware-network-storage.md)).
+4. Deploy one prefill and one decode worker ([deployments/02](../deployments/02-dynamo-disagg-vllm/)) and measure Tp and Sd with [benchmarks/](../benchmarks/) at the target SLOs.
+5. Compute N_P and N_D, and add headroom.
+6. In production, let an SLO-driven autoscaler (Dynamo Planner, llm-d variant autoscaler) track the ratio as traffic shifts.
+
+---
+
+**Next:** [10 · Production operations](10-production-operations.md)

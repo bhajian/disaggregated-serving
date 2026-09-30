@@ -4,10 +4,9 @@
 
 Most problems fall into one of three layers. Diagnose them in this order, because each layer depends on the one before it.
 
-```mermaid
-flowchart LR
-    A["1 · Control path<br/>Ethernet: etcd, HTTP, TCP request plane"] --> B["2 · Worker startup<br/>image, model files, GPU memory"] --> C["3 · Data path<br/>InfiniBand RDMA: NIXL/UCX KV transfer"]
-```
+1. **Control path** over Ethernet: etcd, HTTP and the TCP request plane.
+2. **Worker startup:** image, model files and GPU memory.
+3. **Data path** over InfiniBand: RDMA KV transfer through NIXL and UCX.
 
 A working etcd connection does **not** prove RDMA works, and a failed etcd connection says nothing about InfiniBand. Keep the checks separate.
 
@@ -33,8 +32,8 @@ A working etcd connection does **not** prove RDMA works, and a failed etcd conne
 
 ```bash
 # Docker: state and logs (run on the node, from the repository root)
-docker compose --env-file cluster.env -f <track>/docker/node-a.yaml ps -a
-docker compose --env-file cluster.env -f <track>/docker/node-a.yaml logs --tail 200 <service>
+docker compose --env-file deployments/cluster.env -f deployments/<track>/docker/node-a.yaml ps -a
+docker compose --env-file deployments/cluster.env -f deployments/<track>/docker/node-a.yaml logs --tail 200 <service>
 
 # Kubernetes
 kubectl -n <namespace> get pods -o wide

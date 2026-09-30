@@ -1,4 +1,4 @@
-"""Consistency checks for the hand-written reference deployments (03-, 04-, 05-*).
+"""Consistency checks for the hand-written reference deployments in deployments/01-03.
 
 The reference files are written for humans, so nothing regenerates them. These
 tests make sure they stay consistent with each other and with the flags that
@@ -15,15 +15,15 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE = dict(line.split('=', 1) for line in (ROOT / 'cluster.env.example').read_text().splitlines()
+SITE = dict(line.split('=', 1) for line in (ROOT / 'deployments/cluster.env.example').read_text().splitlines()
             if line and not line.startswith('#'))
 
 # (folder, engine, topology)
 TRACKS = [
-    ('03-aggregated/vllm', 'vllm', 'agg'),
-    ('03-aggregated/sglang', 'sglang', 'agg'),
-    ('04-disaggregated-vllm', 'vllm', 'disagg'),
-    ('05-disaggregated-sglang', 'sglang', 'disagg'),
+    ('deployments/01-aggregated/vllm', 'vllm', 'agg'),
+    ('deployments/01-aggregated/sglang', 'sglang', 'agg'),
+    ('deployments/02-dynamo-disagg-vllm', 'vllm', 'disagg'),
+    ('deployments/03-dynamo-disagg-sglang', 'sglang', 'disagg'),
 ]
 DISAGG_FLAGS = {'--disaggregation-mode', '--kv-transfer-config',
                 '--disaggregation-transfer-backend', '--disaggregation-bootstrap-port'}
@@ -95,8 +95,8 @@ def test_compose_and_kubernetes_launch_identical_engines(folder, engine, topolog
 
 @pytest.mark.parametrize('engine', ['vllm', 'sglang'])
 def test_aggregated_equals_disaggregated_minus_transfer_flags(engine):
-    agg = flags_from_script(compose_workers(f'03-aggregated/{engine}')[0]['command'][0])
-    dis = flags_from_script(compose_workers(f'0{4 if engine == "vllm" else 5}-disaggregated-{engine}')[0]['command'][0])
+    agg = flags_from_script(compose_workers(f'deployments/01-aggregated/{engine}')[0]['command'][0])
+    dis = flags_from_script(compose_workers(f'deployments/0{2 if engine == "vllm" else 3}-dynamo-disagg-{engine}')[0]['command'][0])
     assert agg == {k: v for k, v in dis.items() if k not in DISAGG_FLAGS}
 
 
@@ -137,7 +137,7 @@ def test_control_plane_and_transfer_settings(folder, engine, topology):
 
 
 def test_no_reference_file_sets_the_broken_response_stream_host():
-    for path in [*ROOT.glob('0[3-5]-*/**/*.yaml'), ROOT / 'tools/render.py']:
+    for path in [*ROOT.glob('deployments/**/*.yaml'), ROOT / 'tools/render.py']:
         text = path.read_text()
         for line in text.splitlines():
             if 'DYN_TCP_RESPONSE_STREAM_HOST' in line:

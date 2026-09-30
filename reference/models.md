@@ -2,7 +2,7 @@
 
 [Home](../README.md) › [Reference](README.md) › Models
 
-The reference deployments in 03 to 05 serve **NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4**. This page lists the other model profiles the repository knows about, and how to switch a deployment to one of them.
+The reference deployments in deployments/01–03 serve **NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4**. This page lists the other model profiles the repository knows about, and how to switch a deployment to one of them.
 
 ## Switching a reference deployment to another model
 
@@ -10,7 +10,7 @@ The hand-written deployment files spell out every flag, so switching models mean
 
 | What | Where | Nemotron value | Example: Qwen3-Coder-480B FP8 |
 |---|---|---|---|
-| Weights path | `MODEL_DIR` in `cluster.env`, or the `hostPath` volumes in Kubernetes | `/data/nemotron-ultra/model` | `/data/models/qwen-480b` |
+| Weights path | `MODEL_DIR` in `deployments/cluster.env`, or the `hostPath` volumes in Kubernetes | `/data/nemotron-ultra/model` | `/data/models/qwen-480b` |
 | Revision check | `grep -qx <sha>` line in each worker command | `252a02f9…` | `003f183a92fbe5b9a8325aaa8b2ae797c91dd90f` |
 | API model name | `--served-model-name` | `nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-NVFP4` | `Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8` |
 | Model-specific engine flags | vLLM: `--attention-backend` through `--reasoning-parser`. SGLang: none beyond `--trust-remote-code`. | Nemotron hybrid kernels + parsers | **Remove** them. Qwen needs none. |
@@ -25,7 +25,7 @@ The exact values for every profile are in [configs/models.yaml](../configs/model
 
 ```bash
 python tools/render.py --target compose --model qwen-480b --out build/compose-qwen
-diff <(grep -- '--' 04-disaggregated-vllm/docker/node-a.yaml) <(grep -- '- --' build/compose-qwen/node-a.yaml)
+diff <(grep -- '--' deployments/02-dynamo-disagg-vllm/docker/node-a.yaml) <(grep -- '- --' build/compose-qwen/node-a.yaml)
 ```
 
 Download the new model on **both** nodes first (`python tools/download_model.py --model qwen-480b`), and stop both workers before switching.
