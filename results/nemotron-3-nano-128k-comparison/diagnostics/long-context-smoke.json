@@ -1,0 +1,31 @@
+{
+  "test": "128K context retrieval, marker inserted halfway through corpus",
+  "planned_prompt_tokens": 128014,
+  "elapsed_s": 4.0147703340044245,
+  "passed": true,
+  "response": {
+    "id": "chatcmpl-289c6847-6593-49a7-be0a-ca6ac24f2cb1",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "content": "ORBIT-7319",
+          "role": "assistant",
+          "reasoning_content": null
+        },
+        "finish_reason": "stop",
+        "logprobs": null
+      }
+    ],
+    "created": 1790811932,
+    "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+    "service_tier": null,
+    "system_fingerprint": null,
+    "object": "chat.completion",
+    "usage": {
+      "prompt_tokens": 128014,
+      "completion_tokens": 8,
+      "total_tokens": 128022
+    }
+  }
+}

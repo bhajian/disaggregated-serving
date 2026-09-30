@@ -58,6 +58,9 @@ For **Nebius MK8s with 2 × 8 H200 and DeepSeek V4 Pro**, use the
 download Jobs, persistent volumes, and a LoadBalancer; the B300 defaults below
 are for the original reference topology.
 
+The same H200 cluster also runs the [Nemotron 3 Nano 128K comparison](deployments/06-nemotron-3-nano-h200/),
+with separate cached weights on the existing PVCs and three repeats per topology.
+
 ## Choose your path
 
 | You are… | Follow | Outcome |
@@ -105,8 +108,8 @@ are for the original reference topology.
 ## Validation status
 
 - **Offline:** `python -m pytest -q` checks the structure of every deployment file and embedded launch script. It also checks that Docker and Kubernetes files launch identical engines, that they match the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings. `python tools/validate.py` checks the manifests against upstream Kubernetes, Compose and InferencePool schemas.
-- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deployments/05-deepseek-v4-pro-h200/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The current deployment uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md).
+- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deployments/05-deepseek-v4-pro-h200/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The saved DeepSeek configuration uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md). The shared cluster subsequently switched to [Nemotron 3 Nano at 128K](deployments/06-nemotron-3-nano-h200/). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md).
 - **On the B300 reference hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
-- **Performance:** the H200 [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements.
+- **Performance:** the H200 [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements. The [Nemotron 3 Nano 128K comparison](deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md) adds three repeats per topology and 576 valid requests on the same H200 cluster.
 
 Product capabilities reflect the pinned versions in [reference/sources.md](reference/sources.md). Hardware figures are nominal vendor values. To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).

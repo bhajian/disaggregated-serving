@@ -7,3 +7,8 @@
 For the live DeepSeek V4 Pro deployment, follow the [performance runbook](../deployments/05-deepseek-v4-pro-h200/PERFORMANCE.md). The notebook includes concurrency sweep curves as well as the existing one-concurrency comparisons. Set `DISAGG_RESULTS` to the dedicated performance folder before running its loading cell.
 
 [deepseek_v4_pro_256k.ipynb](deepseek_v4_pro_256k.ipynb) is the matched 256K-input H200 comparison. It audits identical request bodies and plots whole-run metrics plus first-turn/follow-up latency. See the [experiment protocol](../deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md).
+
+[nemotron_3_nano_128k.ipynb](nemotron_3_nano_128k.ipynb) repeats the H200 comparison
+with Nemotron 3 Nano at 128K input, three runs per topology. It audits identical
+requests across repeats and shows run means/ranges plus first-turn/follow-up
+latency. See the [128K protocol](../deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md).

@@ -1,0 +1,23 @@
+Model discovery passed
+{
+  "status": "passed",
+  "endpoint": "http://<LOADBALANCER_IP>:8000",
+  "requests": [
+    {
+      "stream": false,
+      "answer": "42"
+    },
+    {
+      "stream": true,
+      "answer": "42"
+    },
+    {
+      "stream": false,
+      "answer": "42"
+    },
+    {
+      "stream": true,
+      "answer": "42"
+    }
+  ]
+}
