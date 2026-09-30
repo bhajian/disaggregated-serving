@@ -261,9 +261,9 @@ def parser():
     p.add_argument('--base-url', required=True, help='API URL including /v1')
     p.add_argument('--model', required=True)
     p.add_argument('--technology', required=True, choices=[
-        'dynamo-agg-compose', 'dynamo-agg-k8s',        # 03-aggregated
-        'dynamo-disagg-compose', 'dynamo-disagg-k8s',  # 04/05 disaggregated
-        'llmd-k8s',                                    # 07-llm-d
+        'dynamo-agg-compose', 'dynamo-agg-k8s',        # deployments/01-aggregated
+        'dynamo-disagg-compose', 'dynamo-disagg-k8s',  # deployments/02, 03
+        'llmd-k8s',                                    # deployments/04-llm-d-disagg
         'dynamo-compose', 'dynamo-k8s'],               # legacy labels (= disaggregated)
         help='Must match the "technology" field of --deployment when both are given')
     p.add_argument('--backend', choices=['vllm', 'sglang'],

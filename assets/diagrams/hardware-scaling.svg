@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 740" width="1360" height="740" role="img" aria-label="Left: two 8-GPU servers, each its own NVLink domain, connected by an InfiniBand or Ethernet fabric; KV moves between servers over RDMA. Right: a rack-scale NVLink domain of 72 GPUs where prefill and decode GPUs exchange KV over NVLink and wide expert parallelism spans the rack.">
+<title>Left: two 8-GPU servers, each its own NVLink domain, connected by an InfiniBand or Ethernet fabric; KV moves between servers over RDMA. Right: a rack-scale NVLink domain of 72 GPUs where prefill and decode GPUs exchange KV over NVLink and wide expert parallelism spans the rack.</title>
+<style>
+text { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #0F172A; }
+.title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.subtitle { font-size: 13.5px; fill: #475569; }
+.h { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lbl { font-size: 13px; font-weight: 600; }
+.lbl-lg { font-size: 15px; font-weight: 700; }
+.sub { font-size: 11.5px; fill: #475569; }
+.small { font-size: 11px; fill: #475569; }
+.tiny { font-size: 10px; fill: #475569; }
+.note { font-size: 11.5px; fill: #475569; font-style: italic; }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; fill: #475569; }
+.edge { font-size: 11.5px; font-weight: 600; fill: #475569; }
+.edge-kv { font-size: 12px; font-weight: 700; fill: #E11D48; }
+.num { font-size: 11px; font-weight: 700; fill: #FFFFFF; }
+</style>
+<defs><marker id="aE11D48" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E11D48"/></marker></defs>
+<rect x="0.5" y="0.5" width="1359" height="739" rx="18" fill="#FFFFFF" stroke="#E2E8F0"/>
+<text x="36" y="46" class="title">Scale-out servers vs scale-up racks</text>
+<text x="36" y="70" class="subtitle">Where the KV cache moves decides how far disaggregation and expert parallelism can stretch.</text>
+<rect x="36" y="96" width="620" height="620" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="56" y="124" class="h" text-anchor="start" style="fill:#475569">SCALE-OUT</text>
+<text x="56" y="146" class="lbl-lg" text-anchor="start">8-GPU servers · HGX H200 / B200 / B300</text>
+<rect x="66" y="176" width="260" height="230" rx="12" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.3"/>
+<text x="80" y="198" class="lbl" text-anchor="start" style="fill:#C2410C">Server 1 · prefill</text>
+<rect x="80" y="210" width="232" height="124" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="196" y="226" class="tiny" text-anchor="middle" style="fill:#0F172A;font-weight:600">NVLink domain · 8 GPUs</text>
+<rect x="92" y="236" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="115" y="259" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="146" y="236" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="169" y="259" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="200" y="236" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="223" y="259" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="254" y="236" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="277" y="259" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="92" y="282" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="115" y="305" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="146" y="282" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="169" y="305" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="200" y="282" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="223" y="305" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="254" y="282" width="46" height="38" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1.1"/>
+<text x="277" y="305" class="tiny" text-anchor="middle" style="fill:#C2410C;font-weight:600">GPU</text>
+<rect x="80" y="346" width="232" height="44" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1"/>
+<text x="196" y="373" class="sub" text-anchor="middle" style="fill:#0F172A">8 × NIC (one per GPU)</text>
+<line x1="196" y1="390" x2="196" y2="440" stroke="#475569" stroke-width="1.6"/>
+<rect x="366" y="176" width="260" height="230" rx="12" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.3"/>
+<text x="380" y="198" class="lbl" text-anchor="start" style="fill:#1D4ED8">Server 2 · decode</text>
+<rect x="380" y="210" width="232" height="124" rx="10" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1" stroke-dasharray="5 3"/>
+<text x="496" y="226" class="tiny" text-anchor="middle" style="fill:#0F172A;font-weight:600">NVLink domain · 8 GPUs</text>
+<rect x="392" y="236" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="415" y="259" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="446" y="236" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="469" y="259" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="500" y="236" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="523" y="259" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="554" y="236" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="577" y="259" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="392" y="282" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="415" y="305" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="446" y="282" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="469" y="305" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="500" y="282" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="523" y="305" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="554" y="282" width="46" height="38" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.1"/>
+<text x="577" y="305" class="tiny" text-anchor="middle" style="fill:#1D4ED8;font-weight:600">GPU</text>
+<rect x="380" y="346" width="232" height="44" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1"/>
+<text x="496" y="373" class="sub" text-anchor="middle" style="fill:#0F172A">8 × NIC (one per GPU)</text>
+<line x1="496" y1="390" x2="496" y2="440" stroke="#475569" stroke-width="1.6"/>
+<rect x="66" y="440" width="560" height="40" rx="10" fill="#1E293B" stroke="#1E293B" stroke-width="1"/>
+<text x="346" y="465" class="sub" text-anchor="middle" style="fill:#F8FAFC">InfiniBand / Spectrum-X Ethernet fabric</text>
+<polyline points="326,290 366,290" fill="none" stroke="#E11D48" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#aE11D48)"/>
+<text x="346" y="278" class="edge-kv" text-anchor="middle">KV</text>
+<text x="346" y="318" class="tiny" text-anchor="middle" style="fill:#E11D48;font-weight:700">RDMA</text>
+<line x1="56" y1="518" x2="636" y2="518" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="540" class="lbl" text-anchor="start" style="font-size:12px">TP / EP</text>
+<text x="196" y="540" class="sub" text-anchor="start">up to 8 GPUs, inside one server</text>
+<line x1="56" y1="554" x2="636" y2="554" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="576" class="lbl" text-anchor="start" style="font-size:12px">P/D transfer</text>
+<text x="196" y="576" class="sub" text-anchor="start">across the fabric, GPUDirect RDMA</text>
+<line x1="56" y1="590" x2="636" y2="590" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="612" class="lbl" text-anchor="start" style="font-size:12px">Grows by</text>
+<text x="196" y="612" class="sub" text-anchor="start">adding servers; fabric bandwidth per GPU</text>
+<line x1="56" y1="626" x2="636" y2="626" stroke="#E2E8F0" stroke-width="1"/>
+<text x="56" y="648" class="lbl" text-anchor="start" style="font-size:12px">Reference here</text>
+<text x="196" y="648" class="sub" text-anchor="start">2 × 8 × B300 (deployments 01–04)</text>
+<rect x="684" y="96" width="640" height="620" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="704" y="124" class="h" text-anchor="start" style="fill:#475569">SCALE-UP</text>
+<text x="704" y="146" class="lbl-lg" text-anchor="start">Rack-scale NVLink · GB200 / GB300 NVL72, Vera Rubin</text>
+<rect x="714" y="176" width="580" height="312" rx="12" fill="#F1F5F9" stroke="#94A3B8" stroke-width="1.3" stroke-dasharray="5 3"/>
+<text x="1004" y="198" class="tiny" text-anchor="middle" style="fill:#0F172A;font-weight:600">One NVLink domain · 72 GPUs</text>
+<rect x="734" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="776" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="818" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="860" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="902" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="944" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="986" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1028" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1070" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1112" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1154" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1196" y="212" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="734" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="776" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="818" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="860" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="902" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="944" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="986" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1028" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1070" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1112" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1154" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="1196" y="252" width="34" height="32" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+<rect x="734" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="776" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="818" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="860" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="902" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="944" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="986" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1028" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1070" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1112" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1154" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1196" y="292" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="734" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="776" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="818" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="860" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="902" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="944" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="986" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1028" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1070" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1112" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1154" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1196" y="364" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="734" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="776" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="818" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="860" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="902" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="944" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="986" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1028" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1070" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1112" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1154" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1196" y="404" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="734" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="776" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="818" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="860" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="902" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="944" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="986" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1028" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1070" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1112" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1154" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="1196" y="444" width="34" height="32" rx="5" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1"/>
+<rect x="734" y="334" width="496" height="22" rx="5" fill="#CBD5E1" stroke="#94A3B8" stroke-width="1"/>
+<text x="982" y="349" class="tiny" text-anchor="middle" style="fill:#0F172A;font-weight:600">NVLink switch trays · all-to-all</text>
+<polyline points="1234,244 1256,244 1256,416 1234,416" fill="none" stroke="#E11D48" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#aE11D48)"/>
+<text x="1272" y="330" class="edge-kv" text-anchor="middle" transform="rotate(90 1272 330)">KV over NVLink</text>
+<text x="734" y="510" class="tiny" text-anchor="start">prefill GPUs (top two rows) · decode GPUs (other rows) · wide EP spans all 72</text>
+<rect x="714" y="522" width="580" height="36" rx="10" fill="#1E293B" stroke="#1E293B" stroke-width="1"/>
+<text x="1004" y="545" class="sub" text-anchor="middle" style="fill:#F8FAFC">Scale-out fabric to other racks</text>
+<line x1="704" y1="590" x2="1304" y2="590" stroke="#E2E8F0" stroke-width="1"/>
+<text x="704" y="612" class="lbl" text-anchor="start" style="font-size:12px">TP / EP</text>
+<text x="844" y="612" class="sub" text-anchor="start">wide EP across up to 72 GPUs (large MoE decode)</text>
+<line x1="704" y1="626" x2="1304" y2="626" stroke="#E2E8F0" stroke-width="1"/>
+<text x="704" y="648" class="lbl" text-anchor="start" style="font-size:12px">P/D transfer</text>
+<text x="844" y="648" class="sub" text-anchor="start">over NVLink inside the rack; RDMA between racks</text>
+<line x1="704" y1="662" x2="1304" y2="662" stroke="#E2E8F0" stroke-width="1"/>
+<text x="704" y="684" class="lbl" text-anchor="start" style="font-size:12px">Grows by</text>
+<text x="844" y="684" class="sub" text-anchor="start">adding racks; NVLink bandwidth per GPU is several × a NIC</text>
+</svg>

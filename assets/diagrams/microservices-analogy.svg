@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 800" width="1360" height="800" role="img" aria-label="Two by two comparison. A monolith maps to aggregated serving; microservices map to disaggregated serving. API gateway maps to the router, the service registry to etcd or the InferencePool, the autoscaler to the Planner. Unlike microservices, prefill hands decode gigabytes of KV cache over RDMA.">
+<title>Two by two comparison. A monolith maps to aggregated serving; microservices map to disaggregated serving. API gateway maps to the router, the service registry to etcd or the InferencePool, the autoscaler to the Planner. Unlike microservices, prefill hands decode gigabytes of KV cache over RDMA.</title>
+<style>
+text { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #0F172A; }
+.title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.subtitle { font-size: 13.5px; fill: #475569; }
+.h { font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lbl { font-size: 13px; font-weight: 600; }
+.lbl-lg { font-size: 15px; font-weight: 700; }
+.sub { font-size: 11.5px; fill: #475569; }
+.small { font-size: 11px; fill: #475569; }
+.tiny { font-size: 10px; fill: #475569; }
+.note { font-size: 11.5px; fill: #475569; font-style: italic; }
+.mono { font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; fill: #475569; }
+.edge { font-size: 11.5px; font-weight: 600; fill: #475569; }
+.edge-kv { font-size: 12px; font-weight: 700; fill: #E11D48; }
+.num { font-size: 11px; font-weight: 700; fill: #FFFFFF; }
+</style>
+<defs><marker id="a475569" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker><marker id="aE11D48" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E11D48"/></marker></defs>
+<rect x="0.5" y="0.5" width="1359" height="799" rx="18" fill="#FFFFFF" stroke="#E2E8F0"/>
+<text x="36" y="46" class="title">Disaggregated serving is the microservices pattern for inference</text>
+<text x="36" y="70" class="subtitle">Split a monolith by resource profile, scale each part for its own traffic. The difference: the hand-off is gigabytes.</text>
+<text x="341" y="104" class="h" text-anchor="middle" style="fill:#475569">CLASSIC APPLICATION</text>
+<text x="1019" y="104" class="h" text-anchor="middle" style="fill:#475569">LLM INFERENCE</text>
+<rect x="36" y="118" width="610" height="250" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="54" y="144" class="lbl-lg" text-anchor="start">Monolith</text>
+<rect x="714" y="118" width="610" height="250" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="732" y="144" class="lbl-lg" text-anchor="start">Aggregated serving</text>
+<rect x="241" y="158" width="200" height="40" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="341.0" y="183.0" class="lbl" text-anchor="middle" style="fill:#4338CA">Load balancer</text>
+<rect x="919" y="158" width="200" height="40" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="1019.0" y="183.0" class="lbl" text-anchor="middle" style="fill:#4338CA">Router</text>
+<rect x="76" y="222" width="240" height="116" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="88" y="242" class="small" text-anchor="start">Instance 1</text>
+<rect x="88" y="252" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="140.0" y="273.0" class="lbl" text-anchor="middle" style="fill:#334155">UI</text>
+<rect x="200" y="252" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="252.0" y="273.0" class="lbl" text-anchor="middle" style="fill:#334155">Orders</text>
+<rect x="88" y="292" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="140.0" y="313.0" class="lbl" text-anchor="middle" style="fill:#334155">Search</text>
+<rect x="200" y="292" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="252.0" y="313.0" class="lbl" text-anchor="middle" style="fill:#334155">Payments</text>
+<polyline points="341,198 341,210 196,210 196,220" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="754" y="222" width="240" height="116" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="766" y="242" class="small" text-anchor="start">Replica 1 · 8 GPUs</text>
+<rect x="766" y="252" width="216" height="34" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.3"/>
+<text x="874.0" y="274.0" class="lbl" text-anchor="middle" style="fill:#C2410C">Prefill</text>
+<rect x="766" y="292" width="216" height="34" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.3"/>
+<text x="874.0" y="314.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Decode</text>
+<polyline points="1019,198 1019,210 874,210 874,220" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="366" y="222" width="240" height="116" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="378" y="242" class="small" text-anchor="start">Instance 2</text>
+<rect x="378" y="252" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="430.0" y="273.0" class="lbl" text-anchor="middle" style="fill:#334155">UI</text>
+<rect x="490" y="252" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="542.0" y="273.0" class="lbl" text-anchor="middle" style="fill:#334155">Orders</text>
+<rect x="378" y="292" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="430.0" y="313.0" class="lbl" text-anchor="middle" style="fill:#334155">Search</text>
+<rect x="490" y="292" width="104" height="32" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="542.0" y="313.0" class="lbl" text-anchor="middle" style="fill:#334155">Payments</text>
+<polyline points="341,198 341,210 486,210 486,220" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="1044" y="222" width="240" height="116" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="1056" y="242" class="small" text-anchor="start">Replica 2 · 8 GPUs</text>
+<rect x="1056" y="252" width="216" height="34" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.3"/>
+<text x="1164.0" y="274.0" class="lbl" text-anchor="middle" style="fill:#C2410C">Prefill</text>
+<rect x="1056" y="292" width="216" height="34" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.3"/>
+<text x="1164.0" y="314.0" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Decode</text>
+<polyline points="1019,198 1019,210 1164,210 1164,220" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<text x="680" y="250" class="title" text-anchor="middle" style="fill:#94A3B8">≈</text>
+<rect x="36" y="388" width="610" height="300" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="54" y="414" class="lbl-lg" text-anchor="start">Microservices</text>
+<rect x="714" y="388" width="610" height="300" rx="14" fill="#FCFCFD" stroke="#E2E8F0" stroke-width="1.2"/>
+<text x="732" y="414" class="lbl-lg" text-anchor="start">Disaggregated serving</text>
+<rect x="241" y="428" width="200" height="40" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="341.0" y="453.0" class="lbl" text-anchor="middle" style="fill:#4338CA">API gateway</text>
+<rect x="74" y="502" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<rect x="70" y="506" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<rect x="66" y="510" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="176" y="534" class="lbl" text-anchor="middle" style="fill:#0F172A">Search service</text>
+<text x="176" y="552" class="sub" text-anchor="middle">read-heavy · 3 replicas</text>
+<polyline points="341,468 341,484 176,484 176,500" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="404" y="502" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<rect x="400" y="506" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<rect x="396" y="510" width="220" height="60" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.2"/>
+<text x="506" y="534" class="lbl" text-anchor="middle" style="fill:#0F172A">Orders service</text>
+<text x="506" y="552" class="sub" text-anchor="middle">write-heavy · 1 replica</text>
+<polyline points="341,468 341,484 506,484 506,500" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<polyline points="294,540 388,540" fill="none" stroke="#475569" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<text x="341" y="596" class="edge" text-anchor="middle">JSON · kilobytes</text>
+<text x="341" y="612" class="tiny" text-anchor="middle" style="fill:#475569">HTTP / gRPC</text>
+<rect x="66" y="628" width="250" height="40" rx="10" fill="#FAF5FF" stroke="#C084FC" stroke-width="1.3"/>
+<text x="191.0" y="646.0" class="lbl" text-anchor="middle" style="fill:#7E22CE">Service registry</text>
+<text x="191.0" y="662.0" class="sub" text-anchor="middle">discovery</text>
+<rect x="366" y="628" width="250" height="40" rx="10" fill="#FAF5FF" stroke="#C084FC" stroke-width="1.3"/>
+<text x="491.0" y="646.0" class="lbl" text-anchor="middle" style="fill:#7E22CE">Autoscaler (HPA)</text>
+<text x="491.0" y="662.0" class="sub" text-anchor="middle">scales each service</text>
+<rect x="919" y="428" width="200" height="40" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.3"/>
+<text x="1019.0" y="453.0" class="lbl" text-anchor="middle" style="fill:#4338CA">Frontend / router</text>
+<rect x="752" y="502" width="220" height="60" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.2"/>
+<rect x="748" y="506" width="220" height="60" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.2"/>
+<rect x="744" y="510" width="220" height="60" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="1.2"/>
+<text x="854" y="534" class="lbl" text-anchor="middle" style="fill:#C2410C">Prefill service</text>
+<text x="854" y="552" class="sub" text-anchor="middle">compute-bound · 3 workers</text>
+<polyline points="1019,468 1019,484 854,484 854,500" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<rect x="1082" y="502" width="220" height="60" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+<rect x="1078" y="506" width="220" height="60" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+<rect x="1074" y="510" width="220" height="60" rx="10" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.2"/>
+<text x="1184" y="534" class="lbl" text-anchor="middle" style="fill:#1D4ED8">Decode service</text>
+<text x="1184" y="552" class="sub" text-anchor="middle">bandwidth-bound · 2 workers</text>
+<polyline points="1019,468 1019,484 1184,484 1184,500" fill="none" stroke="#475569" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#a475569)"/>
+<polyline points="972,540 1066,540" fill="none" stroke="#E11D48" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#aE11D48)"/>
+<text x="1019" y="596" class="edge-kv" text-anchor="middle">KV cache · gigabytes</text>
+<text x="1019" y="612" class="tiny" text-anchor="middle" style="fill:#E11D48">RDMA · NIXL</text>
+<rect x="744" y="628" width="250" height="40" rx="10" fill="#FAF5FF" stroke="#C084FC" stroke-width="1.3"/>
+<text x="869.0" y="646.0" class="lbl" text-anchor="middle" style="fill:#7E22CE">etcd / InferencePool</text>
+<text x="869.0" y="662.0" class="sub" text-anchor="middle">discovery</text>
+<rect x="1044" y="628" width="250" height="40" rx="10" fill="#FAF5FF" stroke="#C084FC" stroke-width="1.3"/>
+<text x="1169.0" y="646.0" class="lbl" text-anchor="middle" style="fill:#7E22CE">Planner / autoscaler</text>
+<text x="1169.0" y="662.0" class="sub" text-anchor="middle">scales each service</text>
+<text x="680" y="540" class="title" text-anchor="middle" style="fill:#94A3B8">≈</text>
+<rect x="36" y="708" width="1288" height="64" rx="12" fill="#FFF1F2" stroke="#FDA4AF" stroke-width="1.2"/>
+<text x="56" y="734" class="lbl" text-anchor="start" style="fill:#E11D48">What carries over:</text>
+<text x="196" y="734" class="sub" text-anchor="start" style="fill:#0F172A">split by resource profile · scale each part for its own traffic · a gateway routes · a registry discovers · an autoscaler right-sizes.</text>
+<text x="56" y="756" class="lbl" text-anchor="start" style="fill:#E11D48">What does not:</text>
+<text x="196" y="756" class="sub" text-anchor="start" style="fill:#0F172A">services exchange kilobytes; prefill hands decode gigabytes of state per request, so the GPU fabric (RDMA, NVLink) becomes part of the architecture.</text>
+</svg>

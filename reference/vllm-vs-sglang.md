@@ -2,7 +2,7 @@
 
 [Home](../README.md) › [Reference](README.md) › vLLM vs SGLang
 
-Dynamo wraps both engines with the same frontend, router and discovery, so tracks 04 and 05 differ only in the workers. This page maps the settings between them.
+Dynamo wraps both engines with the same frontend, router and discovery, so deployment tracks 02 and 03 differ only in the workers. This page maps the settings between them.
 
 ## Runtime and launch
 
@@ -10,7 +10,7 @@ Dynamo wraps both engines with the same frontend, router and discovery, so track
 |---|---|---|
 | Dynamo worker | `python3 -m dynamo.vllm` | `python3 -m dynamo.sglang` |
 | Dynamo image | `nvcr.io/nvidia/ai-dynamo/vllm-runtime:1.4.0` (vLLM 0.26.0), pinned by digest | `nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0` (SGLang 0.5.16 base) |
-| llm-d worker ([07](../07-llm-d/)) | `vllm serve`, image `vllm/vllm-openai:v0.30.0` | `python3 -m sglang.launch_server`, image `lmsysorg/sglang:v0.5.20` |
+| llm-d worker ([deployments/04](../deployments/04-llm-d-disagg/)) | `vllm serve`, image `vllm/vllm-openai:v0.30.0` | `python3 -m sglang.launch_server`, image `lmsysorg/sglang:v0.5.20` |
 | Model path flag | `--model /model` | `--model-path /model` |
 
 Each engine uses a complete engine-specific image. Never pip-install one engine into the other's image.
@@ -31,7 +31,7 @@ The two schedulers interpret these limits differently. Equal numbers do not guar
 
 ## Disaggregation and KV transfer
 
-| | vLLM (track 04) | SGLang (track 05) |
+| | vLLM (track 02) | SGLang (track 03) |
 |---|---|---|
 | Role | `--disaggregation-mode prefill\|decode` | `--disaggregation-mode prefill\|decode` |
 | Transfer | `--kv-transfer-config '{"kv_connector":"NixlConnector","kv_role":"kv_both"}'` | `--disaggregation-transfer-backend nixl` |
