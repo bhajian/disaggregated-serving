@@ -1,0 +1,110 @@
+p4 chatbot-8128026-4: success=True valid=True TTFT=465ms tokens=8192 TPOT=5.39ms coverage=1.0
+p3 chatbot-8128026-3: success=True valid=True TTFT=302ms tokens=8192 TPOT=5.45ms coverage=1.0
+p7 chatbot-8128026-23: success=True valid=True TTFT=630ms tokens=8192 TPOT=5.41ms coverage=1.0
+p14 chatbot-8128026-30: success=True valid=True TTFT=797ms tokens=8192 TPOT=5.47ms coverage=1.0
+p4 chatbot-8128026-20: success=True valid=True TTFT=1124ms tokens=8192 TPOT=5.43ms coverage=1.0
+p15 chatbot-8128026-63: success=True valid=True TTFT=960ms tokens=8192 TPOT=5.47ms coverage=1.0
+p13 chatbot-8128026-13: success=True valid=True TTFT=1289ms tokens=8192 TPOT=5.43ms coverage=1.0
+p6 chatbot-8128026-22: success=True valid=True TTFT=1458ms tokens=8192 TPOT=5.42ms coverage=1.0
+p10 chatbot-8128026-90: success=True valid=True TTFT=1620ms tokens=8192 TPOT=5.42ms coverage=1.0
+p4 chatbot-8128026-52: success=True valid=True TTFT=1792ms tokens=8192 TPOT=5.43ms coverage=1.0
+p3 chatbot-8128026-67: success=True valid=True TTFT=2117ms tokens=8192 TPOT=5.43ms coverage=1.0
+p8 chatbot-8128026-56: success=True valid=True TTFT=1956ms tokens=8192 TPOT=5.48ms coverage=1.0
+p13 chatbot-8128026-77: success=True valid=True TTFT=2283ms tokens=8192 TPOT=5.45ms coverage=1.0
+p1 chatbot-8128026-65: success=True valid=True TTFT=2444ms tokens=8192 TPOT=5.43ms coverage=1.0
+p14 chatbot-8128026-14: success=True valid=True TTFT=2614ms tokens=8192 TPOT=5.44ms coverage=1.0
+p13 chatbot-8128026-61: success=True valid=True TTFT=2779ms tokens=8192 TPOT=5.44ms coverage=1.0
+p10 chatbot-8128026-58: success=True valid=True TTFT=3485ms tokens=8192 TPOT=5.43ms coverage=1.0
+p5 chatbot-8128026-21: success=True valid=True TTFT=3320ms tokens=8192 TPOT=5.47ms coverage=1.0
+p11 chatbot-8128026-11: success=True valid=True TTFT=4232ms tokens=8192 TPOT=5.43ms coverage=1.0
+p5 chatbot-8128026-37: success=True valid=True TTFT=3653ms tokens=8192 TPOT=5.52ms coverage=1.0
+p8 chatbot-8128026-88: success=True valid=True TTFT=3976ms tokens=8192 TPOT=5.48ms coverage=1.0
+p2 chatbot-8128026-66: success=True valid=True TTFT=4065ms tokens=8192 TPOT=5.48ms coverage=1.0
+p2 chatbot-8128026-2: success=True valid=True TTFT=3818ms tokens=8192 TPOT=5.52ms coverage=1.0
+p8 chatbot-8128026-72: success=True valid=True TTFT=4719ms tokens=8192 TPOT=5.43ms coverage=1.0
+p10 chatbot-8128026-10: success=True valid=True TTFT=4394ms tokens=8192 TPOT=5.48ms coverage=1.0
+p0 chatbot-8128026-64: success=True valid=True TTFT=4879ms tokens=8192 TPOT=5.48ms coverage=1.0
+p9 chatbot-8128026-41: success=True valid=True TTFT=4555ms tokens=8192 TPOT=5.52ms coverage=1.0
+p0 chatbot-8128026-0: success=True valid=True TTFT=5207ms tokens=8192 TPOT=5.48ms coverage=1.0
+p7 chatbot-8128026-87: success=True valid=True TTFT=5370ms tokens=8192 TPOT=5.48ms coverage=1.0
+p5 chatbot-8128026-69: success=True valid=True TTFT=5044ms tokens=8192 TPOT=5.53ms coverage=1.0
+p13 chatbot-8128026-29: success=True valid=True TTFT=5559ms tokens=8192 TPOT=5.48ms coverage=1.0
+p1 chatbot-8128026-1: success=True valid=True TTFT=6051ms tokens=8192 TPOT=5.42ms coverage=1.0
+p12 chatbot-8128026-92: success=True valid=True TTFT=5884ms tokens=8192 TPOT=5.47ms coverage=1.0
+p5 chatbot-8128026-85: success=True valid=True TTFT=6558ms tokens=8192 TPOT=5.42ms coverage=1.0
+p6 chatbot-8128026-54: success=True valid=True TTFT=5726ms tokens=8192 TPOT=5.53ms coverage=1.0
+p7 chatbot-8128026-71: success=True valid=True TTFT=7050ms tokens=8192 TPOT=5.42ms coverage=1.0
+p7 chatbot-8128026-39: success=True valid=True TTFT=6720ms tokens=8192 TPOT=5.47ms coverage=1.0
+p8 chatbot-8128026-8: success=True valid=True TTFT=7217ms tokens=8192 TPOT=5.42ms coverage=1.0
+p1 chatbot-8128026-81: success=True valid=True TTFT=6883ms tokens=8192 TPOT=5.47ms coverage=1.0
+p10 chatbot-8128026-26: success=True valid=True TTFT=7375ms tokens=8192 TPOT=5.42ms coverage=1.0
+p0 chatbot-8128026-32: success=True valid=True TTFT=8281ms tokens=8192 TPOT=5.40ms coverage=1.0
+p12 chatbot-8128026-28: success=True valid=True TTFT=7541ms tokens=8192 TPOT=5.51ms coverage=1.0
+p6 chatbot-8128026-6: success=True valid=True TTFT=7957ms tokens=8192 TPOT=5.46ms coverage=1.0
+p14 chatbot-8128026-46: success=True valid=True TTFT=7703ms tokens=8192 TPOT=5.51ms coverage=1.0
+p5 chatbot-8128026-5: success=True valid=True TTFT=7794ms tokens=8192 TPOT=5.51ms coverage=1.0
+p9 chatbot-8128026-89: success=True valid=True TTFT=8119ms tokens=8192 TPOT=5.51ms coverage=1.0
+p0 chatbot-8128026-16: success=True valid=True TTFT=8765ms tokens=8192 TPOT=5.44ms coverage=1.0
+p2 chatbot-8128026-34: success=True valid=True TTFT=8442ms tokens=8192 TPOT=5.50ms coverage=1.0
+p12 chatbot-8128026-76: success=True valid=True TTFT=9092ms tokens=8192 TPOT=5.43ms coverage=1.0
+p0 chatbot-8128026-80: success=True valid=True TTFT=8602ms tokens=8192 TPOT=5.50ms coverage=1.0
+p1 chatbot-8128026-33: success=True valid=True TTFT=9946ms tokens=8192 TPOT=5.35ms coverage=1.0
+p5 chatbot-8128026-53: success=True valid=True TTFT=10114ms tokens=8192 TPOT=5.34ms coverage=1.0
+p12 chatbot-8128026-12: success=True valid=True TTFT=8930ms tokens=8192 TPOT=5.50ms coverage=1.0
+p8 chatbot-8128026-40: success=True valid=True TTFT=9256ms tokens=8192 TPOT=5.49ms coverage=1.0
+p9 chatbot-8128026-25: success=True valid=True TTFT=10276ms tokens=8192 TPOT=5.40ms coverage=1.0
+p15 chatbot-8128026-95: success=True valid=True TTFT=9786ms tokens=8192 TPOT=5.47ms coverage=1.0
+p6 chatbot-8128026-86: success=True valid=True TTFT=10439ms tokens=8192 TPOT=5.40ms coverage=1.0
+p12 chatbot-8128026-44: success=True valid=True TTFT=11670ms tokens=8192 TPOT=5.30ms coverage=1.0
+p3 chatbot-8128026-83: success=True valid=True TTFT=11090ms tokens=8192 TPOT=5.37ms coverage=1.0
+p15 chatbot-8128026-79: success=True valid=True TTFT=10603ms tokens=8192 TPOT=5.44ms coverage=1.0
+p9 chatbot-8128026-57: success=True valid=True TTFT=11833ms tokens=8192 TPOT=5.29ms coverage=1.0
+p15 chatbot-8128026-31: success=True valid=True TTFT=11256ms tokens=8192 TPOT=5.37ms coverage=1.0
+p9 chatbot-8128026-9: success=True valid=True TTFT=10773ms tokens=8192 TPOT=5.44ms coverage=1.0
+p4 chatbot-8128026-36: success=True valid=True TTFT=10929ms tokens=8192 TPOT=5.43ms coverage=1.0
+p4 chatbot-8128026-84: success=True valid=True TTFT=12160ms tokens=8192 TPOT=5.28ms coverage=1.0
+p3 chatbot-8128026-19: success=True valid=True TTFT=11513ms tokens=8192 TPOT=5.36ms coverage=1.0
+p2 chatbot-8128026-50: success=True valid=True TTFT=12323ms tokens=8192 TPOT=5.28ms coverage=1.0
+p10 chatbot-8128026-42: success=True valid=True TTFT=11423ms tokens=8192 TPOT=5.41ms coverage=1.0
+p14 chatbot-8128026-62: success=True valid=True TTFT=12003ms tokens=8192 TPOT=5.39ms coverage=1.0
+p6 chatbot-8128026-38: success=True valid=True TTFT=13386ms tokens=8192 TPOT=5.24ms coverage=1.0
+p6 chatbot-8128026-70: success=True valid=True TTFT=12892ms tokens=8192 TPOT=5.37ms coverage=1.0
+p3 chatbot-8128026-35: success=True valid=True TTFT=14199ms tokens=8192 TPOT=5.21ms coverage=1.0
+p13 chatbot-8128026-93: success=True valid=True TTFT=13058ms tokens=8192 TPOT=5.36ms coverage=1.0
+p15 chatbot-8128026-15: success=True valid=True TTFT=13552ms tokens=8192 TPOT=5.31ms coverage=1.0
+p14 chatbot-8128026-78: success=True valid=True TTFT=13222ms tokens=8192 TPOT=5.35ms coverage=1.0
+p4 chatbot-8128026-68: success=True valid=True TTFT=14852ms tokens=8192 TPOT=5.18ms coverage=1.0
+p14 chatbot-8128026-94: success=True valid=True TTFT=15019ms tokens=8192 TPOT=5.17ms coverage=1.0
+p11 chatbot-8128026-43: success=True valid=True TTFT=13714ms tokens=8192 TPOT=5.33ms coverage=1.0
+p12 chatbot-8128026-60: success=True valid=True TTFT=13876ms tokens=8192 TPOT=5.33ms coverage=1.0
+p11 chatbot-8128026-27: success=True valid=True TTFT=14041ms tokens=8192 TPOT=5.32ms coverage=1.0
+p11 chatbot-8128026-75: success=True valid=True TTFT=15436ms tokens=8192 TPOT=5.15ms coverage=1.0
+p9 chatbot-8128026-73: success=True valid=True TTFT=14524ms tokens=8192 TPOT=5.27ms coverage=1.0
+p11 chatbot-8128026-91: success=True valid=True TTFT=14365ms tokens=8192 TPOT=5.30ms coverage=1.0
+p1 chatbot-8128026-17: success=True valid=True TTFT=14691ms tokens=8192 TPOT=5.27ms coverage=1.0
+p7 chatbot-8128026-7: success=True valid=True TTFT=16196ms tokens=8192 TPOT=5.11ms coverage=1.0
+p13 chatbot-8128026-45: success=True valid=True TTFT=15180ms tokens=8192 TPOT=5.25ms coverage=1.0
+p0 chatbot-8128026-48: success=True valid=True TTFT=16361ms tokens=8192 TPOT=5.11ms coverage=1.0
+p10 chatbot-8128026-74: success=True valid=True TTFT=15347ms tokens=8192 TPOT=5.24ms coverage=1.0
+p15 chatbot-8128026-47: success=True valid=True TTFT=16687ms tokens=8192 TPOT=5.09ms coverage=1.0
+p2 chatbot-8128026-82: success=True valid=True TTFT=15597ms tokens=8192 TPOT=5.23ms coverage=1.0
+p2 chatbot-8128026-18: success=True valid=True TTFT=16850ms tokens=8192 TPOT=5.08ms coverage=1.0
+p11 chatbot-8128026-59: success=True valid=True TTFT=16525ms tokens=8192 TPOT=5.20ms coverage=1.0
+p1 chatbot-8128026-49: success=True valid=True TTFT=17020ms tokens=8192 TPOT=5.17ms coverage=1.0
+p7 chatbot-8128026-55: success=True valid=True TTFT=17189ms tokens=8192 TPOT=5.16ms coverage=1.0
+p8 chatbot-8128026-24: success=True valid=True TTFT=17351ms tokens=8192 TPOT=5.15ms coverage=1.0
+p3 chatbot-8128026-51: success=True valid=True TTFT=17514ms tokens=8192 TPOT=5.15ms coverage=1.0
+{
+  "valid_measurements": 96,
+  "requests": 96,
+  "duration_s": 59.73968736700772,
+  "output_throughput_tps": 13164.313953780762,
+  "steady_decode_tps": 17854.166098075664,
+  "ttft_ms_p50": 8683.54519350396,
+  "tpot_ms_p50": 5.423961965268001,
+  "itl_ms_p50": 5.331536293029785,
+  "itl_ms_p99": 7.140842437744141,
+  "server_itl_ms_p50": 5.519303753205377,
+  "itl_token_coverage": 1.0
+}
+Results: pilots/20261001T164634Z-8a947642

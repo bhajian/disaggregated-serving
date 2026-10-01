@@ -10,6 +10,10 @@ results/*.csv
 !results/deepseek-v4-pro-256k-comparison/**
 !results/nemotron-3-nano-128k-comparison/
 !results/nemotron-3-nano-128k-comparison/**
+!results/nemotron-3-nano-8k-128k-comparison/
+!results/nemotron-3-nano-8k-128k-comparison/**
+# Raw per-token interval binaries (hundreds of MB per run) stay on the client PVC.
+results/**/intervals-*.f32
 # Generated benchmark datasets (including the 256K-context comparison).
 datasets/generated/
 *.env

@@ -139,6 +139,7 @@ def main():
     p.add_argument('--max-model-len', type=int, default=262144)
     p.add_argument('--output-tokens', type=int, default=512)
     p.add_argument('--sessions', type=int, default=8)
+    p.add_argument('--turns', type=int, default=0, help='Keep only the first N recorded turns; 0 keeps all')
     p.add_argument('--seed', type=int, default=42)
     p.add_argument('--tokenizer'); p.add_argument('--revision')
     p.add_argument('--tokenizer-url', help='vLLM worker base URL exposing /tokenize; useful for DeepSeek V4')
@@ -150,7 +151,7 @@ def main():
     a = p.parse_args()
     if not (a.tokenizer or a.tokenizer_url):
         p.error('Pass --tokenizer (local directory or HF ID), or --tokenizer-url.')
-    if min(a.sessions, a.input_tokens, a.output_tokens, a.max_model_len) < 1:
+    if min(a.sessions, a.input_tokens, a.output_tokens, a.max_model_len) < 1 or a.turns < 0:
         p.error('Counts must be positive')
     count = TokenCounter(a.tokenizer, a.revision, a.tokenizer_url, json.loads(a.template_kwargs),
                          a.trust_remote_code, a.deepseek_v4_encoder)
@@ -166,6 +167,8 @@ def main():
             context = padded_context(seed, a.workload, a.input_tokens, count, rng,
                                      f'Session {a.seed}-{i}-{rng.getrandbits(64):016x}\n', corpus)
             turns = turns_for(seed, a.workload, context)
+            if a.turns:
+                turns = turns[:a.turns]
             for turn in turns:
                 turn['input_tokens'] = count(turn['messages'], turn.get('tools'))
                 if turn['input_tokens'] + a.output_tokens > a.max_model_len:

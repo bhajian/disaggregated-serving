@@ -1,0 +1,264 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-1
+  namespace: deepseek-v4-pro
+  labels:
+    serving-role: decode
+  annotations:
+    serving-solutions/model: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: worker-1
+  template:
+    metadata:
+      labels:
+        app: worker-1
+        component: sglang-worker
+        serving-role: decode
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 180
+      containers:
+      - name: worker
+        image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3
+        command:
+        - python3
+        - -c
+        - import os, resource, sys; resource.setrlimit(resource.RLIMIT_MEMLOCK, (resource.RLIM_INFINITY,
+          resource.RLIM_INFINITY)); os.execvp(sys.argv[1], sys.argv[1:])
+        - python3
+        - -m
+        - dynamo.sglang
+        - --model-path
+        - /model
+        - --served-model-name
+        - nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
+        - --tensor-parallel-size
+        - '4'
+        - --trust-remote-code
+        - --context-length
+        - '262144'
+        - --max-running-requests
+        - '136'
+        - --chunked-prefill-size
+        - '4096'
+        - --mem-fraction-static
+        - '0.88'
+        - --page-size
+        - '1'
+        - --kv-cache-dtype
+        - auto
+        - --host
+        - 0.0.0.0
+        - --port
+        - '30000'
+        - --enable-metrics
+        - --disable-piecewise-cuda-graph
+        - --cuda-graph-max-bs-decode
+        - '136'
+        - --kv-events-config
+        - '{"publisher":"zmq","topic":"kv-events","endpoint":"tcp://*:5571"}'
+        - --weight-loader-prefetch-checkpoints
+        - --attention-backend
+        - flashinfer
+        - --mamba-radix-cache-strategy
+        - no_buffer
+        - --disable-overlap-schedule
+        - --bucket-inter-token-latency
+        - '0.001'
+        - '0.002'
+        - '0.003'
+        - '0.004'
+        - '0.005'
+        - '0.006'
+        - '0.007'
+        - '0.008'
+        - '0.009'
+        - '0.01'
+        - '0.011'
+        - '0.012'
+        - '0.013'
+        - '0.014'
+        - '0.015'
+        - '0.016'
+        - '0.017'
+        - '0.018'
+        - '0.019'
+        - '0.02'
+        - '0.021'
+        - '0.022'
+        - '0.023'
+        - '0.024'
+        - '0.025'
+        - '0.026'
+        - '0.027'
+        - '0.028'
+        - '0.029'
+        - '0.03'
+        - '0.031'
+        - '0.032'
+        - '0.033'
+        - '0.034'
+        - '0.035'
+        - '0.036'
+        - '0.037'
+        - '0.038'
+        - '0.039'
+        - '0.04'
+        - '0.045'
+        - '0.05'
+        - '0.06'
+        - '0.08'
+        - '0.1'
+        - '0.15'
+        - '0.2'
+        - '0.3'
+        - '0.5'
+        - '1.0'
+        - '2.0'
+        - '5.0'
+        - '10.0'
+        - --disaggregation-mode
+        - decode
+        - --disaggregation-transfer-backend
+        - nixl
+        - --disaggregation-bootstrap-port
+        - '8998'
+        - --gc-warning-threshold-secs
+        - '0.1'
+        env:
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DYN_NAMESPACE
+          value: nemotron-3-nano
+        - name: DYN_DISCOVERY_BACKEND
+          value: etcd
+        - name: ETCD_ENDPOINTS
+          value: http://etcd.deepseek-v4-pro.svc.cluster.local:2379
+        - name: DYN_REQUEST_PLANE
+          value: tcp
+        - name: DYN_EVENT_PLANE
+          value: zmq
+        - name: DYN_TCP_RPC_HOST
+          value: $(HOST_IP)
+        - name: DYN_EVENT_PLANE_HOST
+          value: $(HOST_IP)
+        - name: PYTHONHASHSEED
+          value: '0'
+        - name: HF_HUB_OFFLINE
+          value: '1'
+        - name: TRANSFORMERS_OFFLINE
+          value: '1'
+        - name: HF_HOME
+          value: /runtime/hf
+        - name: HF_MODULES_CACHE
+          value: /runtime/hf_modules
+        - name: XDG_CACHE_HOME
+          value: /runtime/cache
+        - name: TRITON_CACHE_DIR
+          value: /runtime/triton
+        - name: TORCH_EXTENSIONS_DIR
+          value: /runtime/torch_extensions
+        - name: NCCL_SOCKET_IFNAME
+          value: eth0
+        - name: GLOO_SOCKET_IFNAME
+          value: eth0
+        - name: DYN_SYSTEM_PORT
+          value: '8081'
+        - name: SGLANG_JIT_DEEPGEMM_PRECOMPILE
+          value: '0'
+        - name: SGLANG_JIT_DEEPGEMM_FAST_WARMUP
+          value: '1'
+        - name: UCX_TLS
+          value: rc,cuda_copy,cuda_ipc,sm,self
+        - name: UCX_NET_DEVICES
+          value: mlx5_0:1,mlx5_1:1,mlx5_2:1,mlx5_3:1,mlx5_4:1,mlx5_5:1,mlx5_6:1,mlx5_7:1
+        - name: UCX_RNDV_SCHEME
+          value: get_zcopy
+        - name: UCX_LOG_LEVEL
+          value: info
+        resources:
+          requests:
+            cpu: '28'
+            memory: 96Gi
+            nvidia.com/gpu: '4'
+          limits:
+            memory: 384Gi
+            nvidia.com/gpu: '4'
+        securityContext:
+          runAsUser: 0
+          capabilities:
+            add:
+            - IPC_LOCK
+            - SYS_RESOURCE
+            - SYS_PTRACE
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          periodSeconds: 15
+          timeoutSeconds: 5
+          failureThreshold: 480
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          periodSeconds: 15
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: model
+          mountPath: /model
+          readOnly: true
+          subPath: .models/nemotron-3-nano-bf16
+        - name: shm
+          mountPath: /dev/shm
+        - name: model
+          mountPath: /runtime
+          subPath: .models/nemotron-3-nano-bf16/.runtime/runtime
+        - name: model
+          mountPath: /root/.cache
+          subPath: .models/nemotron-3-nano-bf16/.runtime/root-cache
+        - name: model
+          mountPath: /root/.tilelang
+          subPath: .models/nemotron-3-nano-bf16/.runtime/tilelang
+      volumes:
+      - name: model
+        persistentVolumeClaim:
+          claimName: model-1
+      - name: shm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 96Gi
+      nodeSelector:
+        kubernetes.io/hostname: <NODE_B_HOSTNAME>
+      initContainers:
+      - name: wait-for-model
+        image: busybox:1.37.0
+        command:
+        - sh
+        - -c
+        - until grep -qx bf77c3174f68ad409e1c2aa60daeb46e32d1c606 /model/.models/nemotron-3-nano-bf16/DEPLOYED_REVISION;
+          do sleep 15; done
+        volumeMounts:
+        - name: model
+          mountPath: /model
+          readOnly: true
+      - name: init-runtime-cache
+        image: busybox:1.37.0
+        command:
+        - sh
+        - -c
+        - mkdir -p /model/.models/nemotron-3-nano-bf16/.runtime/runtime /model/.models/nemotron-3-nano-bf16/.runtime/root-cache
+          /model/.models/nemotron-3-nano-bf16/.runtime/tilelang
+        volumeMounts:
+        - name: model
+          mountPath: /model

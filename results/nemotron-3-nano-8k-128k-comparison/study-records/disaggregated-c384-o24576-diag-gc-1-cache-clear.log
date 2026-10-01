@@ -1,0 +1,35 @@
+[2m2026-10-01T18:32:40.718651Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Etcd(http://etcd.deepseek-v4-pro.svc.cluster.local:2379)
+[2m2026-10-01T18:32:40.764182Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m<POD_IP> [3mport[0m[2m=[0mOS-assigned
+[2m2026-10-01T18:32:40.770770Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP response stream server using OS-assigned port
+[2m2026-10-01T18:33:10.801512Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-10-01T18:33:10.801747Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-10-01T18:33:10.801781Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-10-01T18:33:10.801784Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-10-01T18:33:10.801787Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/bench/clear_cache.py", line 45, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/bench/clear_cache.py", line 23, in main
+    await asyncio.wait_for(client.wait_for_instances(), 30)
+  File "/usr/lib/python3.12/asyncio/tasks.py", line 519, in wait_for
+    async with timeouts.timeout(timeout):
+  File "/usr/lib/python3.12/asyncio/timeouts.py", line 115, in __aexit__
+    raise TimeoutError from exc_val
+TimeoutError

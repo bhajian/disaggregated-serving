@@ -1,0 +1,22 @@
+p2 chatbot-8128026-2: success=True valid=True TTFT=1506ms tokens=2048 TPOT=3.61ms coverage=1.0
+p0 chatbot-8128026-4: success=True valid=True TTFT=1242ms tokens=2048 TPOT=3.74ms coverage=1.0
+p0 chatbot-8128026-0: success=True valid=True TTFT=1243ms tokens=2048 TPOT=3.84ms coverage=1.0
+p2 chatbot-8128026-6: success=True valid=True TTFT=1510ms tokens=2048 TPOT=3.71ms coverage=1.0
+p1 chatbot-8128026-1: success=True valid=True TTFT=1634ms tokens=2048 TPOT=3.85ms coverage=1.0
+p3 chatbot-8128026-7: success=True valid=True TTFT=1896ms tokens=2048 TPOT=3.72ms coverage=1.0
+p3 chatbot-8128026-3: success=True valid=True TTFT=1926ms tokens=2048 TPOT=3.73ms coverage=1.0
+p1 chatbot-8128026-5: success=True valid=True TTFT=1656ms tokens=2048 TPOT=3.86ms coverage=1.0
+{
+  "valid_measurements": 8,
+  "requests": 8,
+  "duration_s": 9.56864543199481,
+  "output_throughput_tps": 1712.2590774673913,
+  "steady_decode_tps": 2130.879495419598,
+  "ttft_ms_p50": 1572.2373355092714,
+  "tpot_ms_p50": 3.7323320468961736,
+  "itl_ms_p50": 3.6571788787841797,
+  "itl_ms_p99": 4.527468681335449,
+  "server_itl_ms_p50": 3.521939068787124,
+  "itl_token_coverage": 1.0
+}
+Results: pilots/20261001T134211Z-74a7340e

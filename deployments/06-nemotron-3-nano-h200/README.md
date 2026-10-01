@@ -4,6 +4,9 @@ This site profile runs `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16` with Dynamo
 1.4.0 and SGLang 0.5.16 on two eight-GPU H200 nodes. The context window is
 131,072 tokens. [BENCHMARK-128K.md](BENCHMARK-128K.md) records the matched
 128K-input comparison and its validation status.
+[BENCHMARK-8K-128K.md](BENCHMARK-8K-128K.md) reverses the workload: 8K input,
+128K forced output, with four TP4 workers at 262,144 context (`40-workers-tp4*.yaml`,
+rendered by `render_tp4.py`, with the round-robin `31-frontend-round-robin.yaml`).
 
 This profile **replaces the workers and frontend in the existing `deepseek-v4-pro`
 namespace**. It uses the same LoadBalancer and bound `model-0`/`model-1` PVCs as
@@ -76,7 +79,9 @@ for the model's SGLang recipe and request options.
 ## Benchmark files
 
 - `benchmark_128k.py`: runs three repeats of the fixed 32-session comparison cohort for one mode.
-- `clear_cache.py`: requires acknowledged cache resets on both workers.
+- `benchmark_8k_128k.py`: 8K-in / 128K-out waves for the TP4 layouts (with `51-benchmark-client-long-decode.yaml`,
+  `deployment-tp4*.json` and `benchmarks.long_decode`).
+- `clear_cache.py`: requires acknowledged cache resets on every worker (`clear_cache.py MODE 4` for TP4).
 - `50-benchmark-client.yaml`: a CPU client that persists artifacts under
   `.benchmarks/nemotron128k` on `model-0`.
 - `deployment.json` / `deployment-disaggregated.json`: mode-specific run metadata.
