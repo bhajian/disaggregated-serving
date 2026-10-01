@@ -23,6 +23,7 @@ This folder holds the benchmark code and the methodology. Seed data lives in [da
 | [run.py](run.py) | Streams sessions against an OpenAI-compatible endpoint and records TTFT, TPOT, ITL, throughput and failures per request |
 | [metrics.py](metrics.py) | Metric definitions and summaries (unit-tested) |
 | [collect.py](collect.py) | Rebuilds `results/summary.csv` from all run folders |
+| [long_decode.py](long_decode.py) | Forced long outputs (e.g. 128K tokens) at hundreds of concurrent streams: multi-process client, compact per-token intervals, client and server ITL, stall counts, `--reanalyze` |
 
 ---
 
@@ -138,6 +139,10 @@ For the DeepSeek V4 Pro H200 experiment, see the [256K comparison protocol](../d
 For Nemotron 3 Nano, the [128K protocol](../deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md)
 uses its native chat template, 32 sessions and three repeats per topology. Its
 [notebook](../notebooks/nemotron_3_nano_128k.ipynb) reports run means and ranges.
+
+The reverse workload, 8K input and 128K forced output at maximum concurrency, uses
+`benchmarks.long_decode`; see the [8K/128K protocol](../deployments/06-nemotron-3-nano-h200/BENCHMARK-8K-128K.md).
+Generate single-turn sessions with `generate_dataset --turns 1`.
 
 1. **Redeploy with a larger window.** In the worker command of your track, set `--max-model-len 262144 --max-num-seqs 4` for vLLM, or `--context-length 262144 --max-running-requests 4` for SGLang. Update `max_model_len` in `deployment.json` to match. Restart **both** roles.
 2. **Generate a matching dataset:**

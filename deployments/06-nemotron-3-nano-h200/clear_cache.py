@@ -13,8 +13,10 @@ from dynamo.runtime import DistributedRuntime
 async def main():
     mode = sys.argv[1]
     assert mode in ('aggregated', 'disaggregated')
+    # Total worker count: 2 for the TP8 layouts, 4 for the TP4 layouts (one prefill).
+    workers = int(sys.argv[2]) if len(sys.argv) > 2 else 2
     runtime = DistributedRuntime(asyncio.get_running_loop(), 'etcd', 'tcp', event_plane='zmq')
-    roles = [('prefill', 1), ('backend', 1)] if mode == 'disaggregated' else [('backend', 2)]
+    roles = [('prefill', 1), ('backend', workers - 1)] if mode == 'disaggregated' else [('backend', workers)]
     try:
         for component, expected in roles:
             client = await runtime.endpoint(f'nemotron-3-nano.{component}.clear_kv_blocks').client()

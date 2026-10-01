@@ -1,0 +1,77 @@
+{
+  "base_url": "http://frontend.deepseek-v4-pro.svc.cluster.local:8000/v1",
+  "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+  "technology": "dynamo-agg-k8s",
+  "backend": "sglang",
+  "dataset": "dataset.jsonl",
+  "deployment": {
+    "technology": "dynamo-agg-k8s",
+    "topology": "aggregated",
+    "backend": "sglang",
+    "image": "nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3",
+    "workers": "4 x aggregated TP4 (two per node)",
+    "gpu_count": 16,
+    "gpu_type": "NVIDIA H200",
+    "kv_transfer": "none",
+    "max_model_len": 262144,
+    "max_num_seqs": 128,
+    "max_num_batched_tokens": 4096,
+    "gpu_memory_utilization": 0.88,
+    "model": {
+      "model_id": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+      "revision": "bf77c3174f68ad409e1c2aa60daeb46e32d1c606",
+      "model_path": "/model",
+      "kv_cache_dtype": "auto",
+      "request_body": {
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        }
+      },
+      "weight_dtype": "bfloat16"
+    },
+    "weight_loader_prefetch_checkpoints": true,
+    "persistent_kernel_cache": true,
+    "attention_backend": "flashinfer",
+    "mamba_radix_cache_strategy": "no_buffer",
+    "disable_overlap_schedule": true,
+    "tensor_parallel_size": 4,
+    "max_total_tokens": "auto (SGLang memory sizing; recorded from worker logs)",
+    "ignore_eos": true,
+    "server_itl_histogram_buckets_ms": "1..40 step 1, then 45, 50, 60, 80, 100, 150, 200, 300, 500, 1000, 2000, 5000, 10000"
+  },
+  "max_model_len": 262144,
+  "min_input_tokens": 8000,
+  "output_tokens": 8192,
+  "concurrency": 256,
+  "sessions": 256,
+  "processes": 16,
+  "warmup": 1,
+  "timeout": 10800,
+  "temperature": 0,
+  "extra_body": "{}",
+  "cache_state": "cold",
+  "metrics_url": [
+    "http://10.26.0.0:8081/metrics",
+    "http://10.26.0.46:8081/metrics",
+    "http://10.26.0.0:8082/metrics",
+    "http://10.26.0.46:8082/metrics"
+  ],
+  "label": "pilot",
+  "results": "pilots",
+  "run_id": "20261001T134422Z-d36878c3",
+  "timestamp_utc": "2026-10-01T13:44:22.083935+00:00",
+  "runner": "benchmarks.long_decode",
+  "ignore_eos": true,
+  "dataset_sha256": "28d32942e253eedef673db004c24593629f4a606e0d863fbb38a3aae917cb15a",
+  "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+  "platform": "Linux-6.11.0-1016-nvidia-x86_64-with-glibc2.39",
+  "resolved_extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "load_mode": "closed-loop",
+  "workload": "chatbot",
+  "session_count": 256,
+  "cpu_count": 128
+}

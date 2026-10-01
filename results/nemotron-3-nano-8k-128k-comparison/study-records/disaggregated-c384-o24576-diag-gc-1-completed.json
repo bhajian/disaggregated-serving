@@ -1,0 +1,16 @@
+{
+  "mode": "disaggregated",
+  "repetition": 1,
+  "label": "diag-gc",
+  "start_utc": "2026-10-01T18:32:40.616788+00:00",
+  "sessions": 384,
+  "concurrency": 384,
+  "input_tokens": 8000,
+  "output_tokens": 24576,
+  "ignore_eos": true,
+  "cache_protocol": "flush all workers before each run; prompts are unique per session",
+  "client": "benchmark-client pod on node 0; Kubernetes ClusterIP",
+  "exit_code": 1,
+  "elapsed_seconds": 30.226005792617798,
+  "end_utc": "2026-10-01T18:33:10.842795+00:00"
+}

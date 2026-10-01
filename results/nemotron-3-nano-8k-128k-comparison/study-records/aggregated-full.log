@@ -1,0 +1,7 @@
+aggregated-c512-o131072-measured-1 completed 0 1974s
+aggregated-c512-o131072-measured-2 completed 0 1949s
+aggregated-c512-o131072-measured-3 completed 0 3073s
+'4'], stdout=output,
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', 'clear_cache.py', 'aggregated', '4']' returned non-zero exit status 1.

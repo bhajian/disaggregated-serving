@@ -60,6 +60,8 @@ are for the original reference topology.
 
 The same H200 cluster also runs the [Nemotron 3 Nano 128K comparison](deployments/06-nemotron-3-nano-h200/),
 with separate cached weights on the existing PVCs and three repeats per topology.
+The [8K-in / 128K-out comparison](deployments/06-nemotron-3-nano-h200/BENCHMARK-8K-128K.md)
+reverses that workload on four TP4 workers at maximum concurrency.
 
 ## Choose your path
 

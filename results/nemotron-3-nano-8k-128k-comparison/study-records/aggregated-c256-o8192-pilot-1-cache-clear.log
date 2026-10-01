@@ -1,0 +1,17 @@
+[2m2026-10-01T13:44:20.728589Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m Initializing KV store discovery backend: Etcd(http://etcd.deepseek-v4-pro.svc.cluster.local:2379)
+[2m2026-10-01T13:44:20.769087Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::manager[0m[2m:[0m Initializing NetworkManager with TCP request plane [3mmode[0m[2m=[0mtcp [3mhost[0m[2m=[0m10.24.71.201 [3mport[0m[2m=[0mOS-assigned
+[2m2026-10-01T13:44:20.777020Z[0m [32m INFO[0m [2mdynamo_runtime::distributed[0m[2m:[0m TCP response stream server using OS-assigned port
+[2m2026-10-01T13:44:20.778236Z[0m [32m INFO[0m [2mdynamo_runtime::component::client[0m[2m:[0m wait_for_instances: Found 3 instance(s) for endpoint: nemotron-3-nano/backend/clear_kv_blocks
+[2m2026-10-01T13:44:21.779708Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357863863
+{"component": "backend", "instance": 7668681235357863863, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-10-01T13:44:21.789749Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357863859
+{"component": "backend", "instance": 7668681235357863859, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-10-01T13:44:21.803714Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357863865
+{"component": "backend", "instance": 7668681235357863865, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-10-01T13:44:21.814089Z[0m [32m INFO[0m [2mdynamo_runtime::pipeline::network::egress::push_router[0m[2m:[0m Selected worker [3mrouter_mode[0m[2m=[0m"direct" [3mworker_id[0m[2m=[0m7668681235357863861
+{"component": "backend", "instance": 7668681235357863861, "response": {"status": "success", "message": "KV cache cleared"}}
+[2m2026-10-01T13:44:21.824292Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Runtime shutdown initiated
+[2m2026-10-01T13:44:21.824377Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 1: Cancelling endpoint shutdown token
+[2m2026-10-01T13:44:21.824405Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 2: Waiting for graceful endpoints to complete
+[2m2026-10-01T13:44:21.824408Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Active graceful endpoints: 0
+[2m2026-10-01T13:44:21.824411Z[0m [32m INFO[0m [2mdynamo_runtime::runtime[0m[2m:[0m Phase 3: Connections to backend services will now be disconnected
