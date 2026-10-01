@@ -1,0 +1,438 @@
+{
+  "title": "Dynamo serving",
+  "uid": "dynamo-serving",
+  "schemaVersion": 39,
+  "version": 1,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "tags": [
+    "dynamo",
+    "llm-serving"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus"
+      },
+      {
+        "name": "graph",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "query": "label_values(dynamo_frontend_requests_total, graph)",
+        "includeAll": true,
+        "multi": true
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "TTFT (p50 / p99)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.5, sum by (graph, le) (rate(dynamo_frontend_time_to_first_token_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p50 {{graph}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (graph, le) (rate(dynamo_frontend_time_to_first_token_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p99 {{graph}}",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "ITL (p50 / p99 / p99.9)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.5, sum by (graph, le) (rate(dynamo_frontend_inter_token_latency_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p50 {{graph}}",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (graph, le) (rate(dynamo_frontend_inter_token_latency_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p99 {{graph}}",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.999, sum by (graph, le) (rate(dynamo_frontend_inter_token_latency_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p99.9 {{graph}}",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "TPOT (mean, request duration / output tokens)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (graph) (rate(dynamo_frontend_request_duration_seconds_sum{graph=~\"$graph\"}[5m])) / sum by (graph) (rate(dynamo_frontend_output_tokens_total{graph=~\"$graph\"}[5m]))",
+          "legendFormat": "{{graph}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Output tokens/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (graph) (rate(dynamo_frontend_output_tokens_total{graph=~\"$graph\"}[1m]))",
+          "legendFormat": "{{graph}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Queue depth per pool",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (component_type) (sglang:num_queue_reqs{graph=~\"$graph\"})",
+          "legendFormat": "queued {{component_type}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (component_type) (sglang:num_running_reqs{graph=~\"$graph\"})",
+          "legendFormat": "running {{component_type}}",
+          "refId": "B"
+        },
+        {
+          "expr": "sum (dynamo_frontend_queued_requests{graph=~\"$graph\"})",
+          "legendFormat": "frontend queued",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "KV usage and prefix hit rate",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "max by (pod) (sglang:token_usage{graph=~\"$graph\"})",
+          "legendFormat": "KV usage {{pod}}",
+          "refId": "A"
+        },
+        {
+          "expr": "avg by (graph) (sglang:cache_hit_rate{graph=~\"$graph\"})",
+          "legendFormat": "engine hit rate",
+          "refId": "B"
+        },
+        {
+          "expr": "avg by (graph) (dynamo_component_router_kv_hit_rate{graph=~\"$graph\"})",
+          "legendFormat": "router predicted hit rate",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "NIXL transfer (p99 latency, MB per request, GB/s)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(sglang:kv_transfer_latency_ms_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p99 latency ms",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(sglang:kv_transfer_total_mb_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p50 MB/request",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(sglang:kv_transfer_speed_gb_s_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "p50 GB/s",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Workers registered with the router",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (namespace, worker_type) (dynamo_component_router_worker_registered)",
+          "legendFormat": "{{namespace}} {{worker_type}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "InfiniBand bytes and errors",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (instance) (rate(node_infiniband_port_data_transmitted_bytes_total[1m]))",
+          "legendFormat": "tx {{instance}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (instance) (rate(node_infiniband_port_data_received_bytes_total[1m]))",
+          "legendFormat": "rx {{instance}}",
+          "refId": "B"
+        },
+        {
+          "expr": "sum by (instance) (increase(node_infiniband_port_errors_received_total[5m]))",
+          "legendFormat": "rx errors {{instance}}",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "GPU utilization, memory, XID (DCGM)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "avg by (Hostname) (DCGM_FI_DEV_GPU_UTIL)",
+          "legendFormat": "util {{Hostname}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (Hostname) (DCGM_FI_DEV_FB_USED) / sum by (Hostname) (DCGM_FI_DEV_FB_USED + DCGM_FI_DEV_FB_FREE) * 100",
+          "legendFormat": "mem % {{Hostname}}",
+          "refId": "B"
+        },
+        {
+          "expr": "max by (Hostname) (DCGM_FI_DEV_XID_ERRORS)",
+          "legendFormat": "XID {{Hostname}}",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Prefill host memory vs limit",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "max by (pod) (container_memory_working_set_bytes{container=\"main\", pod=~\".+-prefill-.+\"}) / max by (pod) (kube_pod_container_resource_limits{container=\"main\", resource=\"memory\", pod=~\".+-prefill-.+\"})",
+          "legendFormat": "{{pod}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Engine-side ITL p99 (SGLang histogram)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by (component_type, le) (rate(sglang:inter_token_latency_seconds_bucket{graph=~\"$graph\"}[5m])))",
+          "legendFormat": "{{component_type}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
