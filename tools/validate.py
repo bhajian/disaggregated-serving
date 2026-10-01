@@ -13,6 +13,7 @@ downloaded once into --cache-dir. An object whose kind has no schema is an error
 import argparse
 import gzip
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -45,6 +46,27 @@ Loader.add_constructor('tag:yaml.org,2002:value', lambda loader, node: loader.co
 
 def load_all(text):
     return yaml.load_all(text, Loader=Loader)
+
+
+PLACEHOLDER = re.compile(r'<([A-Z][A-Z0-9_]+)>')
+
+
+def sample(token):
+    """A reserved-range value with the right shape for a <PLACEHOLDER> (RFC 5737, RFC 2606)."""
+    if token.endswith('_CIDR'):
+        return '192.0.2.0/24'
+    if token.endswith('_IP'):
+        return '192.0.2.10'
+    if token.endswith('_URL'):
+        return 'https://idp.example.com/' + token.lower()
+    if token.endswith('DOMAIN'):
+        return 'example.com'
+    return token.lower().replace('_', '-')
+
+
+def as_rendered(text):
+    """Validate manifests as tools/render_site.py would emit them."""
+    return PLACEHOLDER.sub(lambda m: sample(m.group(1)), text)
 
 
 def strict(obj):
@@ -156,7 +178,7 @@ def main(argv=None):
         if (path.name in SKIP_FILES or path.name.startswith(('patch-', 'values', 'kustomization')) or 'patches' in path.parts
                 or 'helm' in path.parts):
             continue
-        n, e = validate_objects(registry, yaml.safe_load_all(path.read_text()), path.relative_to(ROOT))
+        n, e = validate_objects(registry, yaml.safe_load_all(as_rendered(path.read_text())), path.relative_to(ROOT))
         raw_count += n; errors += e
     if shutil.which('kustomize'):
         for k in sorted(p.parent for r in roots for p in r.rglob('kustomization.yaml')):
@@ -166,7 +188,7 @@ def main(argv=None):
             if out.returncode:
                 errors.append(f'{k.relative_to(ROOT)}: kustomize build failed: {out.stderr.strip()[:400]}')
                 continue
-            n, e = validate_objects(registry, yaml.safe_load_all(out.stdout), f'kustomize build {k.relative_to(ROOT)}')
+            n, e = validate_objects(registry, yaml.safe_load_all(as_rendered(out.stdout)), f'kustomize build {k.relative_to(ROOT)}')
             built_count += n; errors += e
     else:
         errors.append('kustomize not found on PATH; install it to validate overlays')

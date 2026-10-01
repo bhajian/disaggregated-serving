@@ -1,0 +1,20 @@
+{
+  "environment": "kubernetes",
+  "backend": "sglang",
+  "mode": "disagg",
+  "optimization_target": "sla",
+  "ttft_ms": 15000,
+  "itl_ms": 40,
+  "enable_throughput_scaling": true,
+  "enable_load_scaling": false,
+  "throughput_adjustment_interval_seconds": 60,
+  "max_gpu_budget": 16,
+  "min_endpoint": 1,
+  "prefill_engine_num_gpu": 8,
+  "decode_engine_num_gpu": 8,
+  "profile_results_dir": "/workspace/profiling_results",
+  "pre_deployment_sweeping_mode": "none",
+  "load_predictor": "arima",
+  "throughput_metrics_source": "frontend",
+  "model_name": "deepseek-ai/DeepSeek-V4-Pro-0813"
+}
