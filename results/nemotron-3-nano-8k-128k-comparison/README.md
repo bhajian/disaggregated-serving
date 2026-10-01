@@ -16,7 +16,7 @@ worker. Disaggregation removed aggregated's prefill and end-of-run decode stalls
 worst ITL fell from 40.4 s to 1.1 s. Both modes show a ~0.4 s generation-2 Python GC
 pause about every 10 s per worker, which sets ITL p99.9 to about 500 ms.
 
-See the [full report and protocol](../../deployments/06-nemotron-3-nano-h200/BENCHMARK-8K-128K.md)
+See the [full report and protocol](../../deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-8K-128K.md)
 for settings, interpretation, excluded runs, diagnostics and reproduction steps. The earlier
 [128K-input / 256-output study](../nemotron-3-nano-128k-comparison/) is unchanged; the
 notebook places the two studies side by side.

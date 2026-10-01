@@ -2,7 +2,7 @@
 
 [Home](../README.md) › [Reference](README.md) › Manual Docker walkthrough
 
-> This is the original hand-run deployment that the repository grew from. It is kept unchanged as a reference. It contains the host-specific SSH details and fixes (such as the `DYN_TCP_RESPONSE_STREAM_HOST` issue) that the reference deployment files are based on. To deploy, use the Compose files in [deployments/02-dynamo-disagg-vllm/docker](../deployments/02-dynamo-disagg-vllm/docker/), which run the same containers.
+> This is the original hand-run deployment that the repository grew from. It is kept unchanged as a reference. It contains the host-specific SSH details and fixes (such as the `DYN_TCP_RESPONSE_STREAM_HOST` issue) that the reference deployment files are based on. To deploy, use the Compose files in [deploy/legacy-compose/02-dynamo-disagg-vllm](../deploy/legacy-compose/02-dynamo-disagg-vllm/), which run the same containers.
 
 **Run location:** Fresh installation / 29 September 2026
 

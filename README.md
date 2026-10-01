@@ -26,7 +26,7 @@ Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on t
 | Part | For | Contents |
 |---|---|---|
 | **[Blueprint](blueprint/)** | Architects, platform and ML engineers | 11 chapters: the stack, design principles, disaggregation, control planes, engines, model architectures, hardware and fabrics, KV caching and offloading, parallelism and sizing, operations, decision guide |
-| **[Deployments](deployments/)** | Engineers running PoCs and labs | Step-by-step Docker Compose and Kubernetes deployments: aggregated, Dynamo disaggregated on vLLM and SGLang, llm-d disaggregated |
+| **[Deployments](deploy/)** | Engineers running PoCs and labs | Step-by-step Docker Compose and Kubernetes deployments: aggregated, Dynamo disaggregated on vLLM and SGLang, llm-d disaggregated |
 | **[Benchmarks](benchmarks/)** | Anyone comparing options | Long-context chat and agentic workloads, TTFT/ITL/throughput metrics, a comparison notebook |
 | **[Reference](reference/)** | Operators | Model catalog and switching, vLLM ↔ SGLang mapping, troubleshooting, pinned sources |
 | **[Roadmap](ROADMAP.md)** | Everyone | TensorRT-LLM tracks, KV-cache offloading with GPUDirect Storage, wide-EP on NVL72 |
@@ -46,29 +46,29 @@ Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on t
 
 | # | Track | Control plane | Engine | Docker | Kubernetes |
 |---|---|---|---|---|---|
-| 00 | [Prerequisites](deployments/00-prerequisites/) | | | ✓ | ✓ |
-| 01 | [Aggregated (baseline)](deployments/01-aggregated/) | Dynamo | vLLM · SGLang | [vLLM](deployments/01-aggregated/vllm/docker/) · [SGLang](deployments/01-aggregated/sglang/docker/) | [vLLM](deployments/01-aggregated/vllm/kubernetes/) · [SGLang](deployments/01-aggregated/sglang/kubernetes/) |
-| 02 | [Disaggregated](deployments/02-dynamo-disagg-vllm/) | Dynamo | vLLM | [guide](deployments/02-dynamo-disagg-vllm/docker/) | [guide](deployments/02-dynamo-disagg-vllm/kubernetes/) |
-| 03 | [Disaggregated](deployments/03-dynamo-disagg-sglang/) | Dynamo | SGLang | [guide](deployments/03-dynamo-disagg-sglang/docker/) | [guide](deployments/03-dynamo-disagg-sglang/kubernetes/) |
-| 04 | [Disaggregated](deployments/04-llm-d-disagg/) | llm-d | vLLM · SGLang | | [vLLM](deployments/04-llm-d-disagg/vllm/) · [SGLang](deployments/04-llm-d-disagg/sglang/) |
+| 00 | [Prerequisites](deploy/prerequisites/) | | | ✓ | ✓ |
+| 01 | [Aggregated (baseline)](deploy/sites/hgx-b300-2x8/01-aggregated/) | Dynamo | vLLM · SGLang | [vLLM](deploy/legacy-compose/01-aggregated/vllm/) · [SGLang](deploy/legacy-compose/01-aggregated/sglang/) | [vLLM](deploy/sites/hgx-b300-2x8/01-aggregated/vllm/) · [SGLang](deploy/sites/hgx-b300-2x8/01-aggregated/sglang/) |
+| 02 | [Disaggregated](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | Dynamo | vLLM | [guide](deploy/legacy-compose/02-dynamo-disagg-vllm/) | [guide](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) |
+| 03 | [Disaggregated](deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) | Dynamo | SGLang | [guide](deploy/legacy-compose/03-dynamo-disagg-sglang/) | [guide](deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) |
+| 04 | [Disaggregated](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) | llm-d | vLLM · SGLang | | [vLLM](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/vllm/) · [SGLang](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/sglang/) |
 | · | TensorRT-LLM, KV offloading | Dynamo | TensorRT-LLM · vLLM | [roadmap](ROADMAP.md) | [roadmap](ROADMAP.md) |
 
 For **Nebius MK8s with 2 × 8 H200 and DeepSeek V4 Pro**, use the
-[site deployment guide](deployments/05-deepseek-v4-pro-h200/). It includes model
+[site deployment guide](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/). It includes model
 download Jobs, persistent volumes, and a LoadBalancer; the B300 defaults below
 are for the original reference topology.
 
-The same H200 cluster also runs the [Nemotron 3 Nano 128K comparison](deployments/06-nemotron-3-nano-h200/),
+The same H200 cluster also runs the [Nemotron 3 Nano 128K comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/),
 with separate cached weights on the existing PVCs and three repeats per topology.
-The [8K-in / 128K-out comparison](deployments/06-nemotron-3-nano-h200/BENCHMARK-8K-128K.md)
+The [8K-in / 128K-out comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-8K-128K.md)
 reverses that workload on four TP4 workers at maximum concurrency.
 
 ## Choose your path
 
 | You are… | Follow | Outcome |
 |---|---|---|
-| **Learning** LLM serving | [Blueprint 01–03](blueprint/) → [deployments 00](deployments/00-prerequisites/) → [01](deployments/01-aggregated/) on one node → [02](deployments/02-dynamo-disagg-vllm/) | A working aggregated and disaggregated deployment, with every flag explained |
-| **Running a customer PoC** | [Decision guide](blueprint/11-decision-guide.md) → [deployments](deployments/) (baseline + disaggregated) → [benchmarks](benchmarks/) on the customer's traffic | Like-for-like evidence for the right topology |
+| **Learning** LLM serving | [Blueprint 01–03](blueprint/) → [deployments 00](deploy/prerequisites/) → [01](deploy/sites/hgx-b300-2x8/01-aggregated/) on one node → [02](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | A working aggregated and disaggregated deployment, with every flag explained |
+| **Running a customer PoC** | [Decision guide](blueprint/11-decision-guide.md) → [deployments](deploy/) (baseline + disaggregated) → [benchmarks](benchmarks/) on the customer's traffic | Like-for-like evidence for the right topology |
 | **Designing production** | [Blueprint 02, 04–10](blueprint/) → [production operations](blueprint/10-production-operations.md) → [roadmap](ROADMAP.md) | A sized, SLO-driven architecture and its gap list |
 
 ---
@@ -78,7 +78,7 @@ reverses that workload on four TP4 workers at maximum concurrency.
 ```text
 .
 ├── blueprint/                 architecture and best practices (11 chapters)
-├── deployments/               runnable reference deployments
+├── deploy/               runnable reference deployments
 │   ├── 00-prerequisites/      hosts, network, RDMA test, model download
 │   ├── 01-aggregated/         Dynamo · {vllm, sglang} · {docker, kubernetes}
 │   ├── 02-dynamo-disagg-vllm/ Dynamo P/D · vLLM · {docker, kubernetes}
@@ -110,8 +110,8 @@ reverses that workload on four TP4 workers at maximum concurrency.
 ## Validation status
 
 - **Offline:** `python -m pytest -q` checks the structure of every deployment file and embedded launch script. It also checks that Docker and Kubernetes files launch identical engines, that they match the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings. `python tools/validate.py` checks the manifests against upstream Kubernetes, Compose and InferencePool schemas.
-- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deployments/05-deepseek-v4-pro-h200/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The saved DeepSeek configuration uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md). The shared cluster subsequently switched to [Nemotron 3 Nano at 128K](deployments/06-nemotron-3-nano-h200/). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md).
+- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The saved DeepSeek configuration uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md). The shared cluster subsequently switched to [Nemotron 3 Nano at 128K](deploy/sites/nebius-h200-2x8/nemotron-3-nano/). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md).
 - **On the B300 reference hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
-- **Performance:** the H200 [256K comparison](deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements. The [Nemotron 3 Nano 128K comparison](deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md) adds three repeats per topology and 576 valid requests on the same H200 cluster.
+- **Performance:** the H200 [256K comparison](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements. The [Nemotron 3 Nano 128K comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-128K.md) adds three repeats per topology and 576 valid requests on the same H200 cluster.
 
 Product capabilities reflect the pinned versions in [reference/sources.md](reference/sources.md). Hardware figures are nominal vendor values. To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).

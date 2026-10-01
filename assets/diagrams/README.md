@@ -16,7 +16,7 @@ Self-contained SVG files used throughout the blueprint and deployment guides. Ea
 | [kv-transfer-datapath.svg](kv-transfer-datapath.svg) | GPUDirect RDMA over rail-optimized InfiniBand, CPU off the path | [blueprint 07](../../blueprint/07-hardware-network-storage.md) |
 | [kv-cache-hierarchy.svg](kv-cache-hierarchy.svg) | KV tiers G1–G4, and GPUDirect Storage vs the CPU bounce buffer | [blueprint 08](../../blueprint/08-kv-cache-and-offloading.md) |
 | [decision-flow.svg](decision-flow.svg) | Topology decision tree, then control plane and engine | [blueprint 11](../../blueprint/11-decision-guide.md) |
-| [reference-topology.svg](reference-topology.svg) | The two-node lab: control vs data networks, ports, roles | [deployments](../../deployments/) |
+| [reference-topology.svg](reference-topology.svg) | The two-node lab: control vs data networks, ports, roles | [deployments](../../deploy/) |
 
 ## Editing
 

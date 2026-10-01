@@ -89,7 +89,7 @@ Prefilling 32,000 tokens takes on the order of seconds, so an RDMA transfer is a
 
 | Variant | What is split | Status |
 |---|---|---|
-| **P/D disaggregation** | Prefill vs decode | Production-ready in Dynamo and llm-d. Implemented in [deployments/](../deployments/). |
+| **P/D disaggregation** | Prefill vs decode | Production-ready in Dynamo and llm-d. Implemented in [deploy/](../deploy/). |
 | **E/P/D** | A separate **encode** stage for vision or audio encoders in multimodal models | Supported in recent engine and orchestrator releases |
 | **Wide-EP decode** | Decode spread across a rack-scale NVLink domain with large expert parallelism, prefill at smaller EP | Recommended for large MoE (DeepSeek-class) on NVL72 |
 | **Attention–FFN disaggregation** | Attention and expert/FFN layers on different GPUs | Research and early implementations |

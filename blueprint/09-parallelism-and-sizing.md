@@ -66,7 +66,7 @@ Add headroom (N+1 per pool) for failures and bursts. Re-measure Tp and Sd whenev
 1. Characterize the traffic: λ over the day, ISL/OSL distributions, prefix reuse. Use redacted production traces if possible.
 2. Choose the model precision and the context limit.
 3. Pick parallelism per phase from the table above and the NVLink domain size ([chapter 07](07-hardware-network-storage.md)).
-4. Deploy one prefill and one decode worker ([deployments/02](../deployments/02-dynamo-disagg-vllm/)) and measure Tp and Sd with [benchmarks/](../benchmarks/) at the target SLOs.
+4. Deploy one prefill and one decode worker ([deploy/02](../deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/)) and measure Tp and Sd with [benchmarks/](../benchmarks/) at the target SLOs.
 5. Compute N_P and N_D, and add headroom.
 6. In production, let an SLO-driven autoscaler (Dynamo Planner, llm-d variant autoscaler) track the ratio as traffic shifts.
 

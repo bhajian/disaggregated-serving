@@ -39,7 +39,7 @@ The analogy is more than decoration. PagedAttention, the KV-cache design in vLLM
 
 ## How the blueprint relates to the rest of the repository
 
-- **[deployments/](../deployments/)** implements parts of the blueprint on real hardware, as hand-written Docker and Kubernetes files: aggregated and disaggregated serving with Dynamo on vLLM and SGLang, plus llm-d.
+- **[deploy/](../deploy/)** implements parts of the blueprint on real hardware, as hand-written Docker and Kubernetes files: aggregated and disaggregated serving with Dynamo on vLLM and SGLang, plus llm-d.
 - **[benchmarks/](../benchmarks/)** measures deployments the same way, so architecture choices are decided by data.
 - **[ROADMAP.md](../ROADMAP.md)** lists what is designed here but not yet implemented, such as TensorRT-LLM tracks and KV-cache offloading with GPUDirect Storage.
 

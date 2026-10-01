@@ -2,12 +2,12 @@
 
 [Home](README.md) › Roadmap
 
-What the [blueprint](blueprint/) describes but [deployments/](deployments/) does not yet implement, and how each item will be delivered. Every new track follows the same conventions as the existing ones: hand-written Docker and Kubernetes files, a step-by-step README, a `deployment.json` run record, and offline consistency tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
+What the [blueprint](blueprint/) describes but [deploy/](deploy/) does not yet implement, and how each item will be delivered. Every new track follows the same conventions as the existing ones: hand-written Docker and Kubernetes files, a step-by-step README, a `deployment.json` run record, and offline consistency tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Item | Blueprint | Deliverable | Status |
 |---|---|---|---|
 | **Hardware validation of existing tracks** | [07](blueprint/07-hardware-network-storage.md) | End-to-end RDMA transfer proof and benchmark results for tracks 01–04 on the reference B300 hosts | Next |
-| **Dynamo + TensorRT-LLM** | [05](blueprint/05-inference-engines.md) | `deployments/05-dynamo-trtllm/`: aggregated and disaggregated (`dynamo.trtllm`, cache transceiver over NIXL/UCX), Docker and Kubernetes | Planned |
+| **Dynamo + TensorRT-LLM** | [05](blueprint/05-inference-engines.md) | `deploy/05-dynamo-trtllm/`: aggregated and disaggregated (`dynamo.trtllm`, cache transceiver over NIXL/UCX), Docker and Kubernetes | Planned |
 | **KV-cache offloading, phase 0: host readiness** | [08](blueprint/08-kv-cache-and-offloading.md) | NVMe layout, GDS install, `gdscheck` / `gdsio` baselines, GPU Operator GDS option | Planned |
 | **KV-cache offloading, phase 1: host DRAM (G2)** | [08](blueprint/08-kv-cache-and-offloading.md) | Aggregated vLLM with KVBM or native offloading. Exit: lower TTFT on returning turns under forced eviction. | Planned |
 | **KV-cache offloading, phase 2: local NVMe with GPUDirect Storage (G3)** | [08](blueprint/08-kv-cache-and-offloading.md) | G2 + G3 on aggregated, then disaggregated (`kvbm` + `nixl`). Exit: measured G3 hit rate and TTFT gain at larger working sets. | Planned |
@@ -22,7 +22,7 @@ What the [blueprint](blueprint/) describes but [deployments/](deployments/) does
 ## KV-cache offloading: planned layout
 
 ```text
-deployments/
+deploy/
 └── 06-kv-offloading/
     ├── README.md
     ├── host-setup/                  phase 0: NVMe + GDS preparation and checks

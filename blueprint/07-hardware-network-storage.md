@@ -57,7 +57,7 @@ Figures are nominal vendor values, and announced parts may change. Check current
 
 ![Reference deployment topology](../assets/diagrams/reference-topology.svg)
 
-Two HGX B300 servers (8 × B300, 288 GB each) with eight 800 Gb/s InfiniBand rails per node (`mlx5_4` … `mlx5_11`), a private Ethernet control network, and local NVMe for weights. [deployments/00-prerequisites](../deployments/00-prerequisites/) shows how to verify each part.
+Two HGX B300 servers (8 × B300, 288 GB each) with eight 800 Gb/s InfiniBand rails per node (`mlx5_4` … `mlx5_11`), a private Ethernet control network, and local NVMe for weights. [deploy/prerequisites](../deploy/prerequisites/) shows how to verify each part.
 
 ## Hardware checklist
 

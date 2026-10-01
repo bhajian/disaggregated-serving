@@ -20,13 +20,13 @@ Choose the **topology** from the workload and the fabric first. The **software**
 
 | Scenario | Topology | Engine | Control plane | Start from |
 |---|---|---|---|---|
-| **Chat assistant**, short prompts, 1–2 HGX servers, throughput first | Aggregated replicas, KV-aware routing | vLLM or SGLang | Dynamo or llm-d | [deployments/01](../deployments/01-aggregated/) |
-| **Long-context RAG or agents** with p99 ITL SLO, HGX servers with InfiniBand | P/D over GPUDirect RDMA, tune the P:D ratio | vLLM, SGLang or TensorRT-LLM | Dynamo (Planner) or llm-d | [deployments/02](../deployments/02-dynamo-disagg-vllm/), [03](../deployments/03-dynamo-disagg-sglang/), [04](../deployments/04-llm-d-disagg/) |
+| **Chat assistant**, short prompts, 1–2 HGX servers, throughput first | Aggregated replicas, KV-aware routing | vLLM or SGLang | Dynamo or llm-d | [deploy/01](../deploy/sites/hgx-b300-2x8/01-aggregated/) |
+| **Long-context RAG or agents** with p99 ITL SLO, HGX servers with InfiniBand | P/D over GPUDirect RDMA, tune the P:D ratio | vLLM, SGLang or TensorRT-LLM | Dynamo (Planner) or llm-d | [deploy/02](../deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/), [03](../deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/), [04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) |
 | **Large MoE** (DeepSeek-, Kimi-class) at scale on GB200/GB300 NVL72 | P/D, wide-EP decode inside the NVLink domain, DP attention for MLA | SGLang or TensorRT-LLM (vLLM also supports wide EP) | Dynamo or llm-d wide-EP guides | [ROADMAP](../ROADMAP.md) |
-| **Hybrid SSM** (Nemotron 3) on HGX B300 | Aggregated baseline, then P/D with hybrid-aware KV transfer | vLLM (NVIDIA-pinned image) | Dynamo | [deployments/01](../deployments/01-aggregated/) → [02](../deployments/02-dynamo-disagg-vllm/) |
+| **Hybrid SSM** (Nemotron 3) on HGX B300 | Aggregated baseline, then P/D with hybrid-aware KV transfer | vLLM (NVIDIA-pinned image) | Dynamo | [deploy/01](../deploy/sites/hgx-b300-2x8/01-aggregated/) → [02](../deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) |
 | **Multi-turn heavy reuse** (coding agents, support bots) | Any of the above + KV tiers (DRAM → NVMe with GDS) | engine with an offload connector | Dynamo KVBM or llm-d + LMCache | [chapter 08](08-kv-cache-and-offloading.md) |
-| **Kubernetes platform team** standardizing on Gateway API | Per workload | vLLM | llm-d (or KServe on llm-d) | [deployments/04](../deployments/04-llm-d-disagg/) |
-| **Bare-metal PoC** before Kubernetes exists | Per workload | any | Dynamo on Docker Compose | [deployments/](../deployments/) Docker guides |
+| **Kubernetes platform team** standardizing on Gateway API | Per workload | vLLM | llm-d (or KServe on llm-d) | [deploy/04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) |
+| **Bare-metal PoC** before Kubernetes exists | Per workload | any | Dynamo on Docker Compose | [deploy/](../deploy/) Docker guides |
 | **Next-generation racks** (Vera Rubin with Rubin CPX) | Hardware-specialized P/D: context on CPX, decode on HBM GPUs | per vendor support | per vendor support | [chapter 03](03-disaggregation-pattern.md#variants-of-the-pattern) |
 
 ## Anti-patterns
@@ -43,4 +43,4 @@ Choose the **topology** from the workload and the fabric first. The **software**
 
 ---
 
-**Back to:** [Blueprint index](README.md) · **Implement it:** [deployments/](../deployments/)
+**Back to:** [Blueprint index](README.md) · **Implement it:** [deploy/](../deploy/)

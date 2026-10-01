@@ -1,4 +1,4 @@
-"""Consistency checks for the hand-written reference deployments in deployments/01-03.
+"""Consistency checks for the hand-written reference deployments in deploy/01-03.
 
 The reference files are written for humans, so nothing regenerates them. These
 tests make sure they stay consistent with each other and with the flags that
@@ -15,18 +15,25 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE = dict(line.split('=', 1) for line in (ROOT / 'deployments/cluster.env.example').read_text().splitlines()
+SITE = dict(line.split('=', 1) for line in (ROOT / 'deploy/legacy-compose/cluster.env.example').read_text().splitlines()
             if line and not line.startswith('#'))
 
 # (folder, engine, topology)
 TRACKS = [
-    ('deployments/01-aggregated/vllm', 'vllm', 'agg'),
-    ('deployments/01-aggregated/sglang', 'sglang', 'agg'),
-    ('deployments/02-dynamo-disagg-vllm', 'vllm', 'disagg'),
-    ('deployments/03-dynamo-disagg-sglang', 'sglang', 'disagg'),
+    ('deploy/sites/hgx-b300-2x8/01-aggregated/vllm', 'vllm', 'agg'),
+    ('deploy/sites/hgx-b300-2x8/01-aggregated/sglang', 'sglang', 'agg'),
+    ('deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm', 'vllm', 'disagg'),
+    ('deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang', 'sglang', 'disagg'),
 ]
 DISAGG_FLAGS = {'--disaggregation-mode', '--kv-transfer-config',
                 '--disaggregation-transfer-backend', '--disaggregation-bootstrap-port'}
+
+
+def platform_dir(folder, platform):
+    """Kubernetes manifests sit in the site folder; Compose files in deploy/legacy-compose."""
+    if platform == 'kubernetes':
+        return ROOT / folder
+    return ROOT / folder.replace('deploy/sites/hgx-b300-2x8/', 'deploy/legacy-compose/')
 
 
 def interpolate(text):
@@ -34,11 +41,11 @@ def interpolate(text):
 
 
 def compose(folder, node):
-    return yaml.safe_load(interpolate((ROOT / folder / 'docker' / f'node-{node}.yaml').read_text()))
+    return yaml.safe_load(interpolate((platform_dir(folder, 'docker') / f'node-{node}.yaml').read_text()))
 
 
 def k8s(folder, name):
-    return next(yaml.safe_load_all((ROOT / folder / 'kubernetes' / name).read_text()))
+    return next(yaml.safe_load_all((platform_dir(folder, 'kubernetes') / name).read_text()))
 
 
 def normalize(value):
@@ -70,7 +77,7 @@ def compose_workers(folder):
 
 
 def k8s_containers(folder):
-    d = ROOT / folder / 'kubernetes'
+    d = platform_dir(folder, 'kubernetes')
     return [yaml.safe_load(p.read_text())['spec']['template']['spec']['containers'][0]
             for p in sorted(d.glob('3*.yaml'))]
 
@@ -95,8 +102,8 @@ def test_compose_and_kubernetes_launch_identical_engines(folder, engine, topolog
 
 @pytest.mark.parametrize('engine', ['vllm', 'sglang'])
 def test_aggregated_equals_disaggregated_minus_transfer_flags(engine):
-    agg = flags_from_script(compose_workers(f'deployments/01-aggregated/{engine}')[0]['command'][0])
-    dis = flags_from_script(compose_workers(f'deployments/0{2 if engine == "vllm" else 3}-dynamo-disagg-{engine}')[0]['command'][0])
+    agg = flags_from_script(compose_workers(f'deploy/sites/hgx-b300-2x8/01-aggregated/{engine}')[0]['command'][0])
+    dis = flags_from_script(compose_workers(f'deploy/sites/hgx-b300-2x8/0{2 if engine == "vllm" else 3}-dynamo-disagg-{engine}')[0]['command'][0])
     assert agg == {k: v for k, v in dis.items() if k not in DISAGG_FLAGS}
 
 
@@ -137,7 +144,7 @@ def test_control_plane_and_transfer_settings(folder, engine, topology):
 
 
 def test_no_reference_file_sets_the_broken_response_stream_host():
-    for path in [*ROOT.glob('deployments/**/*.yaml'), ROOT / 'tools/render.py']:
+    for path in [*ROOT.glob('deploy/**/*.yaml'), ROOT / 'tools/render.py']:
         text = path.read_text()
         for line in text.splitlines():
             if 'DYN_TCP_RESPONSE_STREAM_HOST' in line:
@@ -147,13 +154,13 @@ def test_no_reference_file_sets_the_broken_response_stream_host():
 @pytest.mark.parametrize('folder,engine,topology', TRACKS)
 def test_run_records_and_kustomizations(folder, engine, topology):
     for platform, suffix in [('docker', 'compose'), ('kubernetes', 'k8s')]:
-        record = json.loads((ROOT / folder / platform / 'deployment.json').read_text())
+        record = json.loads((platform_dir(folder, platform) / 'deployment.json').read_text())
         assert record['technology'] == f'dynamo-{topology}-{suffix}'
         assert record['backend'] == engine
         worker = flags_from_script(compose_workers(folder)[0]['command'][0])
         assert record['model']['model_id'] == worker['--served-model-name']
         assert record['max_model_len'] == int(worker['--max-model-len' if engine == 'vllm' else '--context-length'])
-    kdir = ROOT / folder / 'kubernetes'
+    kdir = platform_dir(folder, 'kubernetes')
     resources = yaml.safe_load((kdir / 'kustomization.yaml').read_text())['resources']
     assert resources == sorted(p.name for p in kdir.glob('[0-9]*.yaml'))
     namespaces = {d['metadata']['namespace'] for r in resources[1:]

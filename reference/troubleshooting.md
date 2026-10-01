@@ -35,7 +35,7 @@ Nebius deployment, native stacks showed concurrent copies blocked in
 `cuMemcpyHtoDAsync` / `pthread_rwlock_wrlock`. For checkpoints that fit in host
 RAM, enable `--weight-loader-prefetch-checkpoints` and allow time for the cold
 disk read; see [SGLang #29268](https://github.com/sgl-project/sglang/issues/29268)
-and the [site manifests](../deployments/05-deepseek-v4-pro-h200/). Watch disk-read
+and the [site manifests](../deploy/sites/nebius-h200-2x8/deepseek-v4-pro/). Watch disk-read
 and page-cache progress as well as GPU utilization. Do not interpret shard
 completion or frontend health as model readiness.
 
@@ -43,8 +43,8 @@ completion or frontend health as model readiness.
 
 ```bash
 # Docker: state and logs (run on the node, from the repository root)
-docker compose --env-file deployments/cluster.env -f deployments/<track>/docker/node-a.yaml ps -a
-docker compose --env-file deployments/cluster.env -f deployments/<track>/docker/node-a.yaml logs --tail 200 <service>
+docker compose --env-file deploy/cluster.env -f deploy/<track>/docker/node-a.yaml ps -a
+docker compose --env-file deploy/cluster.env -f deploy/<track>/docker/node-a.yaml logs --tail 200 <service>
 
 # Kubernetes
 kubectl -n <namespace> get pods -o wide

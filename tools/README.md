@@ -11,7 +11,7 @@ The reference deployments are hand-written and need **none** of these tools. The
 | [render.py](render.py) | Generates Compose or Kubernetes files for **any** model, engine and context from `configs/models.yaml` + `configs/cluster.yaml`. Use it to create variants, then read and diff the output against the hand-written reference. | No. Writes files only. |
 | [validate.py](validate.py) | Checks every deployment YAML against the upstream Kubernetes, Compose and InferencePool schemas (downloads the schemas once to `build/schema-cache`) | No |
 | [sweep.sh](sweep.sh) | Runs `benchmarks.run` over several concurrency levels and repetitions, then collects results | Sends inference requests |
-| [llmd-router.sh](llmd-router.sh) | `render` or `install` the pinned llm-d router Helm chart ([deployments/04](../deployments/04-llm-d-disagg/)) | `install` changes the cluster |
+| [llmd-router.sh](llmd-router.sh) | `render` or `install` the pinned llm-d router Helm chart ([deploy/04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/)) | `install` changes the cluster |
 
 Examples:
 

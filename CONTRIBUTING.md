@@ -13,13 +13,13 @@ This repository is a reference architecture: readers must be able to understand 
 
 ## Adding a deployment track
 
-1. Create `deployments/NN-<control-plane>-<topology>-<engine>/` with `README.md`, `docker/` and `kubernetes/`, following an existing track.
-2. **Docker:** `node-a.yaml` and `node-b.yaml`. Site values come only from `deployments/cluster.env`. Write engine flags out in full, with a comment above the `exec` line explaining each flag group.
+1. Create `deploy/NN-<control-plane>-<topology>-<engine>/` with `README.md`, `docker/` and `kubernetes/`, following an existing track.
+2. **Docker:** `node-a.yaml` and `node-b.yaml`. Site values come only from `deploy/cluster.env`. Write engine flags out in full, with a comment above the `exec` line explaining each flag group.
 3. **Kubernetes:** numbered manifests (`00-namespace`, `01-site-config`, `10-…`, `20-…`, `30-…`), a `kustomization.yaml` listing them in order, node placement by `llm-serving/node` labels, pod IPs from the Downward API, and a dedicated namespace.
 4. **Run record:** a `deployment.json` in both `docker/` and `kubernetes/` with `technology`, `backend`, `topology`, `image`, `max_model_len` and `model` (id, revision, request defaults). Add new technology labels to `benchmarks/run.py`.
 5. **Guides:** each platform README covers what you deploy, files, before you start, step-by-step deploy, verify, proof of KV transfer (if disaggregated), see results, clean up and troubleshooting.
 6. **Tests:** add the track to `tests/test_reference_manifests.py` so Compose and Kubernetes stay identical and match the model catalog.
-7. **Index:** add the track to the matrix in [deployments/README.md](deployments/README.md) and the root README, and update [ROADMAP.md](ROADMAP.md).
+7. **Index:** add the track to the matrix in [deploy/README.md](deploy/README.md) and the root README, and update [ROADMAP.md](ROADMAP.md).
 
 ## Editing diagrams
 

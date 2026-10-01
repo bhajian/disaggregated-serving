@@ -6,7 +6,7 @@
 
 Saved measurements from the same checkpoint on 16 H200 GPUs, comparing one TP8
 prefill worker plus one TP8 decode worker against two TP8 aggregated replicas.
-See the [report and protocol](../../deployments/05-deepseek-v4-pro-h200/BENCHMARK-256K.md)
+See the [report and protocol](../../deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md)
 for the configuration, dataset hashes, reproduction steps and limitations.
 
 | Measured run | Topology | Requests | Wall time |

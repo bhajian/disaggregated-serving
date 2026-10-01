@@ -24,7 +24,7 @@ These principles hold whether you run Dynamo or llm-d, and TensorRT-LLM, vLLM or
 
 ### 1. Start aggregated, earn disaggregation
 Disaggregation adds a network hop per request, two roles that must match, and transfer monitoring. For short prompts and balanced traffic, aggregated replicas with KV-aware routing often match it. **Deploy aggregated first, measure, then disaggregate on the same GPUs and compare.**
-*Here:* [deployments/01-aggregated](../deployments/01-aggregated/) is the baseline for every disaggregated track, and [benchmarks/](../benchmarks/) compares them with one dataset.
+*Here:* [deploy/sites/hgx-b300-2x8/01-aggregated](../deploy/sites/hgx-b300-2x8/01-aggregated/) is the baseline for every disaggregated track, and [benchmarks/](../benchmarks/) compares them with one dataset.
 
 ### 2. Split by resource profile, not by habit
 Prefill is compute-bound and decode is memory-bandwidth-bound. When they share GPUs, each gets the wrong batch size and they interfere with each other. Split them when the latency SLO (tail ITL) or the traffic shape (long inputs) makes that interference expensive. This is the microservices rule applied to inference ([chapter 03](03-disaggregation-pattern.md)).

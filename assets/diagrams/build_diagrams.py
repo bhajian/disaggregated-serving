@@ -834,7 +834,7 @@ def model_architectures():
 
 
 # =============================================================================
-# 10. Reference lab topology used by deployments/
+# 10. Reference lab topology used by deploy/
 # =============================================================================
 def reference_topology():
     s = SVG(1360, 660, 'Reference deployment topology',
@@ -934,7 +934,7 @@ def decision_flow():
         s.box(rx + 20, 392 + i * 86, rw - 40, 74, t, sub, 'engine')
     s.text(rx + 20, 670, 'Validate every choice on your hardware:', 'sub', fill=INK)
     s.text(rx + 20, 688, 'same dataset, same SLOs, aggregated baseline first', 'sub')
-    s.text(rx + 20, 718, 'benchmarks/ · deployments/', 'mono')
+    s.text(rx + 20, 718, 'benchmarks/ · deploy/', 'mono')
     s.render('decision-flow.svg')
 
 

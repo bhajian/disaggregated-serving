@@ -15,7 +15,7 @@ time was 8.53 minutes. Disaggregated reported prefix-cache hits on 192/192
 follow-ups; aggregated reported hits on 190/192. This is a fixed-allocation,
 fixed-order comparison, not a GPU-sizing or maximum-capacity study.
 
-See the [full report and protocol](../../deployments/06-nemotron-3-nano-h200/BENCHMARK-128K.md)
+See the [full report and protocol](../../deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-128K.md)
 for settings, run IDs, interpretation and reproduction instructions.
 
 - Timestamped run directories contain streaming records, request CSVs,

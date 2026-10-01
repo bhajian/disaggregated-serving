@@ -20,7 +20,7 @@ datasets/generated/
 !*.env.example
 
 # Site values and rendered site manifests stay local.
-deployments/site.env
+deploy/site.env
 
 # Raw result evidence lives in release archives (results/ARCHIVE.md).
 results/**/*.prom
