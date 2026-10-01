@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+# Shared files mounted into Dynamo graphs: the discovery-aware frontend probe and the
+# opt-in GC freeze hook. Names are stable so DynamoGraphDeployment volumes can refer
+# to them (kustomize does not rewrite names inside custom resources).
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+- name: dynamo-frontend-probe
+  files:
+  - frontend_probe.py
+- name: dynamo-python-hooks
+  files:
+  - sitecustomize.py

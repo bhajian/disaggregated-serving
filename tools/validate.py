@@ -47,6 +47,26 @@ def load_all(text):
     return yaml.load_all(text, Loader=Loader)
 
 
+def strict(obj):
+    """Reject unknown fields, like kubeconform -strict.
+
+    Kubernetes silently prunes unknown fields from custom resources, so a misspelled
+    or misplaced field would pass a plain schema check and then vanish on apply.
+    Every object schema that lists properties becomes closed unless it explicitly
+    preserves unknown fields or already defines additionalProperties.
+    """
+    if isinstance(obj, dict):
+        if ('properties' in obj and 'additionalProperties' not in obj
+                and not obj.get('x-kubernetes-preserve-unknown-fields')):
+            obj['additionalProperties'] = False
+        for v in obj.values():
+            strict(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            strict(v)
+    return obj
+
+
 def normalize(obj):
     # Kubernetes OpenAPI v2 expresses IntOrString as type=string plus a custom
     # format; JSON Schema needs the explicit type union.
@@ -68,7 +88,7 @@ class Registry:
         for name, url in DOWNLOADS.items():
             if not (cache / name).exists():
                 (cache / name).write_bytes(urllib.request.urlopen(url, timeout=120).read())
-        self.openapi = normalize(json.loads((cache / 'kubernetes.json').read_text()))
+        self.openapi = strict(normalize(json.loads((cache / 'kubernetes.json').read_text())))
         self.compose = json.loads((cache / 'compose.json').read_text())
         self.crds = {}
         for name in ('inference.yaml', 'gateway-api.yaml', 'envoy-gateway.yaml', 'prometheus-operator.yaml',
@@ -87,7 +107,7 @@ class Registry:
         kind, api = obj['kind'], obj['apiVersion']
         group, _, version = api.rpartition('/')
         if (group, version, kind) in self.crds:
-            return normalize(dict(self.crds[(group, version, kind)]))
+            return strict(normalize(json.loads(json.dumps(self.crds[(group, version, kind)]))))
         core = 'core' if not group else group.split('.')[0]
         key = f'io.k8s.api.{core}.{version}.{kind}'
         if group.endswith('.k8s.io') and group.split('.')[0] in ('rbac', 'networking', 'storage', 'scheduling', 'policy'):
