@@ -35,14 +35,14 @@ is a different cluster. Node selectors are specific to this site.
 
 ```bash
 SITE=deploy/sites/nebius-h200-2x8/nemotron-3-nano
-kubectl --context $KUBE_CONTEXT apply -f "$SITE/10-model-download.yaml"
+kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/model-download/10-model-download.yaml"
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro wait --for=condition=complete \
   job/nemotron-download-0 job/nemotron-download-1 --timeout=20m
-kubectl --context $KUBE_CONTEXT apply -f "$SITE/20-etcd.yaml" -f "$SITE/30-frontend.yaml"
+kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/etcd/20-etcd.yaml" -f "$SITE/lab/as-measured/frontend-kv-router/30-frontend.yaml"
 # Disaggregated: one TP8 prefill worker and one TP8 decode worker.
-kubectl --context $KUBE_CONTEXT apply -f "$SITE/40-workers-disaggregated.yaml"
+kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/workers-tp8-disaggregated/40-workers-disaggregated.yaml"
 # Alternatively, aggregated: two TP8 replicas, one on each node.
-# kubectl --context $KUBE_CONTEXT apply -f "$SITE/40-workers.yaml"
+# kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/workers-tp8-aggregated/40-workers.yaml"
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-0 --timeout=20m
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-1 --timeout=20m
 ```

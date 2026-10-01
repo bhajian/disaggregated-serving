@@ -215,16 +215,16 @@ MODEL=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16
   --tokenizer build/nemotron-128k/tokenizer --template-kwargs '{"enable_thinking":false}' \
   --out datasets/generated/nemotron-3-nano-chatbot-8k-512.jsonl
 .venv/bin/python $SITE/render_tp4.py           # writes both TP4 worker manifests
-kubectl --context $KUBE_CONTEXT apply -f $SITE/31-frontend-round-robin.yaml
-kubectl --context $KUBE_CONTEXT apply -f $SITE/40-workers-tp4.yaml   # or 40-workers-tp4-disaggregated.yaml
-kubectl --context $KUBE_CONTEXT apply -f $SITE/51-benchmark-client-long-decode.yaml
+kubectl --context $KUBE_CONTEXT apply -f $SITE/lab/as-measured/frontend-round-robin/31-frontend-round-robin.yaml
+kubectl --context $KUBE_CONTEXT apply -f $SITE/lab/as-measured/workers-tp4-aggregated/40-workers-tp4.yaml   # or 40-workers-tp4-disaggregated.yaml
+kubectl --context $KUBE_CONTEXT apply -f $SITE/lab/as-measured/benchmark-client-8k-128k/51-benchmark-client-long-decode.yaml
 CL=deepseek-v4-pro/benchmark-client
 kubectl --context $KUBE_CONTEXT cp benchmarks $CL:/bench/ -c client
 kubectl --context $KUBE_CONTEXT cp datasets/generated/nemotron-3-nano-chatbot-8k-512.jsonl $CL:/bench/dataset.jsonl -c client
 kubectl --context $KUBE_CONTEXT cp datasets/generated/nemotron-3-nano-chatbot-8k-512.jsonl.meta.json $CL:/bench/dataset.jsonl.meta.json -c client
 for f in clear_cache.py benchmark_8k_128k.py; do kubectl --context $KUBE_CONTEXT cp $SITE/$f $CL:/bench/$f -c client; done
-kubectl --context $KUBE_CONTEXT cp $SITE/deployment-tp4.json $CL:/bench/aggregated-deployment.json -c client
-kubectl --context $KUBE_CONTEXT cp $SITE/deployment-tp4-disaggregated.json $CL:/bench/disaggregated-deployment.json -c client
+kubectl --context $KUBE_CONTEXT cp $SITE/lab/as-measured/records/deployment-tp4.json $CL:/bench/aggregated-deployment.json -c client
+kubectl --context $KUBE_CONTEXT cp $SITE/lab/as-measured/records/deployment-tp4-disaggregated.json $CL:/bench/disaggregated-deployment.json -c client
 # After a restart, send a short warmup first: disaggregated NIXL setup takes about 60 s on the first requests.
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro exec benchmark-client -c client -- \
   python3 -u benchmark_8k_128k.py aggregated --concurrency 512 --repetitions 3

@@ -45,7 +45,7 @@ CONCURRENCIES='1 2 4 8 16' REPETITIONS=3 bash tools/sweep.sh \
   --base-url http://<LOADBALANCER_IP>:8000/v1 \
   --model deepseek-ai/DeepSeek-V4-Pro-0813 \
   --technology dynamo-disagg-k8s \
-  --deployment deploy/sites/nebius-h200-2x8/deepseek-v4-pro/deployment-disaggregated.json \
+  --deployment deploy/sites/nebius-h200-2x8/deepseek-v4-pro/lab/as-measured/records/deployment-disaggregated.json \
   --dataset datasets/generated/deepseek-v4-pro-chatbot-8k-64.jsonl \
   --max-model-len 262144 --min-input-tokens 8000 --output-tokens 256 \
   --warmup 4 --cache-state uncontrolled --results "$PERF_RESULTS"

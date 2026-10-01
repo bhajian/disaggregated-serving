@@ -33,7 +33,7 @@ The model revision, completed download Jobs, PVCs and LoadBalancer are shared.
 Switch to prefill/decode disaggregation using:
 
 ```bash
-kubectl --context $KUBE_CONTEXT apply -f deploy/sites/nebius-h200-2x8/deepseek-v4-pro/40-workers-disaggregated.yaml
+kubectl --context $KUBE_CONTEXT apply -f deploy/sites/nebius-h200-2x8/deepseek-v4-pro/lab/as-measured/workers-tp8-disaggregated/40-workers-disaggregated.yaml
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-0 --timeout=2h
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-1 --timeout=2h
 ```
@@ -55,7 +55,7 @@ its download Job on the same node; frontend shares `model-0` with worker 0.
 ```bash
 export KUBE_CONTEXT=<your-kube-context>
 kubectl --context "$KUBE_CONTEXT" get nodes -o wide
-kubectl --context "$KUBE_CONTEXT" apply -f deploy/sites/nebius-h200-2x8/deepseek-v4-pro/00-namespace.yaml
+kubectl --context "$KUBE_CONTEXT" apply -f deploy/sites/nebius-h200-2x8/deepseek-v4-pro/lab/as-measured/namespace/00-namespace.yaml
 
 # Set HF_TOKEN in your shell without putting it in a tracked file.
 # Feed the Secret through stdin so its value is not a kubectl process argument.
@@ -152,7 +152,7 @@ PY
   --out datasets/generated/deepseek-v4-pro-h200-8k.jsonl
 .venv/bin/python -m benchmarks.run --base-url "$ENDPOINT/v1" \
   --model deepseek-ai/DeepSeek-V4-Pro-0813 --technology dynamo-agg-k8s \
-  --deployment deploy/sites/nebius-h200-2x8/deepseek-v4-pro/deployment.json \
+  --deployment deploy/sites/nebius-h200-2x8/deepseek-v4-pro/lab/as-measured/records/deployment.json \
   --dataset datasets/generated/deepseek-v4-pro-h200-8k.jsonl \
   --max-model-len 262144 --min-input-tokens 8000 --output-tokens 128 --concurrency 4
 ```

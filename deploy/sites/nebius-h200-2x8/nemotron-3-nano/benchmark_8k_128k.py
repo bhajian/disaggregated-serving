@@ -12,6 +12,9 @@ import pathlib
 import subprocess
 import sys
 import time
+# Kubernetes namespace of the serving stack. Runs recorded before 2026-10-02 used
+# deepseek-v4-pro for both profiles; each profile now has its own namespace.
+NAMESPACE = os.environ.get('BENCH_NAMESPACE', 'nemotron-3-nano')
 # Node IPs come from the site env (see deploy/site.env.example); never hard-code them.
 NODE_IPS = {k: os.environ.get(k) or sys.exit(f'Set {k} (see deploy/site.env.example)') for k in ('NODE_A_IP', 'NODE_B_IP')}
 
@@ -54,7 +57,7 @@ for repetition in range(1, args.repetitions + 1):
                            stderr=subprocess.STDOUT, check=True, timeout=540)
         command = [
             sys.executable, '-u', '-m', 'benchmarks.long_decode',
-            '--base-url', 'http://frontend.deepseek-v4-pro.svc.cluster.local:8000/v1',
+            '--base-url', f'http://frontend.{NAMESPACE}.svc.cluster.local:8000/v1',
             '--model', 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16',
             '--technology', 'dynamo-' + ('agg' if args.mode == 'aggregated' else 'disagg') + '-k8s',
             '--deployment', args.mode + '-deployment.json', '--dataset', 'dataset.jsonl',

@@ -1,0 +1,6 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+# Lab plumbing shared by every variant in the deepseek-v4-pro namespace: its own Namespace and,
+# where needed, in-cluster endpoints rewritten from the namespace the runs were measured in.
+resources:
+- namespace.yaml

@@ -4,14 +4,15 @@ Two 4-GPU workers share each node's host network, so the second worker on a
 node shifts every fixed port. Aggregated: four replicas. Disaggregated: worker-0
 is the prefill worker; workers 1-3 decode. All other engine flags are identical.
 
-    python deploy/sites/nebius-h200-2x8/nemotron-3-nano/render_tp4.py
+    python deploy/sites/nebius-h200-2x8/nemotron-3-nano/render_tp4.py   # writes lab/as-measured/40-workers-tp4*.yaml
 """
 import copy
 from pathlib import Path
 
 import yaml
 
-SITE = Path(__file__).resolve().parent
+SITE = Path(__file__).resolve().parent / 'lab/as-measured'
+OUT = {'40-workers-tp4.yaml': 'workers-tp4-aggregated', '40-workers-tp4-disaggregated.yaml': 'workers-tp4-disaggregated'}
 NODES = ['<NODE_A_HOSTNAME>', '<NODE_B_HOSTNAME>']
 CONTEXT = 262144
 MAX_RUNNING = 136  # Per worker; headroom over the 128 average so router imbalance never queues. 140 x 139K tokens fit the KV pool.
@@ -78,11 +79,11 @@ def worker(template, index, role):
 
 
 def main():
-    template = list(yaml.safe_load_all((SITE / '40-workers.yaml').read_text()))[0]
+    template = list(yaml.safe_load_all((SITE / 'workers-tp8-aggregated/40-workers.yaml').read_text()))[0]
     for path, roles in [('40-workers-tp4.yaml', ['aggregated'] * 4),
                         ('40-workers-tp4-disaggregated.yaml', ['prefill', 'decode', 'decode', 'decode'])]:
         docs = [worker(template, i, role) for i, role in enumerate(roles)]
-        (SITE / path).write_text(yaml.safe_dump_all(docs, sort_keys=False))
+        (SITE / OUT[path] / path).write_text(yaml.safe_dump_all(docs, sort_keys=False))
         print('wrote', path)
 
 

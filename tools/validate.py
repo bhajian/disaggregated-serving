@@ -133,7 +133,7 @@ def main(argv=None):
     for path in sorted(p for r in roots for p in r.rglob('*.yaml')):
         # Patch fragments and Helm values are not standalone objects; they are
         # validated through `kustomize build` or by Helm.
-        if (path.name in SKIP_FILES or path.name.startswith(('patch-', 'values')) or 'patches' in path.parts
+        if (path.name in SKIP_FILES or path.name.startswith(('patch-', 'values', 'kustomization')) or 'patches' in path.parts
                 or 'helm' in path.parts):
             continue
         n, e = validate_objects(registry, yaml.safe_load_all(path.read_text()), path.relative_to(ROOT))

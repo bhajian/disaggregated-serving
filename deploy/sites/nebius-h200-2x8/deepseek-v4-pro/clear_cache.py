@@ -5,7 +5,10 @@ import os
 import socket
 import sys
 
-os.environ['ETCD_ENDPOINTS'] = 'http://etcd.deepseek-v4-pro.svc.cluster.local:2379'
+# Kubernetes namespace of the serving stack. Runs recorded before 2026-10-02 used
+# deepseek-v4-pro for both profiles; each profile now has its own namespace.
+NAMESPACE = os.environ.get('BENCH_NAMESPACE', 'deepseek-v4-pro')
+os.environ['ETCD_ENDPOINTS'] = f'http://etcd.{NAMESPACE}.svc.cluster.local:2379'
 os.environ['DYN_TCP_RPC_HOST'] = socket.gethostbyname(socket.gethostname())
 from dynamo.runtime import DistributedRuntime
 

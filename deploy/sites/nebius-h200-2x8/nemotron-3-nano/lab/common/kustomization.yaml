@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+# Lab plumbing shared by every variant in the nemotron-3-nano namespace: its own Namespace and,
+# where needed, in-cluster endpoints rewritten from the namespace the runs were measured in.
+resources:
+- namespace.yaml
+- endpoints.yaml
+replacements:
+- source:
+    kind: ConfigMap
+    name: lab-endpoints
+    fieldPath: data.etcd
+  targets:
+  - select:
+      kind: Deployment
+      name: worker-.*
+    fieldPaths:
+    - spec.template.spec.containers.[name=worker].env.[name=ETCD_ENDPOINTS].value
+    options:
+      create: false
+  - select:
+      kind: Deployment
+      name: frontend
+    fieldPaths:
+    - spec.template.spec.containers.[name=frontend].env.[name=ETCD_ENDPOINTS].value
+    options:
+      create: false

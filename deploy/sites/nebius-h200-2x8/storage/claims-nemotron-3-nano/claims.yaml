@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-0
+  namespace: nemotron-3-nano
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: compute-csi-default-sc
+  volumeName: h200-model-disk-a
+  resources:
+    requests:
+      storage: 1500Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-1
+  namespace: nemotron-3-nano
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: compute-csi-default-sc
+  volumeName: h200-model-disk-b
+  resources:
+    requests:
+      storage: 1500Gi

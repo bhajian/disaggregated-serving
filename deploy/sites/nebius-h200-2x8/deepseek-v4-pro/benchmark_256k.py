@@ -1,6 +1,9 @@
 """Run one complete 256K cohort after verifying both idle caches were cleared."""
 import os
 import datetime,json,pathlib,subprocess,sys,time
+# Kubernetes namespace of the serving stack. Runs recorded before 2026-10-02 used
+# deepseek-v4-pro for both profiles; each profile now has its own namespace.
+NAMESPACE = os.environ.get('BENCH_NAMESPACE', 'deepseek-v4-pro')
 # Node IPs come from the site env (see deploy/site.env.example); never hard-code them.
 NODE_IPS = {k: os.environ.get(k) or sys.exit(f'Set {k} (see deploy/site.env.example)') for k in ('NODE_A_IP', 'NODE_B_IP')}
 mode=sys.argv[1]
@@ -12,7 +15,7 @@ code=1
 try:
  with (logdir/f'{mode}-cache-clear.log').open('w') as f:
   subprocess.run([sys.executable,'clear_cache.py',mode],stdout=f,stderr=subprocess.STDOUT,check=True,timeout=540)
- command=[sys.executable,'-u','-m','benchmarks.run','--base-url','http://frontend.deepseek-v4-pro.svc.cluster.local:8000/v1','--model','deepseek-ai/DeepSeek-V4-Pro-0813','--technology','dynamo-'+('agg' if mode=='aggregated' else 'disagg')+'-k8s','--deployment',mode+'-deployment.json','--dataset','dataset.jsonl','--sessions','8','--max-model-len','262144','--min-input-tokens','250001','--output-tokens','256','--concurrency','4','--warmup','1','--cache-state','mixed','--metrics-url',f"http://{NODE_IPS['NODE_A_IP']}:8081/metrics",'--metrics-url',f"http://{NODE_IPS['NODE_B_IP']}:8081/metrics",'--results','results']
+ command=[sys.executable,'-u','-m','benchmarks.run','--base-url',f'http://frontend.{NAMESPACE}.svc.cluster.local:8000/v1','--model','deepseek-ai/DeepSeek-V4-Pro-0813','--technology','dynamo-'+('agg' if mode=='aggregated' else 'disagg')+'-k8s','--deployment',mode+'-deployment.json','--dataset','dataset.jsonl','--sessions','8','--max-model-len','262144','--min-input-tokens','250001','--output-tokens','256','--concurrency','4','--warmup','1','--cache-state','mixed','--metrics-url',f"http://{NODE_IPS['NODE_A_IP']}:8081/metrics",'--metrics-url',f"http://{NODE_IPS['NODE_B_IP']}:8081/metrics",'--results','results']
  record['command']=command
  (logdir/f'{mode}-started.json').write_text(json.dumps(record,indent=2)+'\n')
  with (logdir/f'{mode}-benchmark.log').open('w') as f:

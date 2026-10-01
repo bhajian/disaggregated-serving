@@ -118,18 +118,18 @@ Create the CPU client and copy the package, dataset and mode records:
 ```bash
 SITE=deploy/sites/nebius-h200-2x8/nemotron-3-nano
 CLIENT=deepseek-v4-pro/benchmark-client
-kubectl --context $KUBE_CONTEXT apply -f "$SITE/50-benchmark-client.yaml"
+kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/benchmark-client-128k/50-benchmark-client.yaml"
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro wait --for=condition=Ready pod/benchmark-client --timeout=5m
 kubectl --context $KUBE_CONTEXT cp benchmarks "$CLIENT:/bench/" -c client
 kubectl --context $KUBE_CONTEXT cp datasets/generated/nemotron-3-nano-chatbot-128k-32.jsonl "$CLIENT:/bench/dataset.jsonl" -c client
 kubectl --context $KUBE_CONTEXT cp datasets/generated/nemotron-3-nano-chatbot-128k-32.jsonl.meta.json "$CLIENT:/bench/dataset.jsonl.meta.json" -c client
 kubectl --context $KUBE_CONTEXT cp "$SITE/clear_cache.py" "$CLIENT:/bench/clear_cache.py" -c client
 kubectl --context $KUBE_CONTEXT cp "$SITE/benchmark_128k.py" "$CLIENT:/bench/benchmark_128k.py" -c client
-kubectl --context $KUBE_CONTEXT cp "$SITE/deployment-disaggregated.json" "$CLIENT:/bench/disaggregated-deployment.json" -c client
-kubectl --context $KUBE_CONTEXT cp "$SITE/deployment.json" "$CLIENT:/bench/aggregated-deployment.json" -c client
+kubectl --context $KUBE_CONTEXT cp "$SITE/lab/as-measured/records/deployment-disaggregated.json" "$CLIENT:/bench/disaggregated-deployment.json" -c client
+kubectl --context $KUBE_CONTEXT cp "$SITE/lab/as-measured/records/deployment.json" "$CLIENT:/bench/aggregated-deployment.json" -c client
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro exec benchmark-client -c client -- python3 -u benchmark_128k.py disaggregated
 # Save disaggregated worker logs before replacing the pods.
-kubectl --context $KUBE_CONTEXT apply -f "$SITE/40-workers.yaml"
+kubectl --context $KUBE_CONTEXT apply -f "$SITE/lab/as-measured/workers-tp8-aggregated/40-workers.yaml"
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-0 --timeout=20m
 kubectl --context $KUBE_CONTEXT -n deepseek-v4-pro rollout status deployment/worker-1 --timeout=20m
 # Warm both aggregated replicas with excluded pilot traffic before measuring.

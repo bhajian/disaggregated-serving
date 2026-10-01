@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: deepseek-v4-pro
+resources:
+- ../as-measured/model-download
+components:
+- ../common
+patches:
+# Bind the measured PVCs to the shared static PVs (storage/pv) instead of
+# dynamic provisioning. Apply storage/pv once per cluster first.
+- target:
+    kind: PersistentVolumeClaim
+    name: model-0
+  patch: |-
+    - op: add
+      path: /spec/volumeName
+      value: h200-model-disk-a
+- target:
+    kind: PersistentVolumeClaim
+    name: model-1
+  patch: |-
+    - op: add
+      path: /spec/volumeName
+      value: h200-model-disk-b

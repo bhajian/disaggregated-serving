@@ -173,5 +173,7 @@ def test_every_folder_has_a_readme():
     missing = [str(p.relative_to(ROOT)) for p in ROOT.rglob('*') if p.is_dir()
                and not skip & set(p.relative_to(ROOT).parts)
                and p.relative_to(ROOT).parts[:2] != ('datasets', 'generated')
+               # as-measured/ is one documented record; its per-file folders need no README
+               and 'as-measured' not in p.relative_to(ROOT).parts[:-1]
                and not (p / 'README.md').exists()]
     assert not missing, missing
