@@ -146,6 +146,52 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: allow-benchmark-client
+  namespace: deepseek-v4-pro
+spec:
+  podSelector:
+    matchLabels:
+      nvidia.com/dynamo-graph-deployment-name: deepseek-v4-pro
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          serving-solutions/role: benchmark-client
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: benchmark-client-egress
+  namespace: deepseek-v4-pro
+spec:
+  podSelector:
+    matchLabels:
+      serving-solutions/role: benchmark-client
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          nvidia.com/dynamo-graph-deployment-name: deepseek-v4-pro
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: allow-weights-staging-egress
   namespace: deepseek-v4-pro
 spec:

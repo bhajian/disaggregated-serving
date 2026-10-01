@@ -172,6 +172,18 @@ def namespace_bundle(model, p, site_name, site):
                                                                                      {'protocol': 'TCP', 'port': 6443}]},
                       {'to': [{'namespaceSelector': {'matchLabels': {'kubernetes.io/metadata.name': 'monitoring'}}}],
                        'ports': [{'protocol': 'TCP', 'port': 9090}]}]}},
+        # In-cluster benchmark client (experiments/common): requests to the frontend and
+        # metric snapshots from the workers' system port.
+        {'apiVersion': 'networking.k8s.io/v1', 'kind': 'NetworkPolicy',
+         'metadata': {'name': 'allow-benchmark-client', 'namespace': ns},
+         'spec': {'podSelector': graph, 'policyTypes': ['Ingress'], 'ingress': [{
+             'from': [{'podSelector': {'matchLabels': {'serving-solutions/role': 'benchmark-client'}}}],
+             'ports': [{'protocol': 'TCP', 'port': 8000}, {'protocol': 'TCP', 'port': 9090}]}]}},
+        {'apiVersion': 'networking.k8s.io/v1', 'kind': 'NetworkPolicy',
+         'metadata': {'name': 'benchmark-client-egress', 'namespace': ns},
+         'spec': {'podSelector': {'matchLabels': {'serving-solutions/role': 'benchmark-client'}},
+                  'policyTypes': ['Egress'], 'egress': [{'to': [{'podSelector': graph}],
+                                                        'ports': [{'protocol': 'TCP', 'port': 8000}, {'protocol': 'TCP', 'port': 9090}]}]}},
         {'apiVersion': 'networking.k8s.io/v1', 'kind': 'NetworkPolicy',
          'metadata': {'name': 'allow-weights-staging-egress', 'namespace': ns},
          'spec': {'podSelector': {'matchLabels': {'serving-solutions/role': 'weights-staging'}},

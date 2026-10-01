@@ -115,6 +115,15 @@ def deepseek_revision():
     return json.loads(record.read_text())['model']['revision']
 
 
+def with_tp(p, tp):
+    """Profile copy with a different tensor-parallel size (engine flag and GPU count)."""
+    q = copy.deepcopy(p)
+    i = q['engine'].index('--tensor-parallel-size')
+    q['engine'][i + 1] = str(tp)
+    q['gpus_per_worker'] = tp
+    return q
+
+
 def worker_container(p, role):
     running = p['decode_running'] if role in ('worker', 'decode') else p['prefill_running']
     args = ['-m', 'dynamo.sglang', '--model-path', '/model', '--served-model-name', p['model_id'],
@@ -205,17 +214,26 @@ def frontend(p, workers, disaggregated):
     }
 
 
-def graph(model, p, topology):
+def graph(model, p, topology, layout=None, extra_args=None):
+    """layout overrides replica counts and TP per role, e.g. {'prefill': (2, 2), 'decode': (3, 4)}
+    or {'workers': (8, 2)}; extra_args maps a role to engine flags appended for experiments."""
     revision = p['revision'] or deepseek_revision()
+    layout, extra_args = layout or {}, extra_args or {}
+
+    def role(name, comp_type, default_n):
+        n, tp = layout.get(name, (default_n, p['gpus_per_worker']))
+        c = worker_component(with_tp(p, tp), name, comp_type, n, revision)
+        c['podTemplate']['spec']['containers'][0]['args'] += list(extra_args.get(name, []))
+        return c, n
+
     if topology == 'aggregated':
-        n = p['aggregated']['workers']
-        workers = [worker_component(p, 'worker', 'worker', n, revision)]
-        routed = n
+        w, routed = role('worker', 'worker', p['aggregated']['workers'])
+        workers = [w]
     else:
         d = p['disaggregated']
-        workers = [worker_component(p, 'prefill', 'prefill', d['prefill'], revision),
-                   worker_component(p, 'decode', 'decode', d['decode'], revision)]
-        routed = d['decode']
+        pre, _ = role('prefill', 'prefill', d['prefill'])
+        dec, routed = role('decode', 'decode', d['decode'])
+        workers = [pre, dec]
     return {
         'apiVersion': 'nvidia.com/v1beta1', 'kind': 'DynamoGraphDeployment',
         'metadata': {'name': model, 'annotations': {

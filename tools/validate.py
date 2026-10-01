@@ -35,7 +35,7 @@ DOWNLOADS = {
     'cert-manager.yaml': 'https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml',
     'nicclusterpolicy.yaml': 'https://raw.githubusercontent.com/Mellanox/network-operator/v26.7.0/deployment/network-operator/crds/mellanox.com_nicclusterpolicies.yaml',
 }
-SKIP_FILES = {'kustomization.yaml', 'values.yaml'}
+SKIP_FILES = {'kustomization.yaml', 'values.yaml', 'experiment.yaml', 'sweep.yaml'}
 
 
 class Loader(yaml.SafeLoader):

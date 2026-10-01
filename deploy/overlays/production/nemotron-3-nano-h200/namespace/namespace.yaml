@@ -146,6 +146,52 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: allow-benchmark-client
+  namespace: nemotron-3-nano
+spec:
+  podSelector:
+    matchLabels:
+      nvidia.com/dynamo-graph-deployment-name: nemotron-3-nano
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          serving-solutions/role: benchmark-client
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: benchmark-client-egress
+  namespace: nemotron-3-nano
+spec:
+  podSelector:
+    matchLabels:
+      serving-solutions/role: benchmark-client
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          nvidia.com/dynamo-graph-deployment-name: nemotron-3-nano
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: allow-weights-staging-egress
   namespace: nemotron-3-nano
 spec:

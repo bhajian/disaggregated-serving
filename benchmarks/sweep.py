@@ -62,10 +62,23 @@ def loadgen_args(spec, step):
     return args
 
 
-def run(spec, context, dry_run=False):
+def metrics_urls(context, namespace, selector, port=9090):
+    """Worker metric endpoints for snapshots: pod IPs of the graph's worker pods."""
+    out = subprocess.run(['kubectl', '--context', context, '-n', namespace, 'get', 'pods', '-l', selector,
+                          '-o', 'jsonpath={.items[*].status.podIP}'], capture_output=True, text=True, check=True)
+    return [f'http://{ip}:{port}/metrics' for ip in out.stdout.split()]
+
+
+def in_pod(cmd, context, exec_pod):
+    """Run a loadgen command inside the benchmark client pod (namespace/pod)."""
+    namespace, pod = exec_pod.split('/')
+    return ['kubectl', '--context', context, '-n', namespace, 'exec', pod, '-c', 'client', '--', 'python3', *cmd[1:]]
+
+
+def run(spec, context, dry_run=False, exec_pod=None):
     from benchmarks.driver_lock import acquire
-    lock = acquire(Path(spec['results']) / 'study-records')  # one sweep per results directory
-    applied = None
+    lock = acquire(Path(spec.get('local_records', spec['results'])) / 'study-records')  # one sweep at a time
+    applied, discovered = None, []
     for step in plan(spec):
         cfg = next(c for c in spec['configs'] if c['name'] == step['config'])
         if cfg.get('overlay') and applied != cfg['name']:
@@ -77,7 +90,11 @@ def run(spec, context, dry_run=False):
                 if not dry_run:
                     subprocess.run(cmd, check=True)
             applied = cfg['name']
-        cmd = loadgen_args(spec, step)
+            if spec.get('metrics_selector') and not dry_run:
+                discovered = metrics_urls(context, spec['namespace'], spec['metrics_selector'])
+        cmd = loadgen_args(spec, step) + [x for url in discovered for x in ('--metrics-url', url)]
+        if exec_pod:
+            cmd = in_pod(cmd, context, exec_pod)
         print('+', ' '.join(cmd), flush=True)
         if not dry_run:
             subprocess.run(cmd, check=True)
@@ -112,6 +129,7 @@ def main(argv=None):
         s = sub.add_parser(name); s.add_argument('spec')
         if name == 'run':
             s.add_argument('--context', required=True, help='kube context'); s.add_argument('--dry-run', action='store_true')
+            s.add_argument('--exec-pod', help='namespace/pod of the benchmark client; loadgen runs there')
     t = sub.add_parser('table'); t.add_argument('results')
     a = p.parse_args(argv)
     if a.cmd == 'plan':
@@ -119,7 +137,7 @@ def main(argv=None):
         for i, step in enumerate(plan(spec), 1):
             print(f'{i:3d}  {step["config"]:28s} rps={step["rps"]:<6} {json.dumps(step["topology"])}')
     elif a.cmd == 'run':
-        run(load_spec(a.spec), a.context, a.dry_run)
+        run(load_spec(a.spec), a.context, a.dry_run, a.exec_pod)
     else:
         out, rows = table(a.results)
         print(f'{len(rows)} runs -> {out}')
