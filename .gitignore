@@ -21,3 +21,10 @@ datasets/generated/
 
 # Site values and rendered site manifests stay local.
 deployments/site.env
+
+# Raw result evidence lives in release archives (results/ARCHIVE.md).
+results/**/*.prom
+results/**/*.jsonl
+results/**/*.log
+results/**/*.png
+results/**/*.executed.ipynb

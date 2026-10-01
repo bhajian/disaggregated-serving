@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/bench/benchmark_8k_128k.py", line 50, in <module>
-    subprocess.run([sys.executable, 'clear_cache.py', args.mode, '4'], stdout=output,
-  File "/usr/lib/python3.12/subprocess.py", line 571, in run
-    raise CalledProcessError(retcode, process.args,
-subprocess.CalledProcessError: Command '['/usr/bin/python3', 'clear_cache.py', 'disaggregated', '4']' returned non-zero exit status 1.

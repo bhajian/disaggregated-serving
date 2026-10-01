@@ -1,5 +1,9 @@
 # Nemotron 3 Nano 8K-in / 128K-out comparison — 1 October 2026
 
+> Raw evidence (streaming JSONL, worker-metric snapshots, logs, charts and the
+> executed notebook) is in this study's release archive; see [ARCHIVE.md](../ARCHIVE.md).
+> `ARCHIVE-MANIFEST.sha256` lists every archived file with its checksum.
+
 Six measured runs on the same 16 H200 GPUs and pinned BF16 checkpoint, configured as
 four TP4 workers. Three aggregated runs (4 replicas, 512 requests in flight) were
 followed by three disaggregated runs (1 prefill + 3 decode, 384 in flight). Every
@@ -20,7 +24,7 @@ notebook places the two studies side by side.
 - Timestamped run directories: `requests.csv`, per-process `rows-*.jsonl`, `summary.csv/json`,
   `metadata.json` (including the full deployment record), eight before/after worker-metric
   snapshots, `itl_by_position.csv` (1,024-token bins) and `throughput_timeline.csv` (10 s windows).
-- `analysis/`: [executed notebook](analysis/nemotron_3_nano_8k_128k.executed.ipynb), PNG
+- `analysis/`: executed notebook (`analysis/nemotron_3_nano_8k_128k.executed.ipynb`, archived), PNG
   charts and exported CSV tables. The [source notebook](../../notebooks/nemotron_3_nano_8k_128k.ipynb)
   reads this folder without access to the cluster.
 - `pilots/`: concurrency pilots (8,192 output tokens) and smoke runs; not part of the comparison.

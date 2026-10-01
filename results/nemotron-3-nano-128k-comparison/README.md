@@ -1,5 +1,9 @@
 # Nemotron 3 Nano 128K comparison — 30 September 2026
 
+> Raw evidence (streaming JSONL, worker-metric snapshots, logs, charts and the
+> executed notebook) is in this study's release archive; see [ARCHIVE.md](../ARCHIVE.md).
+> `ARCHIVE-MANIFEST.sha256` lists every archived file with its checksum.
+
 Six measured runs on the same 16 H200 GPUs and pinned BF16 checkpoint: three
 runs with one TP8 prefill plus one TP8 decode worker, followed by three runs with
 two TP8 aggregated replicas. Every run replays the same 32 three-turn sessions
@@ -16,7 +20,7 @@ for settings, run IDs, interpretation and reproduction instructions.
 
 - Timestamped run directories contain streaming records, request CSVs,
   summaries, metadata and the four before/after worker-metric snapshots per run.
-- [Executed notebook](analysis/nemotron_3_nano_128k.executed.ipynb) and exported
+- executed notebook (`analysis/nemotron_3_nano_128k.executed.ipynb`, archived) and exported
   PNG/CSV comparisons are in `analysis/`. The [source notebook](../../notebooks/nemotron_3_nano_128k.ipynb)
   reads this archive without cluster access or the generated dataset.
 - `comparison-audit.json` records the reported comparison values.
