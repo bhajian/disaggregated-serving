@@ -1,0 +1,37 @@
+# dynamo-platform 1.4.0 Helm values for production clusters.
+# Every key exists in the pinned chart (reference/upstream/dynamo-v1.4.0/platform-values.yaml);
+# tests/test_operator_values.py enforces that.
+global:
+  # Dynamo 1.4.0 discovers workers through the Kubernetes API by default; no etcd.
+  etcd:
+    install: false
+  # Request and event planes default to TCP and ZMQ, so NATS is optional.
+  nats:
+    install: false
+  # Grove and KAI are installed and upgraded separately (README), then enabled here.
+  # The chart always renders an explicit grove.enabled, which disables auto-detection.
+  grove:
+    install: false
+    enabled: true
+  kai-scheduler:
+    install: false
+    enabled: true
+
+dynamo-operator:
+  upgradeCRD: true
+  discoveryBackend: kubernetes
+  namespaceRestriction:
+    enabled: false   # namespace-restricted mode is for development only
+  controllerManager:
+    manager:
+      image:
+        repository: nvcr.io/nvidia/ai-dynamo/kubernetes-operator
+        tag: 1.4.0@sha256:92391b1d019ab7e2efdfd5b7b32a44d06521ae6c028aedc8a8a98e323c41cbdd
+  dynamo:
+    metrics:
+      # Injected as PROMETHEUS_ENDPOINT into every managed component; the Planner reads it.
+      prometheusEndpoint: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+  webhook:
+    failurePolicy: Fail
+    certManager:
+      enabled: true

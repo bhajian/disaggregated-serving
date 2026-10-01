@@ -1,0 +1,22 @@
+# dynamo-platform 1.4.0 Helm values for a lab or test cluster.
+# Grove and KAI are installed as bundled subcharts (upstream: "dev/testing").
+global:
+  etcd:
+    install: false
+  nats:
+    install: false
+  grove:
+    install: true
+  kai-scheduler:
+    install: true
+
+dynamo-operator:
+  discoveryBackend: kubernetes
+  controllerManager:
+    manager:
+      image:
+        repository: nvcr.io/nvidia/ai-dynamo/kubernetes-operator
+        tag: 1.4.0@sha256:92391b1d019ab7e2efdfd5b7b32a44d06521ae6c028aedc8a8a98e323c41cbdd
+  dynamo:
+    metrics:
+      prometheusEndpoint: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
