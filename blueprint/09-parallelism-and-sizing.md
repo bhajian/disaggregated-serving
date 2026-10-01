@@ -2,6 +2,12 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 09 · Parallelism and sizing
 
+**Executive summary.** Keep TP and EP inside the NVLink domain, size TP from weights and KV rather than from the GPU count, and give prefill and decode their own parallelism. Size pools from measured per-worker throughput at your SLOs; the Planner adjusts them within one GPU budget.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| A sizing method, measured H200 per-worker capacities, and a prepared P:D sweep | A capacity plan from your own traffic |
+
 ## Parallelism: what it splits and where it belongs
 
 | Strategy | Splits | Communication | Place it on | Typical use |
@@ -16,7 +22,9 @@
 
 **Rule:** the more often a strategy communicates, the closer to NVLink it must live. TP and EP run every layer; PP and P/D run once per stage or per request ([principle 4](02-design-principles.md#4-keep-tight-collectives-inside-the-scale-up-domain)).
 
-Prefill and decode can use **different** parallelism: for example, TP8 for prefill and wide EP for decode on a large MoE. Supporting that is one of disaggregation's main benefits.
+Prefill and decode can use **different** parallelism: for example, small TP (plus EP) for prefill and wide EP with DP attention for decode on a large MoE. Supporting that is one of disaggregation's main benefits.
+
+![P:D ratio and per-phase parallelism](../assets/diagrams/png/pd-parallelism.png)
 
 ## Memory budget per GPU
 
@@ -29,6 +37,18 @@ concurrent sequences  ≈ max resident tokens / average (ISL + OSL)
 ```
 
 *Reference example (illustrative).* Nemotron 3 Ultra NVFP4 is about 352 GB of weights. At TP8 that is about 44 GB per GPU. A B300 has 288 GB, and at 0.80 about 230 GB is usable. That leaves on the order of 150–180 GB per GPU for KV, Mamba state and workspace, which is why 32K contexts at 32 sequences are a conservative starting point.
+
+*Measured example (H200).* Nemotron 3 Nano 30B-A3B in BF16 is about 60 GB of weights, so it
+fits on one 141 GB H200. TP8 was used in the 128K study only to match the 16-GPU, two-worker
+comparison; it is **not** a sizing recommendation. At TP4 the automatically sized KV pool held
+19.6M tokens per worker, enough for 140 requests of 139K tokens
+([8K/128K study](../deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-8K-128K.md)). Size this
+model with TP1–TP4 workers, chosen so the P:D ratio can follow the traffic
+([experiments/01](../experiments/01-pd-ratio-sweep/)).
+
+*Design example (MLA).* For DeepSeek-class MLA models, use DP attention with wide EP on
+decode instead of TP, so each rank holds whole sequences' latent KV and experts are spread
+across the GPUs. Add MTP as a decode-side lever ([chapter 06](06-model-architectures.md)).
 
 ## Sizing the pools from SLOs
 

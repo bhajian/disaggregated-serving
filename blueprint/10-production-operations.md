@@ -2,7 +2,13 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 10 · Production operations
 
-The reference deployments are deliberately transparent: plain Compose and Kubernetes files, a single etcd, host networking, privileged RDMA and `hostPath` weights. That is ideal for learning and PoCs. This chapter covers what changes before production traffic.
+**Executive summary.** What changes between the lab path that produced `results/` and production, row by row, and where the production overlay implements each change: gateway with TLS, OIDC and rate limits; NetworkPolicies; operator-managed rollouts; RDMA via device plugin; observability and alerts; and the validation gates before go-live. The production overlay is UNVALIDATED on hardware.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Production overlay, observability stack, troubleshooting runbook and experiments for each gate | Running the gates, on-call and incident response |
+
+The lab deployments that produced `results/` are deliberately transparent: hand-written Deployments, a single etcd, host networking and per-node weights. The production overlay implements every row of the table below as manifests (UNVALIDATED on hardware). The per-row diff is in [deploy/overlays/README.md](../deploy/overlays/README.md).
 
 ## From lab to production
 
@@ -10,7 +16,7 @@ The reference deployments are deliberately transparent: plain Compose and Kubern
 |---|---|---|
 | Orchestration | Plain Deployments / Compose | Dynamo operator (`DynamoGraphDeployment` + Grove) or llm-d Helm guides, with coordinated rollouts and gang scheduling |
 | Scaling | Fixed 1 prefill : 1 decode, or N replicas | SLO-driven autoscaling per pool (Dynamo Planner, llm-d variant autoscaler), sized by [chapter 09](09-parallelism-and-sizing.md) |
-| Discovery | Single etcd, no TLS | 3-node etcd with TLS and auth, or the Kubernetes API |
+| Discovery | Single etcd, no TLS | Kubernetes API (Dynamo 1.4.0 operator default), no etcd ([deploy/operator](../deploy/operator/)) |
 | API security | Plain HTTP on :8000, private network | TLS and authentication at a gateway, per-tenant quotas and rate limits, no public worker or discovery ports |
 | Network | `hostNetwork`, firewall-scoped | Host networking only where RDMA needs it; NetworkPolicies and host firewalls for east-west ports |
 | RDMA access | `privileged: true` + `/dev/infiniband` | NVIDIA Network Operator with an RDMA device plugin (shared or SR-IOV); unprivileged pods with `IPC_LOCK` |
@@ -42,15 +48,15 @@ Define SLOs per phase, because each phase maps to a pool you can scale:
 | **KV transfer latency, bytes, errors** | NIXL / engine connector metrics | Health of the disaggregation edge |
 | InfiniBand port counters, errors | `/sys/class/infiniband/*/counters`, fabric manager | Rails actually used, no drops |
 | GPU utilization, memory, power, XID errors | DCGM exporter | Hardware health, saturation |
-| Worker health | `/health` (`:8081` in the reference) | Readiness and startup |
+| Worker health | `/health` and `/live` on the system port (`:9090` in the operator graphs, `:8081` in the lab) | Readiness and startup |
 
-Scrape workers and frontends with Prometheus, dashboard in Grafana, centralize logs, and alert on SLO burn, transfer errors, XID errors and pool queue growth.
+The PodMonitors, alert rules (SLO burn, transfer latency, XID, queue growth, prefill host memory, missing workers) and Grafana dashboard are in [deploy/observability](../deploy/observability/).
 
-**Health probes:** keep a long startup window (large checkpoints load for tens of minutes) and **no aggressive liveness probe**, so a long prefill never gets a worker killed. Add synthetic end-to-end probes through the public endpoint.
+**Health probes:** keep a long startup window (large checkpoints load for tens of minutes) and **no aggressive liveness probe**, so a long prefill never gets a worker killed. Add synthetic end-to-end probes through the public endpoint. The operator graphs use a 2 h startup window, a lenient liveness probe (6 × 30 s), a frontend readiness check that requires discovered workers, and a canary CronJob through the gateway.
 
 ## Security
 
-- Never expose discovery (2379), worker (8081, 5600, 8998, 30000) or engine ports outside the serving network.
+- Never expose discovery (2379), worker (8081/9090, 5600, 8998, 30000) or engine ports outside the serving network. The production namespaces start from default-deny NetworkPolicies.
 - Terminate TLS and authenticate at the gateway. Consider mTLS for east-west control traffic.
 - Keep secrets such as registry and Hugging Face tokens in a secret store, never in manifests or run records. The reference tools read tokens from the environment only.
 - Treat prefix sharing across tenants, offloaded KV and shared KV storage as tenant data: isolate, encrypt and expire it.

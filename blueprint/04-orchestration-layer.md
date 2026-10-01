@@ -2,7 +2,13 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 04 · Orchestration layer
 
-The serving control plane is the scheduler of the serving OS. It sits between the API and the engines and decides **where every request runs**.
+**Executive summary.** The control plane routes requests, places workers and scales pools. Dynamo provides the frontend with a KV-aware router, the Planner (SLA autoscaling) and a Kubernetes operator; llm-d builds on the Gateway API Inference Extension. The production path here is the Dynamo 1.4.0 operator with Kubernetes-API discovery and Grove/KAI gang scheduling (UNVALIDATED on hardware).
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Operator install values ([deploy/operator](../deploy/operator/)), DynamoGraphDeployments, Planner and router configuration | Operator upgrades and control-plane standards for your clusters |
+
+The serving control plane sits between the API and the engines and decides **where every request runs**: which worker, which phase, and how many workers of each kind exist.
 
 ## What a serving control plane must do
 
@@ -31,7 +37,7 @@ An engine-agnostic inference runtime that runs on bare Docker hosts or Kubernete
 | **Frontend** | OpenAI-compatible HTTP server with tokenizer and chat templates |
 | **KV router** | Keeps a global index (radix tree) of which worker holds which KV blocks, built from engine **KV events**. Routes by overlap and load. |
 | **Workers** | `dynamo.vllm`, `dynamo.sglang`, `dynamo.trtllm`: thin wrappers that register with discovery and speak Dynamo's request plane |
-| **Discovery / planes** | etcd (or Kubernetes) for discovery; request plane over TCP (or NATS); event plane over ZMQ (or NATS) |
+| **Discovery / planes** | Kubernetes API for discovery (operator default in 1.4.0; etcd optional); request plane over TCP (or NATS); event plane over ZMQ (or NATS) |
 | **NIXL** | NVIDIA Inference Xfer Library: the KV transfer API between workers and storage tiers (UCX, GDS and other backends) |
 | **Planner** | SLO-driven autoscaler that adjusts prefill and decode worker counts |
 | **KV Block Manager (KVBM)** | Tiered KV cache across GPU, host memory, disk and remote storage |
@@ -62,7 +68,7 @@ A Kubernetes-native distributed inference stack built on the Kubernetes **Gatewa
 |---|---|---|
 | Platform | Docker hosts or Kubernetes | Kubernetes only (Gateway API, CRDs) |
 | Front door | Dynamo frontend (Python/Rust) | Envoy gateway + EPP |
-| Discovery | etcd / Kubernetes | Kubernetes API (InferencePool, labels) |
+| Discovery | Kubernetes API (etcd optional) | Kubernetes API (InferencePool, labels) |
 | KV-aware routing | Global KV index from engine events | EPP prefix scorers + KV-cache indexer |
 | P/D coordination | Frontend / router | Decode-side routing sidecar |
 | Engines | TensorRT-LLM, vLLM, SGLang | vLLM (primary), SGLang |

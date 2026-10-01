@@ -1,50 +1,34 @@
-# Reference deployments
+# Deploy
 
-[Home](../README.md) › Deployments
+[Home](../README.md) › Deploy
 
-Runnable implementations of the [blueprint](../blueprint/). Each track is one combination of **orchestrator × engine × topology**, delivered as hand-written, commented files for **Docker Compose** and **Kubernetes**. Each track folder has a step-by-step guide covering deploy, verify, see results and clean up.
+**Executive summary.** Two ways to deploy. The **production path** is operator-managed:
+DynamoGraphDeployments ([base/](base/)) composed with a production overlay
+([overlays/production/](overlays/production/)) that adds the gateway, TLS and auth,
+NetworkPolicies, RDMA via device plugin, the Planner and observability. It is
+**UNVALIDATED** on hardware. The **lab path** is the hand-written manifests that produced
+every measured result, kept unchanged under each site profile's `lab/` folder.
 
-![Reference topology: two 8 × B300 servers; Node A runs etcd, the frontend and a GPU worker, Node B runs a GPU worker; Ethernet carries control traffic, InfiniBand carries the KV cache](../assets/diagrams/png/b300-reference.png)
+| Folder | Contents | Status |
+| --- | --- | --- |
+| [operator/](operator/) | dynamo-platform 1.4.0 Helm values: Kubernetes discovery, Grove + KAI, cert-manager webhook | UNVALIDATED |
+| [base/](base/) | One `nvidia.com/v1beta1` DynamoGraphDeployment per model, aggregated and disaggregated variants under one graph name | UNVALIDATED |
+| [overlays/](overlays/) | `production/` (gateway, auth, rate limits, NetworkPolicies, Planner, profiling, site patches, NVIDIA operators) and a lab-versus-production diff | UNVALIDATED |
+| [observability/](observability/) | PodMonitors, alert rules, Grafana dashboard, canary | UNVALIDATED |
+| [sites/nebius-h200-2x8/](sites/nebius-h200-2x8/) | Validated site: DeepSeek V4 Pro and Nemotron 3 Nano lab variants, shared static-PV storage, reports | **Validated** (lab path) |
+| [sites/hgx-b300-2x8/](sites/hgx-b300-2x8/) | Reference tracks 01–04 for Nemotron 3 Ultra 550B on B300 | UNVALIDATED reference topology |
+| [legacy-compose/](legacy-compose/) | Docker Compose equivalents of the B300 tracks | Single-node debugging only |
+| [prerequisites/](prerequisites/) | Host checks, RDMA test, model download | — |
 
-## Deployment matrix
+Site values (node names, addresses, kube context, domains, storage classes) are never
+committed. Copy [site.env.example](site.env.example) to `deploy/site.env` and render:
 
-| # | Track | Control plane | Engine | Topology | Docker | Kubernetes | Status |
-|---|---|---|---|---|---|---|---|
-| 00 | [Prerequisites](prerequisites/) | n/a | n/a | n/a | ✓ | ✓ | Hosts, network, RDMA test, model download |
-| 01 | [Aggregated](sites/hgx-b300-2x8/01-aggregated/) | Dynamo | vLLM | 1–2 full replicas | [guide](legacy-compose/01-aggregated/vllm/) | [guide](sites/hgx-b300-2x8/01-aggregated/vllm/) | Reference baseline |
-| 01 | [Aggregated](sites/hgx-b300-2x8/01-aggregated/) | Dynamo | SGLang | 1–2 full replicas | [guide](legacy-compose/01-aggregated/sglang/) | [guide](sites/hgx-b300-2x8/01-aggregated/sglang/) | Not yet run on hardware |
-| 02 | [Disaggregated](sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | Dynamo | vLLM | prefill + decode, NIXL over IB | [guide](legacy-compose/02-dynamo-disagg-vllm/) | [guide](sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | Worker setup initialized on reference hosts |
-| 03 | [Disaggregated](sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) | Dynamo | SGLang | prefill + decode, NIXL over IB | [guide](legacy-compose/03-dynamo-disagg-sglang/) | [guide](sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) | Experimental |
-| 04 | [Disaggregated](sites/hgx-b300-2x8/04-llm-d-disagg/) | llm-d | vLLM / SGLang | prefill + decode, NIXL over IB | n/a | [vLLM](sites/hgx-b300-2x8/04-llm-d-disagg/vllm/) · [SGLang](sites/hgx-b300-2x8/04-llm-d-disagg/sglang/) | Generated manifests, Qwen 480B |
-| 05 | [DeepSeek V4 Pro / H200](sites/nebius-h200-2x8/deepseek-v4-pro/) | Dynamo | SGLang | 2 × TP8 aggregated, or prefill TP8 + decode TP8 | n/a | [guide](sites/nebius-h200-2x8/deepseek-v4-pro/) | Nebius deployment; see guide for validation |
-| 06 | [Nemotron 3 Nano / H200](sites/nebius-h200-2x8/nemotron-3-nano/) | Dynamo | SGLang | 2 × TP8 aggregated, or prefill TP8 + decode TP8 | n/a | [guide](sites/nebius-h200-2x8/nemotron-3-nano/) | 128K-input and 8K-in/128K-out comparisons (TP8 and TP4 layouts); reuses track 05's PVCs and serving slots |
-| · | Dynamo + TensorRT-LLM | Dynamo | TensorRT-LLM | agg and disagg | planned | planned | [Roadmap](../ROADMAP.md) |
-| · | KV-cache offloading | Dynamo | vLLM | tiers: DRAM, NVMe with GDS | planned | planned | [Roadmap](../ROADMAP.md) |
+```bash
+python tools/render_site.py --env deploy/site.env deploy --out build/site
+kubectl --context "$KUBE_CONTEXT" apply -k build/site/overlays/production/nemotron-3-nano-h200/aggregated
+```
 
-## How to use this folder
-
-1. Complete [00 · Prerequisites](prerequisites/) once.
-2. Deploy [01 · Aggregated](sites/hgx-b300-2x8/01-aggregated/) with the engine you plan to compare. This is your baseline.
-3. Deploy the disaggregated track for the same engine: [02](sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) for vLLM or [03](sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) for SGLang.
-4. Measure both with the same dataset using [benchmarks/](../benchmarks/).
-5. Optionally, compare the orchestration layer with [04 · llm-d](sites/hgx-b300-2x8/04-llm-d-disagg/).
-
-## Conventions
-
-- **Run commands from the repository root.** Each step names the node it runs on.
-- **One track at a time.** Every track uses all 8 GPUs per node and the same host ports. Stop one before starting the next.
-- **Docker site settings** live in [cluster.env.example](legacy-compose/cluster.env.example): IPs, interface, InfiniBand devices and paths. Copy it to `deploy/cluster.env` on each node.
-- **Kubernetes placement** uses node labels (`llm-serving/node=node-a|node-b`). Site settings live in each track's `01-site-config.yaml`, and pod IPs come from the Downward API.
-- **Every folder has a `deployment.json` run record.** The benchmark copies it into each result, so results always state what was deployed.
-- **Model:** NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4 at a pinned revision, except track 04. [Switching models](../reference/models.md#switching-a-reference-deployment-to-another-model) is documented.
-
-## Layer mapping
-
-How the tracks map onto the [serving stack](../blueprint/01-serving-stack.md):
-
-| Layer | 01 | 02 | 03 | 04 |
-|---|---|---|---|---|
-| Control plane | Dynamo frontend + KV router, etcd | same | same | llm-d gateway + endpoint picker + sidecar |
-| Engine | vLLM or SGLang | vLLM | SGLang | vLLM or SGLang |
-| Data movement | NCCL (TP) | NCCL + NIXL/UCX | NCCL + NIXL/UCX | NCCL + NIXL/UCX |
-| Hardware | 1–2 × 8 × B300 | 2 × 8 × B300 + IB | 2 × 8 × B300 + IB | 2 × 8 × GPU + IB |
+Order for a new cluster: [operator](operator/) → [GPU and Network Operators](overlays/production/operators/) →
+[observability](observability/) → [gateway](overlays/production/gateway/) → a model's `namespace/` bundle →
+its `aggregated/` or `disaggregated/` graph. [experiments/00-site-migration](../experiments/00-site-migration/)
+walks the H200 site through exactly this.

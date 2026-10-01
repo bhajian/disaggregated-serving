@@ -2,17 +2,23 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 08 · KV cache and offloading
 
-The KV cache is the serving OS's working memory. Managing it well (sharing it, routing to it, paging it across tiers) is the largest efficiency lever after the hardware itself.
+**Executive summary.** Prefix caching and KV-aware routing are in use in every deployment; offloading KV to host memory, NVMe and shared storage is designed here and on the roadmap. KV is tenant data and needs isolation and expiry.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Prefix caching and KV-router configuration; an offloading design and plan | Offload tiers, storage and retention policy |
+
+The KV cache is the per-request state the engine keeps in GPU memory. Managing it well (sharing it, routing to it, paging it across tiers) is the largest efficiency lever after the hardware itself.
 
 > **Status.** Prefix caching and KV-aware routing are deployed in every reference track. Offloading to host memory, NVMe with GPUDirect Storage, and shared storage is **designed here and planned** in [ROADMAP.md](../ROADMAP.md). The configuration sketches on this page are unvalidated.
 
 ## Three mechanisms
 
-| Mechanism | OS analogy | What it does | Where it lives |
-|---|---|---|---|
-| **Paged KV + prefix caching** | Virtual memory pages, shared pages | KV in fixed-size blocks. Blocks of a common prefix are reused instead of recomputed. | Engine |
-| **KV-aware routing** | Locality-aware scheduling | The router tracks which worker holds which blocks (from engine KV events) and sends each request to the best overlap, balanced against load | Control plane |
-| **Tiered offloading** | Swap / page cache | Evicted blocks move to host DRAM, NVMe or shared storage, then come back on a hit instead of being recomputed | Engine connector + KV manager |
+| Mechanism | What it does | Where it lives |
+|---|---|---|
+| **Paged KV + prefix caching** | KV in fixed-size blocks. Blocks of a common prefix are reused instead of recomputed. | Engine |
+| **KV-aware routing** | The router tracks which worker holds which blocks (from engine KV events) and sends each request to the best overlap, balanced against load | Control plane |
+| **Tiered offloading** | Evicted blocks move to host DRAM, NVMe or shared storage, then come back on a hit instead of being recomputed | Engine connector + KV manager |
 
 ## Why offload
 
@@ -70,11 +76,11 @@ The two combine naturally:
 
 | Option | Engines | Tiers | Notes |
 |---|---|---|---|
-| **Dynamo KV Block Manager (KVBM)** | vLLM, TensorRT-LLM | G1–G4 | Uses NIXL for tier moves, including GDS. Combines with NIXL P/D transfer. |
-| **LMCache** | vLLM (and SGLang) | CPU, disk, remote backends | Used by llm-d's tiered prefix caching |
-| **vLLM native offloading** | vLLM | CPU | The simplest first step |
-| **SGLang HiCache** | SGLang | host memory + pluggable storage | Hierarchical radix cache |
-| **NIXL storage backends** | underneath the above | GDS, POSIX, object | The data mover |
+| **Dynamo KV Block Manager (KVBM)** | G1–G4 | Uses NIXL for tier moves, including GDS. Combines with NIXL P/D transfer. |
+| **LMCache** | CPU, disk, remote backends | Used by llm-d's tiered prefix caching |
+| **vLLM native offloading** | CPU | The simplest first step |
+| **SGLang HiCache** | host memory + pluggable storage | Hierarchical radix cache |
+| **NIXL storage backends** | GDS, POSIX, object | The data mover |
 
 **Candidate configuration (unvalidated).** Dynamo's KVBM documentation describes enabling it roughly as follows:
 

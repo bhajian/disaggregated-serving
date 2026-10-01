@@ -2,45 +2,88 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 11 · Decision guide
 
-Choose the **topology** from the workload and the fabric first. The **software** comes second, because topology decisions are the expensive ones to reverse.
+**Executive summary.** Choose the topology first, from the workload, the SLO, how far the
+P:D ratio can be tuned, and the fabric. Then choose the engine and the control plane.
+Disaggregation wins only when all of its preconditions hold. Otherwise aggregated
+replicas with KV-aware routing are faster and simpler. On two HGX H200 servers with TP8
+workers, aggregated plus the KV router is usually the right answer; the three measured
+studies on that site agree ([chapter 12](12-results-and-reconciliation.md)).
 
-![Choosing a serving design: decision tree from workload to topology, then control plane and engine](../assets/diagrams/png/decision-flow.png)
+| | What you get from this repository | What you still own |
+| --- | --- | --- |
+| Decision | The criteria below, the measured H200 evidence, and prepared experiments to test your own region | Your traffic profile, SLOs and fleet size |
+| Implementation | Operator-managed aggregated and disaggregated graphs ([deploy/base](../deploy/base/)) | Choosing and validating the P:D ratio for your load |
+
+![Choosing a serving design: decision flow from workload to topology, then engine and control plane](../assets/diagrams/png/decision-flow.png)
+
+## When disaggregation wins
+
+Use disaggregated serving only when **all** of the following hold (design guidance; the
+measured counter-examples are in [chapter 12](12-results-and-reconciliation.md)):
+
+1. **Both phases are substantial and concurrent.** At peak load, prefill and decode each
+   take a large share of GPU time at the same time. Prefill-dominated traffic (very long
+   prompts, short answers) and decode-dominated traffic (short prompts, very long
+   generations) both favoured aggregated on the H200 site.
+2. **The p99 ITL SLO is tight.** In aggregated batches, prefill chunks stall running
+   streams; that becomes an SLO miss only when the ITL target is tight. The 8K/128K
+   study measured stalls of up to 13 s aggregated, and none disaggregated.
+3. **The P:D ratio is tunable.** You can run enough workers to choose a ratio that
+   matches the traffic: four or more nodes, or several workers per node (TP2/TP4 on
+   8-GPU nodes). The Dynamo Planner can then follow the load. A fixed 1P:1D on two nodes
+   halves prefill capacity.
+4. **Each phase gets its own parallelism.** For MoE and MLA models, prefill uses small TP
+   (plus EP) and decode uses wide EP with DP attention
+   ([pd-parallelism](../assets/diagrams/png/pd-parallelism.png)).
+5. **KV-aware routing works.** The router balances load and keeps prefix reuse; verify
+   both ([experiments/02](../experiments/02-kv-router/)).
+6. **The fabric makes the handoff cheap.** GPUDirect RDMA over InfiniBand or RoCE, or an
+   NVLink domain. Over TCP, the transfer can cost more than it saves.
+
+![When disaggregation wins](../assets/diagrams/png/when-disaggregation-wins.png)
 
 ## Questions, in order
 
-1. **What is the model?** Family, size, precision ([chapter 06](06-model-architectures.md)). This fixes KV bytes per token and the parallelism that fits.
-2. **What is the hardware domain?** 8-GPU servers or rack-scale NVLink, and whether GPUDirect RDMA is available ([chapter 07](07-hardware-network-storage.md)).
-3. **What is the traffic shape?** Input and output lengths, arrival rate, prefix reuse, and the p99 TTFT and ITL targets.
-4. **Which topology?** Use the tree above: aggregated, P/D over RDMA, or P/D with wide-EP decode.
-5. **Which engine?** From model support and performance measured on your hardware ([chapter 05](05-inference-engines.md)).
-6. **Which control plane?** From platform (Docker or Kubernetes), engine and operating model ([chapter 04](04-orchestration-layer.md)).
-7. **Does KV need tiers?** Yes if reusable prefixes exceed GPU memory ([chapter 08](08-kv-cache-and-offloading.md)).
+1. **What is the model?** Family, size and precision ([chapter 06](06-model-architectures.md)).
+   This fixes KV bytes per token and which parallelism fits. Size TP from the weights
+   and KV, not from the GPU count: Nemotron 3 Nano (30B-A3B) fits on one H200, so TP2–TP4
+   workers leave room to tune P:D, while TP8 does not.
+2. **What is the hardware domain?** 8-GPU servers or rack-scale NVLink, and whether
+   GPUDirect RDMA is available ([chapter 07](07-hardware-network-storage.md)).
+3. **What is the traffic?** ISL and OSL distributions, arrival rate, prefix reuse, and the
+   p99 TTFT and ITL targets. Measure goodput at those targets with
+   [benchmarks/loadgen](../benchmarks/README.md).
+4. **Which topology?** Apply the six criteria above.
+5. **Which engine?** From model support, quantization and features (MTP, DP attention, KV
+   transfer backend), measured on your hardware ([chapter 05](05-inference-engines.md),
+   [engine flags](../reference/engine-flags.md)).
+6. **Which control plane?** The Dynamo operator (graphs, Planner, KV router) or llm-d
+   (Gateway API Inference Extension) ([chapter 04](04-orchestration-layer.md)).
+7. **Does KV need tiers?** Yes, if reusable prefixes exceed GPU memory ([chapter 08](08-kv-cache-and-offloading.md)).
 
 ## Reference scenarios
 
-| Scenario | Topology | Engine | Control plane | Start from |
-|---|---|---|---|---|
-| **Chat assistant**, short prompts, 1–2 HGX servers, throughput first | Aggregated replicas, KV-aware routing | vLLM or SGLang | Dynamo or llm-d | [deploy/01](../deploy/sites/hgx-b300-2x8/01-aggregated/) |
-| **Long-context RAG or agents** with p99 ITL SLO, HGX servers with InfiniBand | P/D over GPUDirect RDMA, tune the P:D ratio | vLLM, SGLang or TensorRT-LLM | Dynamo (Planner) or llm-d | [deploy/02](../deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/), [03](../deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/), [04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) |
-| **Large MoE** (DeepSeek-, Kimi-class) at scale on GB200/GB300 NVL72 | P/D, wide-EP decode inside the NVLink domain, DP attention for MLA | SGLang or TensorRT-LLM (vLLM also supports wide EP) | Dynamo or llm-d wide-EP guides | [ROADMAP](../ROADMAP.md) |
-| **Hybrid SSM** (Nemotron 3) on HGX B300 | Aggregated baseline, then P/D with hybrid-aware KV transfer | vLLM (NVIDIA-pinned image) | Dynamo | [deploy/01](../deploy/sites/hgx-b300-2x8/01-aggregated/) → [02](../deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) |
-| **Multi-turn heavy reuse** (coding agents, support bots) | Any of the above + KV tiers (DRAM → NVMe with GDS) | engine with an offload connector | Dynamo KVBM or llm-d + LMCache | [chapter 08](08-kv-cache-and-offloading.md) |
-| **Kubernetes platform team** standardizing on Gateway API | Per workload | vLLM | llm-d (or KServe on llm-d) | [deploy/04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) |
-| **Bare-metal PoC** before Kubernetes exists | Per workload | any | Dynamo on Docker Compose | [deploy/](../deploy/) Docker guides |
-| **Next-generation racks** (Vera Rubin with Rubin CPX) | Hardware-specialized P/D: context on CPX, decode on HBM GPUs | per vendor support | per vendor support | [chapter 03](03-disaggregation-pattern.md#variants-of-the-pattern) |
+| Scenario | Topology | Engine | Start from | Status |
+| --- | --- | --- | --- | --- |
+| **Chat or agents on 2 × HGX H200**, any SLO | Aggregated replicas, KV-aware router | SGLang | [nemotron-3-nano aggregated](../deploy/overlays/production/nemotron-3-nano-h200/aggregated/) | Topology validated (results/); operator path UNVALIDATED |
+| **Mixed ISL/OSL with a tight p99 ITL SLO**, 4+ nodes or TP2/TP4 workers, InfiniBand | Disaggregated, Planner-managed P:D | SGLang or vLLM | [nemotron-3-nano disaggregated](../deploy/overlays/production/nemotron-3-nano-h200/disaggregated/) | UNVALIDATED: [experiments/01](../experiments/01-pd-ratio-sweep/), [03](../experiments/03-planner-demo/) |
+| **Large MoE / MLA** (DeepSeek-, Kimi-class) | Disaggregated; decode with wide EP + DP attention; MTP | SGLang or TensorRT-LLM | [experiments/05](../experiments/05-deepseek-layout/) | UNVALIDATED |
+| **Very long prompts, short answers** (256K RAG) | Aggregated; larger prefill chunks | SGLang | [deepseek-v4-pro aggregated](../deploy/overlays/production/deepseek-v4-pro-h200/aggregated/) | Validated on H200 (lab path) |
+| **Multi-turn heavy reuse** | Any of the above + KV tiers | engine with an offload connector | [chapter 08](08-kv-cache-and-offloading.md) | Roadmap |
+| **Kubernetes platform standardizing on Gateway API Inference Extension** | Per workload | vLLM | [B300 track 04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) | UNVALIDATED |
 
 ## Anti-patterns
 
 | Anti-pattern | Why it hurts | Instead |
-|---|---|---|
+| --- | --- | --- |
+| Disaggregating at a fixed 1P:1D on two nodes | Halves prefill capacity; aggregated was 1.62× and 5.5× faster on prefill-heavy traffic (results/) | Aggregated, or tune P:D with smaller workers |
 | Disaggregating without RDMA | KV transfer over TCP can exceed prefill time | Aggregated with KV-aware routing until the fabric is ready |
-| Round-robin load balancing across LLM workers | Destroys prefix-cache locality | KV-aware routing |
-| TP across servers over the scale-out fabric | Every-layer all-reduce over NICs | TP inside NVLink; PP or P/D across servers |
-| Sizing from peak FLOPs | Ignores memory-bound decode and SLOs | Measure Tp and Sd at the SLOs ([chapter 09](09-parallelism-and-sizing.md)) |
-| Mixing images or revisions between prefill and decode | Silent KV corruption or crashes | Pin by digest and SHA, verify at startup |
-| Comparing engines at different precisions | Measures precision, not engines | Record and match KV and weight dtypes |
-| A single latency number on the dashboard | Hides which pool to scale | Separate TTFT, ITL and transfer metrics |
+| Round-robin load balancing across LLM workers | Throws away prefix-cache locality | KV-aware routing with active-request weighting ([troubleshooting](../reference/troubleshooting.md#kv-router-imbalance-152--120--120--120-requests-per-worker)) |
+| Sizing a small model at TP8 because the node has 8 GPUs | All-reduce cost without benefit; no room to tune P:D | TP from weights and KV; more, smaller workers |
+| Judging by tokens/s alone | A configuration can deliver more tokens/s while missing the SLO | Goodput at p99 TTFT and ITL |
+| Mixing images or revisions between prefill and decode | Silent KV corruption or crashes | Pin by digest and revision; verify at startup (init container) |
+| A single latency number on the dashboard | Hides which pool to scale | TTFT, ITL, queue depth and transfer metrics per pool ([deploy/observability](../deploy/observability/)) |
 
 ---
 
-**Back to:** [Blueprint index](README.md) · **Implement it:** [deploy/](../deploy/)
+**Back to:** [Blueprint index](README.md) · **Evidence:** [chapter 12](12-results-and-reconciliation.md) · **Implement it:** [deploy/](../deploy/)

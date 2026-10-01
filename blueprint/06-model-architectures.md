@@ -2,7 +2,13 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 06 · Model architectures
 
-The model is the program the serving OS runs, and its architecture sets the resource profile. Two models of the same parameter count can need completely different serving designs.
+**Executive summary.** Architecture sets KV bytes per token, compute per token and which parallelism fits. Hybrid Mamba models (Nemotron 3) need both KV and SSM state transferred, which is measured working on H200. MLA and MoE models (DeepSeek) favour DP attention with wide EP on decode, with MTP as a decode lever; that layout is design guidance until experiment 05 runs.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Model profiles with measured KV and transfer behaviour for the validated models | Profiles for models not covered here |
+
+A model's architecture sets its resource profile. Two models of the same parameter count can need completely different serving designs.
 
 ![Model architecture decides the serving design](../assets/diagrams/png/pd-parallelism.png)
 
@@ -30,11 +36,11 @@ Examples: Qwen3 MoE, gpt-oss, Mixtral, and the DeepSeek and Kimi families. Each 
 
 ### Multi-head Latent Attention (MLA)
 Examples: DeepSeek V3 and R1, Kimi K2. MLA caches a **compressed latent vector** per token per layer (hundreds of elements) instead of full per-head K and V, which reconstruct on the fly.
-**Serving:** KV per token is several times smaller than an equivalent GQA model, so long contexts and P/D transfers are cheap. Attention is usually run **data-parallel** (DP attention) because the latent cache does not shard well by head, combined with wide EP for the MoE layers.
+**Serving:** KV per token is several times smaller than an equivalent GQA model, so long contexts and P/D transfers are cheap. Attention is usually run **data-parallel** (DP attention) because the latent cache does not shard well by head, combined with wide EP for the MoE layers. For DeepSeek V4 Pro on SGLang 0.5.16: `--enable-dp-attention --dp-size 8 --ep-size 8` on decode, and MTP through `--speculative-algorithm EAGLE --speculative-eagle-topk 1` (the V4 NextN head). Upstream 1.4.0 recipes run V4 Pro as TP8 only, so this layout is design guidance until [experiments/05](../experiments/05-deepseek-layout/) runs.
 
 ### Hybrid SSM (Mamba + attention)
 Examples: NVIDIA Nemotron-H and Nemotron 3 (the reference model here), Jamba, and hybrids with linear-attention layers. Most layers are state-space (Mamba) layers that keep a **fixed-size state per sequence**; a minority are attention layers with a normal KV cache.
-**Serving:** memory grows slowly with context, only in the attention layers. P/D must transfer **both** the attention KV and the SSM state. Prefix caching needs state snapshots at block boundaries; the reference vLLM worker uses `--mamba-cache-mode align` for this. Engines need hybrid-aware KV managers, which is why the reference deployment keeps NVIDIA's pinned image and flags.
+**Serving:** memory grows slowly with context, only in the attention layers. P/D must transfer **both** the attention KV and the SSM state. Prefix caching needs state snapshots at block boundaries; the reference vLLM worker uses `--mamba-cache-mode align` for this. Engines need hybrid-aware KV managers, which is why the reference deployment keeps NVIDIA's pinned image and flags. *Measured on H200:* Nemotron 3 Nano has 6 attention layers among 52 (about 6 KB of KV per token), and its KV plus Mamba state transferred correctly over NIXL in SGLang PD mode with `--mamba-radix-cache-strategy no_buffer` ([results](../results/nemotron-3-nano-128k-comparison/)).
 
 ### Sliding-window and local attention
 Examples: gpt-oss and Gemma 3 (interleaved local and global layers). Local layers only attend to a fixed window, so their KV is bounded; global layers grow normally.

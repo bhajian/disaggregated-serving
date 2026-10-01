@@ -2,7 +2,13 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 03 · Disaggregation pattern
 
-Disaggregated serving splits each request's two phases, **prefill** and **decode**, onto separate GPU pools that scale independently. It is the inference-era version of the move from monoliths to microservices, with one difference that shapes the whole architecture.
+**Executive summary.** Disaggregation runs prefill and decode on separate pools so each can be batched, parallelized and scaled for its own phase, at the cost of one KV transfer per request. On the H200 site it removed prefill-induced decode stalls but was slower overall at fixed P:D ratios ([chapter 12](12-results-and-reconciliation.md)). Whether it wins depends on the workload, the SLO, P:D tunability and the fabric.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Aggregated and disaggregated graphs with NIXL/UCX transfer settings, and three measured comparisons | Choosing the P:D ratio for your traffic |
+
+Disaggregated serving splits each request's two phases, **prefill** and **decode**, onto separate GPU pools that scale independently. The split adds one KV handoff per request, so the fabric becomes part of the architecture.
 
 ## Two phases, two resource profiles
 
@@ -21,29 +27,26 @@ Disaggregated serving splits each request's two phases, **prefill** and **decode
 
 In **aggregated** serving, every replica runs both phases in one batch on one set of GPUs. When a long prompt arrives, its prefill occupies the GPUs and every in-flight decode waits. Users mid-stream see a stall. Chunked prefill softens this but cannot remove it.
 
-In **disaggregated** serving, prefill workers compute the KV cache and hand it to decode workers over the GPU fabric. Decode GPUs only decode, so ITL stays steady. Each pool gets the batch size, memory split and parallelism that suit its phase, and each pool scales with its own traffic.
+In **disaggregated** serving, prefill workers compute the KV cache and hand it to decode workers over the GPU fabric. Decode GPUs only decode, so prefill never stalls their streams: on the H200 site the worst inter-token gap was 1.1 s disaggregated against 40.4 s aggregated ([chapter 12](12-results-and-reconciliation.md)). Throughput and TTFT then depend on whether the P:D ratio fits the traffic. Each pool gets the batch size, memory split and parallelism that suit its phase, and each pool scales with its own traffic.
 
-## It is the microservices pattern
+## What changes when the phases are split
 
+| Concern | Aggregated | Disaggregated |
+|---|---|---|
+| Scaling unit | One replica runs both phases | Prefill and decode pools scale separately (Dynamo Planner) |
+| Batch composition | Prefill chunks share a batch with decode steps | Each pool batches only its own phase |
+| Parallelism | One layout for both phases | Per phase: small TP (+EP) for prefill, wide EP + DP attention for decode |
+| Routing | KV-aware router picks one worker | Router picks a prefill and a decode worker |
+| Per-request cost | None beyond compute | One transfer of the prompt's KV cache (and Mamba state for hybrid models) |
+| Contract between workers | None | Prefill and decode must match model revision, TP layout, block size and KV dtype |
+| Failure modes | A worker failure loses its requests | Also: transfer failures, bootstrap timeouts, a missing prefill pool |
 
-| Microservices concept | Disaggregated-serving equivalent |
-|---|---|
-| Monolith, scaled by cloning | Aggregated replica, scaled by adding replicas |
-| Services split by resource profile | Prefill service (compute-bound) and decode service (bandwidth-bound) |
-| API gateway | Frontend / router (Dynamo frontend, llm-d gateway + endpoint picker) |
-| Service registry | etcd (Dynamo) or Kubernetes InferencePool (llm-d) |
-| Horizontal autoscaler | Dynamo Planner, llm-d variant autoscaler: scale P and D separately |
-| Request payload between services | **The KV cache**: gigabytes per request, not kilobytes |
-| Service mesh data plane | NIXL over RDMA or NVLink |
-| Contract/versioning between services | Prefill and decode must match model, TP, block size and KV dtype |
-
-**What carries over:** split by resource profile, scale each part for its own traffic, route through a gateway, discover through a registry, and let an autoscaler right-size each service.
-
-**What does not:** microservices exchange small payloads over any network. Prefill hands decode the **state of the whole prompt**, so the architecture only works on fabrics built for it: GPUDirect RDMA over InfiniBand or RoCE, or NVLink inside a rack. The network is a first-class design element, not plumbing.
+The transfer is the defining cost. A prompt's KV cache is gigabytes, not kilobytes, so the
+design only works on fabrics built for it: GPUDirect RDMA over InfiniBand or RoCE, or
+NVLink inside a rack. The Nemotron 128K study moved 865.75 GiB over InfiniBand across its
+three disaggregated runs, warmups included ([chapter 12](12-results-and-reconciliation.md)).
 
 ## Life of a request
-
-![Life of a request in disaggregated serving](../assets/diagrams/png/agg-vs-disagg.png)
 
 1. The frontend tokenizes the request, applies the chat template and picks a prefill and a decode worker by KV overlap and load.
 2. The prefill worker computes the KV cache for the whole prompt.

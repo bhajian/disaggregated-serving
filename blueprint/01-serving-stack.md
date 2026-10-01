@@ -2,6 +2,12 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 01 · Serving stack
 
+**Executive summary.** Every LLM serving platform is built from the same layers: API edge, control plane, engine, model, data movement, Kubernetes platform and hardware. Choices in one layer constrain the others. This repository implements NVIDIA Dynamo as the control plane with SGLang (validated on H200) and vLLM (B300 reference) engines on Kubernetes.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| A layer map with the pinned version and the repository path that configures each layer | Selecting products per layer for your platform standards |
+
 Every production LLM platform, whatever its vendor, is built from the same seven layers. Naming them makes choices explicit, and it makes clear which choices constrain each other.
 
 ![The LLM serving stack](../assets/diagrams/png/serving-stack.png)

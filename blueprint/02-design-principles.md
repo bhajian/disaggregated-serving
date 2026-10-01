@@ -2,6 +2,12 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 02 · Design principles
 
+**Executive summary.** Product-independent rules for LLM serving. Each one names the failure it prevents and where the repository enforces it: digest-pinned images and verified weight revisions, KV-aware routing, separate TTFT/ITL metrics, Kubernetes discovery, and SLO-based sizing. Several are enforced by offline tests.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Principles applied in the manifests, many enforced by `tests/` | Tenant isolation and data-retention policy for prompts and cached KV |
+
 These principles hold whether you run Dynamo or llm-d, and TensorRT-LLM, vLLM or SGLang. Each one names the failure it prevents and where this repository applies it.
 
 | # | Principle | In one line |
@@ -27,7 +33,7 @@ Disaggregation adds a network hop per request, two roles that must match, and tr
 *Here:* [deploy/sites/hgx-b300-2x8/01-aggregated](../deploy/sites/hgx-b300-2x8/01-aggregated/) is the baseline for every disaggregated track, and [benchmarks/](../benchmarks/) compares them with one dataset.
 
 ### 2. Split by resource profile, not by habit
-Prefill is compute-bound and decode is memory-bandwidth-bound. When they share GPUs, each gets the wrong batch size and they interfere with each other. Split them when the latency SLO (tail ITL) or the traffic shape (long inputs) makes that interference expensive. This is the microservices rule applied to inference ([chapter 03](03-disaggregation-pattern.md)).
+Prefill is compute-bound and decode is memory-bandwidth-bound. When they share GPUs, each gets the wrong batch size and they interfere with each other. Split them only when both phases are substantial at the same time and a tight tail-ITL SLO makes that interference expensive. Long inputs alone are not enough: prefill-dominated traffic was faster aggregated on the H200 site ([chapter 11](11-decision-guide.md), [chapter 12](12-results-and-reconciliation.md)).
 
 ### 3. Route to the data
 Recomputing a prefix that another worker already holds wastes GPU time. A **KV-aware router** scores workers by prefix overlap and load, using KV-cache events from the engines. Round-robin load balancing across LLM workers wastes cache.
@@ -61,7 +67,7 @@ A router that silently falls back to aggregated serving, or a decode worker that
 TTFT reflects queueing, prefill and transfer. ITL reflects decode. KV transfer has its own latency and error counters. A single "latency" number hides which pool to scale ([chapter 10](10-production-operations.md)).
 
 ### 12. Keep the control plane boring
-Frontends should be stateless and replicated. Discovery (etcd or the Kubernetes API) should be highly available. Use standard APIs (OpenAI-compatible, Gateway API) so the control plane can be replaced without touching applications.
+Frontends should be stateless and replicated. Prefer Kubernetes-API discovery, the Dynamo 1.4.0 operator default, over a separate etcd; a single etcd watch failure dropped every worker from the lab frontend ([troubleshooting](../reference/troubleshooting.md)). Use standard APIs (OpenAI-compatible, Gateway API) so the control plane can be replaced without touching applications.
 
 ### 13. Protect cached state like data
 KV cache is a function of the prompt. Prefix sharing across tenants, offloaded KV on disks, and shared KV storage all need tenant isolation, encryption at rest, and retention policies, just like the prompts themselves.

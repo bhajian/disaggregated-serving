@@ -2,7 +2,13 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 05 · Inference engines
 
-The engine is the process runtime of the serving OS. It owns the GPUs of one worker and turns a stream of requests into batched kernel launches.
+**Executive summary.** The engine batches and executes tokens on one worker's GPUs. SGLang 0.5.16 is measured on H200; vLLM is used by the B300 reference tracks; TensorRT-LLM is on the roadmap. Engine flags matter as much as the engine: each non-default flag is reviewed in [reference/engine-flags.md](../reference/engine-flags.md).
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| Pinned engine images and a reviewed flag set per model | Engine choice per model, measured on your hardware |
+
+The engine owns the GPUs of one worker and turns a stream of requests into batched kernel launches. Engine flags are reviewed one by one in [reference/engine-flags.md](../reference/engine-flags.md).
 
 ## What every modern engine does
 

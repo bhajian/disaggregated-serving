@@ -2,6 +2,12 @@
 
 [Home](../README.md) › [Blueprint](README.md) › 07 · Hardware, network and storage
 
+**Executive summary.** HBM per GPU, the size of the NVLink domain and how fast KV can leave the GPU decide most designs. The validated site is 2 × HGX H200 with eight InfiniBand HCAs per node; the 2 × HGX B300 design is a reference topology that has not been run. RDMA is provided by the Network Operator's device plugin in production, not by privileged pods.
+
+| What you get from this repository | What you still own |
+| --- | --- |
+| GPU and Network Operator configuration, RDMA proof method, site topologies | Fabric design, firmware and capacity |
+
 Hardware sets the limits of every layer above it. Three questions decide most designs: **how much HBM** each GPU has, **how large the NVLink domain** is, and **how fast KV can leave the GPU**, whether to another GPU or to storage.
 
 ## GPU generations

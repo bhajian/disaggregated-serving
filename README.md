@@ -1,116 +1,152 @@
-# LLM Inference Blueprint
+# LLM Inference Blueprint: NVIDIA Dynamo on Kubernetes
 
-**A reference architecture and deployment kit for serving large language models in production.**
+A reference architecture, deployment kit and benchmark methodology for serving large
+language models with NVIDIA Dynamo. It covers aggregated and disaggregated (prefill/decode)
+serving, SGLang and vLLM engines, and operator-managed graphs on Kubernetes. Every
+measured number in this repository comes from a recorded run in [results/](results/), with
+pinned images, request hashes and cache-reset evidence. Everything not yet run is marked
+**UNVALIDATED**.
 
-This repository describes the LLM serving stack as an **operating system for inference**:
+**Audience:** platform and ML infrastructure teams sizing and operating LLM inference on
+NVIDIA HGX systems.
 
-- **Control plane:** llm-d or NVIDIA Dynamo.
-- **Engines:** TensorRT-LLM, vLLM or SGLang.
-- **Models:** dense, MoE, MLA and hybrid Mamba architectures.
-- **Hardware:** Hopper, Blackwell and Rubin GPUs, connected by NVLink and InfiniBand or RoCE, with storage attached directly to GPUs for KV-cache offloading.
+## Validated results: 2 × HGX H200
 
-It turns that architecture into **hand-written, runnable deployments** of aggregated and disaggregated serving, plus a benchmark kit that measures every option the same way.
+Three matched studies on the same 16 H200 GPUs, model checkpoint and image compared
+aggregated replicas with disaggregated prefill/decode ([site](deploy/sites/nebius-h200-2x8/),
+[analysis](blueprint/12-results-and-reconciliation.md)):
 
-![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected to GPUs through GPUDirect Storage](assets/diagrams/png/serving-stack.png)
+| Study | Layouts | Aggregated | Disaggregated |
+| --- | --- | --- | --- |
+| DeepSeek V4 Pro, 256K input, concurrency 4 | 2 × TP8 vs 1P + 1D TP8 | 141.45 s | 782.50 s |
+| Nemotron 3 Nano, 128K in / 256 out, concurrency 4, 3 runs | 2 × TP8 vs 1P + 1D TP8 | 65.09 s mean, TPOT 4.35 ms | 105.48 s mean, TPOT 4.64 ms |
+| Nemotron 3 Nano, 8K in / 128K out, at the KV limit, 3 runs | 4 × TP4 vs 1P + 3D TP4 | 34,677 output tok/s, worst ITL 40.4 s | 25,852 output tok/s, worst ITL 1.1 s |
 
-## Why disaggregated serving
+**What the results say.** On two nodes with fixed TP8 or TP4 workers and a fixed P:D
+ratio, aggregated serving was faster in every study (5.5×, 1.62×, 1.34×). Disaggregated
+serving removed prefill-induced decode stalls: its worst inter-token gap was 1.1 s
+against 40.4 s. The studies used prefill-only and decode-only extremes, so they do not
+show where disaggregation wins. That is the next experiment: realistic input/output
+lengths, open-loop load and goodput at a p99 SLO, with P:D ratios from 1:3 to 2:6
+([experiments/01](experiments/01-pd-ratio-sweep/)).
 
-Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on the same GPUs makes them interfere with each other and forces one scaling unit. **Disaggregated serving splits them into services that scale independently. It is the microservices pattern applied to inference.** There is one difference: prefill hands decode *gigabytes* of KV cache per request, so the GPU fabric becomes part of the architecture.
+Functional checks on the same site: streaming, non-streaming, tool calling and
+long-context retrieval passed for DeepSeek V4 Pro; public-API and 128K retrieval checks
+passed for Nemotron 3 Nano (see each study's report).
 
+![Validated H200 site topology](assets/diagrams/png/h200-site.png)
 
----
+## What you get, and what you still own
 
-## What's inside
+| Area | From this repository | You still own |
+| --- | --- | --- |
+| Reproduce the measurements | Lab manifests exactly as measured ([deploy/sites](deploy/sites/)), drivers, datasets, notebooks, raw-result archives | Hardware and cluster access |
+| Run in production | DynamoGraphDeployments ([deploy/base](deploy/base/)); production overlay with Gateway API + Envoy TLS/OIDC/rate limits, NetworkPolicies, RDMA via device plugin, Planner, KV router, two frontends ([deploy/overlays/production](deploy/overlays/production/)); operator install values ([deploy/operator](deploy/operator/)); observability ([deploy/observability](deploy/observability/)) — **UNVALIDATED** | Identity provider, DNS and certificates, storage class, SLO targets, capacity |
+| Decide | Blueprint chapters 01–12, decision guide, engine-flag review | Your traffic profile and the final call |
+| Measure | Open-loop load generator with goodput at SLO, sweeps, AIPerf-compatible export ([benchmarks](benchmarks/)) | Running it on your traffic |
 
-| Part | For | Contents |
-|---|---|---|
-| **[Blueprint](blueprint/)** | Architects, platform and ML engineers | 11 chapters: the stack, design principles, disaggregation, control planes, engines, model architectures, hardware and fabrics, KV caching and offloading, parallelism and sizing, operations, decision guide |
-| **[Deployments](deploy/)** | Engineers running PoCs and labs | Step-by-step Docker Compose and Kubernetes deployments: aggregated, Dynamo disaggregated on vLLM and SGLang, llm-d disaggregated |
-| **[Benchmarks](benchmarks/)** | Anyone comparing options | Long-context chat and agentic workloads, TTFT/ITL/throughput metrics, a comparison notebook |
-| **[Reference](reference/)** | Operators | Model catalog and switching, vLLM ↔ SGLang mapping, troubleshooting, pinned sources |
-| **[Roadmap](ROADMAP.md)** | Everyone | TensorRT-LLM tracks, KV-cache offloading with GPUDirect Storage, wide-EP on NVL72 |
+## Deploy
 
-## Blueprint chapters
+**Production path (operator-managed, UNVALIDATED):** install the Dynamo operator with
+[deploy/operator](deploy/operator/), then apply a model's graph from
+[deploy/overlays/production](deploy/overlays/production/). Switching between aggregated and
+disaggregated is an edit of one DynamoGraphDeployment.
+
+```bash
+cp deploy/site.env.example deploy/site.env        # cluster-specific values; git-ignored
+python tools/render_site.py --env deploy/site.env deploy --out build/site
+kubectl --context "$KUBE_CONTEXT" apply -k build/site/overlays/production/nemotron-3-nano-h200/aggregated
+```
+
+**Lab path (as measured):** the hand-written manifests behind every result are under each
+H200 profile's `lab/` folder, e.g.
+[nemotron-3-nano/lab](deploy/sites/nebius-h200-2x8/nemotron-3-nano/lab/).
+
+### Validated deployment matrix
+
+Only configurations with recorded results are listed. Everything else is in
+[ROADMAP.md](ROADMAP.md) with a target date.
+
+| Site | Model | Engine | Aggregated | Disaggregated | Path |
+| --- | --- | --- | --- | --- | --- |
+| 2 × HGX H200 | DeepSeek V4 Pro (262K context) | Dynamo 1.4.0 + SGLang | 2 × TP8 | 1 × TP8 prefill + 1 × TP8 decode | [lab](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/lab/) |
+| 2 × HGX H200 | Nemotron 3 Nano 30B-A3B (131K / 262K context) | Dynamo 1.4.0 + SGLang | 2 × TP8, 4 × TP4 | 1P + 1D TP8, 1P + 3D TP4 | [lab](deploy/sites/nebius-h200-2x8/nemotron-3-nano/lab/) |
+
+## Architecture
+
+![LLM serving stack](assets/diagrams/png/serving-stack.png)
+
+![Dynamo production topology on Kubernetes](assets/diagrams/png/production-topology.png)
+
+## Blueprint
 
 | # | Chapter | # | Chapter |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 01 | [The serving stack](blueprint/01-serving-stack.md) | 07 | [Hardware, network and storage](blueprint/07-hardware-network-storage.md) |
 | 02 | [Design principles](blueprint/02-design-principles.md) | 08 | [KV cache and offloading](blueprint/08-kv-cache-and-offloading.md) |
 | 03 | [The disaggregation pattern](blueprint/03-disaggregation-pattern.md) | 09 | [Parallelism and sizing](blueprint/09-parallelism-and-sizing.md) |
-| 04 | [Orchestration layer: Dynamo and llm-d](blueprint/04-orchestration-layer.md) | 10 | [Production operations](blueprint/10-production-operations.md) |
-| 05 | [Inference engines: TensorRT-LLM, vLLM, SGLang](blueprint/05-inference-engines.md) | 11 | [Decision guide](blueprint/11-decision-guide.md) |
-| 06 | [Model architectures](blueprint/06-model-architectures.md) | | |
+| 04 | [Orchestration: Dynamo and llm-d](blueprint/04-orchestration-layer.md) | 10 | [Production operations](blueprint/10-production-operations.md) |
+| 05 | [Inference engines](blueprint/05-inference-engines.md) | 11 | [Decision guide](blueprint/11-decision-guide.md) |
+| 06 | [Model architectures](blueprint/06-model-architectures.md) | 12 | [Results and reconciliation](blueprint/12-results-and-reconciliation.md) |
 
-## Deployment matrix
+Reference: [glossary](reference/glossary.md) · [engine flags](reference/engine-flags.md) ·
+[troubleshooting](reference/troubleshooting.md) · [upstream verification](reference/upstream-verification.md) ·
+[pinned sources](reference/sources.md).
 
-| # | Track | Control plane | Engine | Docker | Kubernetes |
-|---|---|---|---|---|---|
-| 00 | [Prerequisites](deploy/prerequisites/) | | | ✓ | ✓ |
-| 01 | [Aggregated (baseline)](deploy/sites/hgx-b300-2x8/01-aggregated/) | Dynamo | vLLM · SGLang | [vLLM](deploy/legacy-compose/01-aggregated/vllm/) · [SGLang](deploy/legacy-compose/01-aggregated/sglang/) | [vLLM](deploy/sites/hgx-b300-2x8/01-aggregated/vllm/) · [SGLang](deploy/sites/hgx-b300-2x8/01-aggregated/sglang/) |
-| 02 | [Disaggregated](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | Dynamo | vLLM | [guide](deploy/legacy-compose/02-dynamo-disagg-vllm/) | [guide](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) |
-| 03 | [Disaggregated](deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) | Dynamo | SGLang | [guide](deploy/legacy-compose/03-dynamo-disagg-sglang/) | [guide](deploy/sites/hgx-b300-2x8/03-dynamo-disagg-sglang/) |
-| 04 | [Disaggregated](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) | llm-d | vLLM · SGLang | | [vLLM](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/vllm/) · [SGLang](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/sglang/) |
-| · | TensorRT-LLM, KV offloading | Dynamo | TensorRT-LLM · vLLM | [roadmap](ROADMAP.md) | [roadmap](ROADMAP.md) |
+## Next measurements
 
-For **Nebius MK8s with 2 × 8 H200 and DeepSeek V4 Pro**, use the
-[site deployment guide](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/). It includes model
-download Jobs, persistent volumes, and a LoadBalancer; the B300 defaults below
-are for the original reference topology.
+[experiments/](experiments/) holds ready-to-run plans for the next cluster session, each with a
+checklist and a preflight check (`tools/preflight.py`). In priority order: the P:D ratio sweep
+with goodput at SLO, KV-router validation, a Planner demonstration, reliability confirmations,
+the DeepSeek DP-attention/EP/MTP layout, overlap scheduling, prefill chunk size, resilience and
+soak, and B300 validation.
 
-The same H200 cluster also runs the [Nemotron 3 Nano 128K comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/),
-with separate cached weights on the existing PVCs and three repeats per topology.
-The [8K-in / 128K-out comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-8K-128K.md)
-reverses that workload on four TP4 workers at maximum concurrency.
+## Reference topology (not yet run)
 
-## Choose your path
+The repository also contains a reference design for **2 × HGX B300** serving
+**Nemotron 3 Ultra 550B-A55B NVFP4**: aggregated, Dynamo P/D on vLLM and SGLang, and llm-d
+([deploy/sites/hgx-b300-2x8](deploy/sites/hgx-b300-2x8/)), with single-node-debugging Docker
+Compose files in [deploy/legacy-compose](deploy/legacy-compose/). These manifests pass the
+offline tests. The only hardware evidence is a
+[manual Docker deployment](reference/manual-docker-walkthrough.md) in which both disaggregated
+vLLM workers initialized and registered on the reference hosts. End-to-end transfer, the
+Kubernetes tracks and benchmarks have not run. **UNVALIDATED**; validation is
+[experiments/09](experiments/09-b300-reference-validation/).
 
-| You are… | Follow | Outcome |
-|---|---|---|
-| **Learning** LLM serving | [Blueprint 01–03](blueprint/) → [deployments 00](deploy/prerequisites/) → [01](deploy/sites/hgx-b300-2x8/01-aggregated/) on one node → [02](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/) | A working aggregated and disaggregated deployment, with every flag explained |
-| **Running a customer PoC** | [Decision guide](blueprint/11-decision-guide.md) → [deployments](deploy/) (baseline + disaggregated) → [benchmarks](benchmarks/) on the customer's traffic | Like-for-like evidence for the right topology |
-| **Designing production** | [Blueprint 02, 04–10](blueprint/) → [production operations](blueprint/10-production-operations.md) → [roadmap](ROADMAP.md) | A sized, SLO-driven architecture and its gap list |
+![B300 reference topology (UNVALIDATED)](assets/diagrams/png/b300-reference.png)
 
----
+## Pinned versions
 
-## Repository map
+| Component | Version |
+| --- | --- |
+| NVIDIA Dynamo (operator, frontend, Planner) | 1.4.0 (`v1.4.0`, commit `0301494`); images pinned by digest |
+| SGLang in the Dynamo runtime | 0.5.16 |
+| vLLM in the Dynamo runtime | 0.26.0 (B300 reference tracks) |
+| Grove / KAI scheduler (pinned by dynamo-platform 1.4.0) | v0.1.0-alpha.12-rc1 / v0.13.4 |
+| NVIDIA GPU Operator / Network Operator | v26.7.1 / v26.7.0 |
+| Gateway API / Envoy Gateway / cert-manager | v1.3.0 / v1.4.2 / v1.17.2 |
 
-```text
-.
-├── blueprint/                 architecture and best practices (11 chapters)
-├── deploy/               runnable reference deployments
-│   ├── 00-prerequisites/      hosts, network, RDMA test, model download
-│   ├── 01-aggregated/         Dynamo · {vllm, sglang} · {docker, kubernetes}
-│   ├── 02-dynamo-disagg-vllm/ Dynamo P/D · vLLM · {docker, kubernetes}
-│   ├── 03-dynamo-disagg-sglang/ Dynamo P/D · SGLang · {docker, kubernetes}
-│   ├── 04-llm-d-disagg/       llm-d P/D · {vllm, sglang} · kubernetes
-│   └── cluster.env.example    site settings for Docker deployments
-├── benchmarks/                benchmark code and methodology
-├── datasets/seeds/            synthetic seed workloads
-├── notebooks/compare.ipynb    comparison report
-├── assets/diagrams/           SVG diagrams and their source
-├── reference/                 models, vLLM vs SGLang, troubleshooting, sources, manual walkthrough
-├── tools/                     optional helpers: download, preflight, render, validate, sweep
-├── configs/                   model catalog and cluster inputs for the tools
-├── tests/                     offline consistency and unit tests
-├── ROADMAP.md
-└── CONTRIBUTING.md
-```
+Sources and verification: [reference/sources.md](reference/sources.md),
+[reference/upstream-verification.md](reference/upstream-verification.md).
 
-## Reference implementation
+## Repository layout
 
-| Layer | Implemented with |
-|---|---|
-| Control plane | NVIDIA Dynamo 1.4.0 (frontend, KV router, etcd). llm-d v0.10 guide with router v0.11. |
-| Engines | vLLM 0.26.0 in the Dynamo runtime (pinned by digest), SGLang 0.5.16 in the Dynamo runtime. vLLM 0.30.0 and SGLang 0.5.20 for llm-d. |
-| Model | NVIDIA Nemotron 3 Ultra 550B-A55B NVFP4 (hybrid Mamba + attention MoE), pinned revision |
-| Data movement | NCCL (TP8), NIXL over UCX with GPUDirect RDMA |
-| Hardware | 2 × 8 × NVIDIA B300, NVLink within each node, 8 × 800 Gb/s InfiniBand rails per node |
+| Path | Contents |
+| --- | --- |
+| [blueprint/](blueprint/) | Architecture chapters 01–12 |
+| [deploy/](deploy/) | `base/` (Dynamo graphs), `overlays/` (lab, production), `operator/`, `observability/`, `sites/` (H200 validated, B300 reference), `legacy-compose/` |
+| [benchmarks/](benchmarks/) | Load generators, metrics, sweeps and methodology |
+| [experiments/](experiments/) | Prepared, not yet run, cluster experiments |
+| [results/](results/) | Study summaries and CSVs; raw evidence in release archives ([ARCHIVE.md](results/ARCHIVE.md)) |
+| [notebooks/](notebooks/) | Analysis notebooks that read `results/` offline |
+| [reference/](reference/) | Glossary, engine flags, troubleshooting, upstream verification, model catalog |
+| [tools/](tools/) | Renderers (graphs, overlays, experiments, diagrams, site values), validation, preflight |
+| [tests/](tests/) | Offline tests: `python -m pytest -q` and `python tools/validate.py` |
 
-## Validation status
+## Status
 
-- **Offline:** `python -m pytest -q` checks the structure of every deployment file and embedded launch script. It also checks that Docker and Kubernetes files launch identical engines, that they match the model catalog, and that aggregated and disaggregated workers differ only in their transfer settings. `python tools/validate.py` checks the manifests against upstream Kubernetes, Compose and InferencePool schemas.
-- **On H200/Nebius:** [DeepSeek V4 Pro with Dynamo/SGLang](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/) has been run in both aggregated and prefill/decode-disaggregated modes with a public LoadBalancer. The saved DeepSeek configuration uses two TP8 aggregated replicas at 262K context; see the [256K comparison](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md). The shared cluster subsequently switched to [Nemotron 3 Nano at 128K](deploy/sites/nebius-h200-2x8/nemotron-3-nano/). Streaming, non-streaming, tool calling, long-context retrieval and repository benchmarks passed; see the [validation record](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md).
-- **On the B300 reference hardware:** the disaggregated vLLM worker configuration reproduces a [manual deployment](reference/manual-docker-walkthrough.md) in which both workers initialized and registered on the reference hosts. End-to-end RDMA transfer, the SGLang tracks, the Kubernetes manifests and llm-d have **not yet been run** there. That is the next [roadmap](ROADMAP.md) item.
-- **Performance:** the H200 [256K comparison](deploy/sites/nebius-h200-2x8/deepseek-v4-pro/BENCHMARK-256K.md) records matched in-cluster aggregated and disaggregated runs with cache resets. It is a single-run workload comparison, not a maximum-capacity or repeatability study. [Benchmarks](benchmarks/) explains how to produce controlled measurements. The [Nemotron 3 Nano 128K comparison](deploy/sites/nebius-h200-2x8/nemotron-3-nano/BENCHMARK-128K.md) adds three repeats per topology and 576 valid requests on the same H200 cluster.
-
-Product capabilities reflect the pinned versions in [reference/sources.md](reference/sources.md). Hardware figures are nominal vendor values. To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
+Offline checks pass: unit and consistency tests, and strict schema validation of every
+manifest and rendered overlay against Dynamo 1.4.0, Kubernetes 1.33, Gateway API v1.3.0,
+Envoy Gateway v1.4.2, Prometheus Operator v0.83.0, cert-manager v1.17.2 and Network
+Operator v26.7.0 CRDs. They prove consistency, not that the production path works on your
+hardware. Changes and open verification items: [REVIEW-CHANGELOG.md](REVIEW-CHANGELOG.md).
