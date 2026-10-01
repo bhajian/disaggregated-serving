@@ -23,6 +23,10 @@ This folder holds the benchmark code and the methodology. Seed data lives in [da
 | [run.py](run.py) | Streams sessions against an OpenAI-compatible endpoint and records TTFT, TPOT, ITL, throughput and failures per request |
 | [metrics.py](metrics.py) | Metric definitions and summaries (unit-tested) |
 | [collect.py](collect.py) | Rebuilds `results/summary.csv` from all run folders |
+| [loadgen.py](loadgen.py) | Open-loop (Poisson or constant RPS) or closed-loop sessions with sampled ISL/OSL; **goodput at SLO**, SLO attainment, cost per million tokens, AIPerf/genai-perf export |
+| [sweep.py](sweep.py) | Sweeps RPS × P:D ratio × TP per role from a YAML spec and writes one `sweep-table.csv` |
+| [distributions.py](distributions.py) | Seeded ISL/OSL distributions (`fixed`, `uniform`, `lognormal` clipped) |
+| [driver_lock.py](driver_lock.py) | One driver per results directory; append-only cache-flush evidence |
 | [long_decode.py](long_decode.py) | Forced long outputs (e.g. 128K tokens) at hundreds of concurrent streams: multi-process client, compact per-token intervals, client and server ITL, stall counts, `--reanalyze` |
 
 ---
@@ -160,6 +164,65 @@ Generate single-turn sessions with `generate_dataset --turns 1`.
 A 262,144-token input cannot also reserve output inside a 262,144-token window, so leave headroom for every turn. Increase context and concurrency step by step while watching GPU memory and transfer errors. For models whose tokenizer is not a standard Hugging Face tokenizer, see [reference/models.md](../reference/models.md).
 
 ---
+
+## Realistic traffic: open-loop load, goodput and sweeps
+
+The recorded H200 studies are closed-loop waves: 128K-token prompts at concurrency 4,
+and 8K prompts with 131,072 forced output tokens. Both are extremes. Neither shows
+where disaggregation pays off, and the fixed 1P:1D and 1P:3D layouts were structurally
+unfavourable to it. `loadgen.py` and `sweep.py` measure the regime production runs in.
+
+**Workload.** Generate sessions with sampled lengths (defaults below are the experiment
+defaults; without the flags the generator output and hashes are unchanged):
+
+```bash
+python -m benchmarks.generate_dataset --workload chatbot --sessions 2000 --turns 1 \
+  --isl-dist lognormal:4000:0.6:2000:16000 --osl-dist lognormal:512:0.6:256:2048 \
+  --max-model-len 262144 --seed 20261002 --tokenizer build/nemotron-128k/tokenizer \
+  --template-kwargs '{"enable_thinking":false}' --out datasets/generated/nemotron-realistic.jsonl
+```
+
+Keep all three recorded turns (omit `--turns 1`) for a **multi-turn prefix-reuse** mode,
+and use a large fixed `--input-tokens` for a **long-context** mode.
+
+**Arrivals.** `--arrival poisson --rps R` starts sessions at exponential inter-arrival
+times (open loop: load does not back off when the server slows). `constant` uses even
+spacing. `closed --concurrency N` reproduces the earlier studies' closed loop. The client
+records each session's scheduled and actual start (`start_lag_ms`), so an overloaded
+client is visible.
+
+**Primary metric: goodput.** A request meets the SLO when its TTFT ≤ `--slo-ttft-ms` and
+the p99 of its own inter-token intervals ≤ `--slo-itl-ms`. `goodput_rps` is the rate of such
+requests. `slo_attainment` is their share of valid requests. `run_meets_slo` checks the run
+as a whole: pooled p99 TTFT and p99 ITL within target. Report goodput next to tokens/s;
+a configuration that delivers more tokens/s while missing the SLO has lower goodput.
+
+**Cost.** With `--gpu-hour-usd`, the summary adds `usd_per_m_output_tokens` and
+`usd_per_m_output_tokens_at_slo` (GPU-hours × price, divided by all output tokens or by
+tokens from SLO-meeting requests). The price is blank by default; each site records its
+own in its site configuration.
+
+**Sweeps.** `python -m benchmarks.sweep plan|run <spec.yaml>` expands configurations
+(overlay, P:D ratio, TP per role) × RPS levels, applies each configuration once, runs
+`loadgen` at every RPS and holds the driver lock. `python -m benchmarks.sweep table <results>`
+writes `sweep-table.csv` and marks each configuration's best RPS that still meets the SLO.
+
+### Comparing with NVIDIA's published numbers (AIPerf / genai-perf)
+
+Every `loadgen` run also writes `profile_export.json` with genai-perf/AIPerf metric names
+and units. The definitions differ in two places:
+
+| This repository | AIPerf / genai-perf | Relation |
+| --- | --- | --- |
+| `tpot_ms`: (last token − first token) / (output tokens − 1), per request | `inter_token_latency` (per-request average) | Same quantity; exported as `inter_token_latency` |
+| `itl_ms_*`: every gap between streamed tokens, pooled over the run | not reported as a distribution | Exported as `inter_token_gap`; tail ITL (p99, p99.9) only exists here |
+| `ttft_ms`: request start to first generated payload | `time_to_first_token` | Same |
+| `output_throughput_tps`: valid output tokens ÷ wall time | `output_token_throughput` | Same, except failed and invalid requests are excluded here |
+| `goodput_rps`: requests meeting TTFT and per-request p99 ITL targets | goodput with user-defined constraints (varies by version) | Compare only with identical constraints |
+
+Published Dynamo results usually use concurrency-driven AIPerf runs with fixed ISL/OSL.
+Use `--arrival closed --concurrency N` and `fixed:` distributions to match such a setup
+before comparing numbers.
 
 ## 6. Metrics
 

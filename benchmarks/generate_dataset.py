@@ -10,6 +10,8 @@ from pathlib import Path
 
 import httpx
 
+from benchmarks.distributions import sampler
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -147,6 +149,10 @@ def main():
     p.add_argument('--deepseek-v4-encoder', help='Checkpoint encoding/encoding_dsv4.py; requires --trust-remote-code')
     p.add_argument('--template-kwargs', default='{}')
     p.add_argument('--corpus', help='Optional local UTF-8 corpus, replacing synthetic record prose')
+    p.add_argument('--isl-dist', help='Per-session input-length distribution, e.g. lognormal:4000:0.6:2000:16000; '
+                   'default: fixed --input-tokens (unchanged output and hashes)')
+    p.add_argument('--osl-dist', help='Per-turn output-budget distribution, e.g. lognormal:512:0.6:256:2048; '
+                   'stored as turn["max_output_tokens"] for the load generator to force')
     p.add_argument('--out', required=True)
     a = p.parse_args()
     if not (a.tokenizer or a.tokenizer_url):
@@ -158,23 +164,30 @@ def main():
     seeds = [json.loads(x) for x in (ROOT / f'datasets/seeds/{a.workload}.jsonl').read_text().splitlines()]
     rng = random.Random(a.seed)
     corpus = Path(a.corpus).read_text() if a.corpus else None
+    # Separate RNG streams: without --isl-dist/--osl-dist the original sequence and output are unchanged.
+    isl = sampler(a.isl_dist, a.seed, 'isl') if a.isl_dist else (lambda: a.input_tokens)
+    osl = sampler(a.osl_dist, a.seed, 'osl') if a.osl_dist else None
     out = Path(a.out); out.parent.mkdir(parents=True, exist_ok=True)
     if out.exists():
         p.error('Output already exists; choose a new dataset path.')
     with out.open('w') as f:
         for i in range(a.sessions):
             seed = seeds[i % len(seeds)]
-            context = padded_context(seed, a.workload, a.input_tokens, count, rng,
+            target = isl()
+            context = padded_context(seed, a.workload, target, count, rng,
                                      f'Session {a.seed}-{i}-{rng.getrandbits(64):016x}\n', corpus)
             turns = turns_for(seed, a.workload, context)
             if a.turns:
                 turns = turns[:a.turns]
             for turn in turns:
                 turn['input_tokens'] = count(turn['messages'], turn.get('tools'))
-                if turn['input_tokens'] + a.output_tokens > a.max_model_len:
+                budget = a.output_tokens
+                if osl:
+                    budget = turn['max_output_tokens'] = osl()
+                if turn['input_tokens'] + budget > a.max_model_len:
                     raise ValueError('A complete turn plus reserved output exceeds --max-model-len.')
             row = {'id': f'{a.workload}-{a.seed}-{i}', 'workload': a.workload,
-                   'kind': 'recorded-trace-replay', 'target_input_tokens': a.input_tokens,
+                   'kind': 'recorded-trace-replay', 'target_input_tokens': target,
                    'max_output_tokens': a.output_tokens, 'turns': turns}
             f.write(json.dumps(row) + '\n')
             print(row['id'], [t['input_tokens'] for t in turns])
