@@ -1,0 +1,3 @@
+window_start_s,window_end_s,stream_events,events_per_s
+0,10,16384,1638.4
+10,20,0,0.0

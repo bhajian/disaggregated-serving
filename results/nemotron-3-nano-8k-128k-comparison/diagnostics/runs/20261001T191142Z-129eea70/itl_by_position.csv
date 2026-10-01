@@ -1,0 +1,2 @@
+output_token_start,output_token_end,samples,itl_ms_mean,itl_ms_p50,itl_ms_p90,itl_ms_p99,itl_ms_max
+0,1024,6048,4.440347194671631,4.437045097351074,4.915889739990234,6.2848381996154785,8.6077880859375

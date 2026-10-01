@@ -1,0 +1,1 @@
+{"oom_killed_at":"2026-10-01T18:32:37Z","exit_code":137,"reason":"OOMKilled","container_memory_limit":"384Gi","note":"prefill worker-0, 2m43s after the last measured run ended; recorded from pod lastState before the diagnostic restart"}

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: benchmark-client
+  namespace: deepseek-v4-pro
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: <NODE_A_HOSTNAME>
+  automountServiceAccountToken: false
+  initContainers:
+  - name: init
+    image: busybox:1.37.0
+    command:
+    - sh
+    - -c
+    - mkdir -p /model/.benchmarks/nemotron8k128k
+    volumeMounts:
+    - name: model
+      mountPath: /model
+  containers:
+  - name: client
+    image: nvcr.io/nvidia/ai-dynamo/sglang-runtime:1.4.0@sha256:314bda9534498899ad855f8c72434f4015660521665025a587e73486b74917f3
+    command:
+    - sleep
+    - '86400'
+    workingDir: /bench
+    resources:
+      requests:
+        cpu: '20'
+        memory: 32Gi
+      limits:
+        memory: 96Gi
+    volumeMounts:
+    - name: model
+      mountPath: /bench
+      subPath: .benchmarks/nemotron8k128k
+    securityContext:
+      runAsUser: 0
+  volumes:
+  - name: model
+    persistentVolumeClaim:
+      claimName: model-0
