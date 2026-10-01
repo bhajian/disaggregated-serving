@@ -1,4 +1,5 @@
 """Run the fixed 128K cohort inside the client pod, clearing caches per repetition."""
+import os
 import argparse
 import datetime
 import json
@@ -6,6 +7,8 @@ import pathlib
 import subprocess
 import sys
 import time
+# Node IPs come from the site env (see deployments/site.env.example); never hard-code them.
+NODE_IPS = {k: os.environ.get(k) or sys.exit(f'Set {k} (see deployments/site.env.example)') for k in ('NODE_A_IP', 'NODE_B_IP')}
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('mode', choices=['aggregated', 'disaggregated'])
@@ -39,8 +42,8 @@ for repetition in range(1, args.repetitions + 1):
             '--deployment', mode + '-deployment.json', '--dataset', 'dataset.jsonl',
             '--sessions', '32', '--max-model-len', '131072', '--min-input-tokens', '128000',
             '--output-tokens', '256', '--concurrency', '4', '--warmup', '1',
-            '--cache-state', 'mixed', '--metrics-url', 'http://<NODE_A_IP>:8081/metrics',
-            '--metrics-url', 'http://<NODE_B_IP>:8081/metrics', '--results', 'results',
+            '--cache-state', 'mixed', '--metrics-url', f"http://{NODE_IPS['NODE_A_IP']}:8081/metrics",
+            '--metrics-url', f"http://{NODE_IPS['NODE_B_IP']}:8081/metrics", '--results', 'results',
         ]
         record['command'] = command
         (logdir / f'{label}-started.json').write_text(json.dumps(record, indent=2) + '\n')

@@ -11,7 +11,7 @@ Install Nemotron 3 Ultra on two B300 servers using Docker, with vLLM workers beh
 | Setting | Node A / prefill | Node B / decode |
 | --- | --- | --- |
 | Private IP | <B300_NODE_A_IP> | <B300_NODE_B_IP> |
-| SSH from your computer | ben@<B300_NODE_A_PUBLIC_IP> | ben@<B300_NODE_B_PUBLIC_IP> |
+| SSH from your computer | <ssh-user>@<B300_NODE_A_PUBLIC_IP> | <ssh-user>@<B300_NODE_B_PUBLIC_IP> |
 | GPU assignment | 8 x B300 / TP8 | 8 x B300 / TP8 |
 | Dynamo frontend + etcd | Run here only | Connect to Node A |
 | IP interface | eth0 | eth0 |
@@ -45,13 +45,13 @@ Open two terminal windows on your computer. Connect each window to one server an
 ### Terminal A: connect to the prefill server
 
 ```bash
-ssh ben@<B300_NODE_A_PUBLIC_IP>
+ssh <ssh-user>@<B300_NODE_A_PUBLIC_IP>
 ```
 
 ### Terminal B: connect to the decode server
 
 ```bash
-ssh ben@<B300_NODE_B_PUBLIC_IP>
+ssh <ssh-user>@<B300_NODE_B_PUBLIC_IP>
 ```
 
 Run the following commands **inside both SSH sessions**, not on your computer:

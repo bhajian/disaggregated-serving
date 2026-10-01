@@ -3,6 +3,7 @@
 Pilots use --output-tokens below 131072 and --results pilots; measured runs use
 the defaults. Each run sends --concurrency requests at once (one closed-loop wave).
 """
+import os
 import argparse
 import datetime
 import fcntl
@@ -11,8 +12,10 @@ import pathlib
 import subprocess
 import sys
 import time
+# Node IPs come from the site env (see deployments/site.env.example); never hard-code them.
+NODE_IPS = {k: os.environ.get(k) or sys.exit(f'Set {k} (see deployments/site.env.example)') for k in ('NODE_A_IP', 'NODE_B_IP')}
 
-METRICS = [f'http://{host}:{port}/metrics' for port in (8081, 8082) for host in ('<NODE_A_IP>', '<NODE_B_IP>')]
+METRICS = [f'http://{host}:{port}/metrics' for port in (8081, 8082) for host in (NODE_IPS['NODE_A_IP'], NODE_IPS['NODE_B_IP'])]
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('mode', choices=['aggregated', 'disaggregated'])
