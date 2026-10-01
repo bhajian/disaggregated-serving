@@ -1,0 +1,24 @@
+# RDMA for GPU workers without hostNetwork or privileged mode: the shared device plugin
+# exposes the node's InfiniBand HCAs as the extended resource rdma/rdma_shared_device_a,
+# which the production graph patches request ("1" per worker pod) alongside IPC_LOCK.
+apiVersion: mellanox.com/v1alpha1
+kind: NicClusterPolicy
+metadata:
+  name: nic-cluster-policy
+spec:
+  rdmaSharedDevicePlugin:
+    repository: nvcr.io/nvidia/mellanox
+    image: k8s-rdma-shared-dev-plugin
+    # Digest of this tag on 2026-10-01: sha256:2d28133fdee8c263e19b4d0656bf58d30513c9d13e47ef84bd68c5499b3c18ce
+    # TODO(verify-upstream): whether NicClusterPolicy accepts a digest in `version`.
+    version: network-operator-v26.7.0
+    config: |
+      {
+        "configList": [
+          {
+            "resourceName": "rdma_shared_device_a",
+            "rdmaHcaMax": 63,
+            "selectors": {"vendors": ["15b3"], "linkTypes": ["infiniband"]}
+          }
+        ]
+      }

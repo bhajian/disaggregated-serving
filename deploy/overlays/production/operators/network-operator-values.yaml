@@ -1,0 +1,9 @@
+# NVIDIA Network Operator v26.7.0 Helm values (keys checked against
+# reference/upstream/nvidia-operators/network-operator-v26.7.0-values.yaml by tests).
+#   helm upgrade --install network-operator nvidia/network-operator --version v26.7.0 \
+#     -n nvidia-network-operator --create-namespace -f network-operator-values.yaml
+# RDMA device plugins are configured by the NicClusterPolicy (nic-cluster-policy.yaml).
+nfd:
+  enabled: true
+sriovNetworkOperator:
+  enabled: false                # InfiniBand with the RDMA shared device plugin; no SR-IOV VFs

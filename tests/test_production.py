@@ -36,7 +36,8 @@ def test_overlays_match_the_generator(tmp_path, monkeypatch):
     monkeypatch.setattr(render_production, 'OUT', tmp_path)
     render_production.main()
     for path in sorted(PROD.rglob('*')):
-        if path.is_file() and path.name != 'README.md':
+        # operators/ is hand-written (Helm values and the NicClusterPolicy), not generated.
+        if path.is_file() and path.name != 'README.md' and 'operators' not in path.relative_to(PROD).parts:
             rel = path.relative_to(PROD)
             assert (tmp_path / rel).exists() and (tmp_path / rel).read_text() == path.read_text(), f'{rel} is stale'
 

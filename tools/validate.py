@@ -33,6 +33,7 @@ DOWNLOADS = {
     'envoy-gateway.yaml': 'https://github.com/envoyproxy/gateway/releases/download/v1.4.2/install.yaml',
     'prometheus-operator.yaml': 'https://github.com/prometheus-operator/prometheus-operator/releases/download/v0.83.0/stripped-down-crds.yaml',
     'cert-manager.yaml': 'https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.crds.yaml',
+    'nicclusterpolicy.yaml': 'https://raw.githubusercontent.com/Mellanox/network-operator/v26.7.0/deployment/network-operator/crds/mellanox.com_nicclusterpolicies.yaml',
 }
 SKIP_FILES = {'kustomization.yaml', 'values.yaml'}
 
@@ -114,7 +115,7 @@ class Registry:
         self.compose = json.loads((cache / 'compose.json').read_text())
         self.crds = {}
         for name in ('inference.yaml', 'gateway-api.yaml', 'envoy-gateway.yaml', 'prometheus-operator.yaml',
-                     'cert-manager.yaml'):
+                     'cert-manager.yaml', 'nicclusterpolicy.yaml'):
             for doc in load_all((cache / name).read_text()):
                 if doc and doc.get('kind') == 'CustomResourceDefinition':
                     for v in doc['spec']['versions']:
@@ -175,7 +176,7 @@ def main(argv=None):
     for path in sorted(p for r in roots for p in r.rglob('*.yaml')):
         # Patch fragments and Helm values are not standalone objects; they are
         # validated through `kustomize build` or by Helm.
-        if (path.name in SKIP_FILES or path.name.startswith(('patch-', 'values', 'kustomization')) or 'patches' in path.parts
+        if (path.name in SKIP_FILES or path.name.endswith('values.yaml') or path.name.startswith(('patch-', 'values', 'kustomization')) or 'patches' in path.parts
                 or 'helm' in path.parts):
             continue
         n, e = validate_objects(registry, yaml.safe_load_all(as_rendered(path.read_text())), path.relative_to(ROOT))
