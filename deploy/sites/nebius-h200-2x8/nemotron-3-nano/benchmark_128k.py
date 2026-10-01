@@ -21,6 +21,12 @@ if args.repetitions < 1:
     parser.error('repetitions must be positive')
 logdir = pathlib.Path('study-records')
 logdir.mkdir(exist_ok=True)
+# One driver per results directory: a second one would flush caches under a live run.
+from benchmarks.driver_lock import DriverBusy, acquire, now  # noqa: E402
+try:
+    LOCK = acquire(logdir)
+except DriverBusy as exc:
+    sys.exit(str(exc))
 for repetition in range(1, args.repetitions + 1):
     mode = args.mode
     label = f'{mode}-{repetition}'
@@ -34,9 +40,10 @@ for repetition in range(1, args.repetitions + 1):
     }
     code = 1
     try:
-        with (logdir / f'{label}-cache-clear.log').open('w') as output:
+        with (logdir / f'{label}-cache-clear.log').open('a') as output:
+            output.write(f'# cache clear {now()}\n'); output.flush()
             subprocess.run([sys.executable, 'clear_cache.py', mode], stdout=output,
-                           stderr=subprocess.STDOUT, check=True, timeout=540)
+                           stderr=subprocess.STDOUT, check=True, timeout=540, env={**os.environ, 'BENCH_RUN_LABEL': label})
         command = [
             sys.executable, '-u', '-m', 'benchmarks.run',
             '--base-url', f'http://frontend.{NAMESPACE}.svc.cluster.local:8000/v1',

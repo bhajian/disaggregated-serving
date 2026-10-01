@@ -9,12 +9,19 @@ NODE_IPS = {k: os.environ.get(k) or sys.exit(f'Set {k} (see deploy/site.env.exam
 mode=sys.argv[1]
 assert mode in ('aggregated','disaggregated')
 logdir=pathlib.Path('study-records');logdir.mkdir(exist_ok=True)
+# One driver per results directory: a second one would flush caches under a live run.
+from benchmarks.driver_lock import DriverBusy, acquire, now  # noqa: E402
+try:
+    LOCK = acquire(logdir)
+except DriverBusy as exc:
+    sys.exit(str(exc))
 start=time.time()
 record={'mode':mode,'start_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'sessions':8,'concurrency':4,'input_tokens':256000,'output_budget':256,'cache_protocol':'flush both workers before run; allow within-session prefix reuse','client':'benchmark-client pod on node 0; Kubernetes ClusterIP'}
 code=1
 try:
- with (logdir/f'{mode}-cache-clear.log').open('w') as f:
-  subprocess.run([sys.executable,'clear_cache.py',mode],stdout=f,stderr=subprocess.STDOUT,check=True,timeout=540)
+ with (logdir/f'{mode}-cache-clear.log').open('a') as f:
+  f.write(f'# cache clear {now()}\n'); f.flush()
+  subprocess.run([sys.executable, 'clear_cache.py',mode],stdout=f,stderr=subprocess.STDOUT,check=True,timeout=540, env={**os.environ, 'BENCH_RUN_LABEL': mode})
  command=[sys.executable,'-u','-m','benchmarks.run','--base-url',f'http://frontend.{NAMESPACE}.svc.cluster.local:8000/v1','--model','deepseek-ai/DeepSeek-V4-Pro-0813','--technology','dynamo-'+('agg' if mode=='aggregated' else 'disagg')+'-k8s','--deployment',mode+'-deployment.json','--dataset','dataset.jsonl','--sessions','8','--max-model-len','262144','--min-input-tokens','250001','--output-tokens','256','--concurrency','4','--warmup','1','--cache-state','mixed','--metrics-url',f"http://{NODE_IPS['NODE_A_IP']}:8081/metrics",'--metrics-url',f"http://{NODE_IPS['NODE_B_IP']}:8081/metrics",'--results','results']
  record['command']=command
  (logdir/f'{mode}-started.json').write_text(json.dumps(record,indent=2)+'\n')

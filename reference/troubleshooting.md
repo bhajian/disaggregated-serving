@@ -28,6 +28,110 @@ A working etcd connection does **not** prove RDMA works, and a failed etcd conne
 | Kubernetes worker advertises the wrong IP | Node InternalIP is not the private IP | `kubectl get nodes -o wide`. Fix the kubelet `--node-ip`. |
 | Disk usage climbs | Model copies, images, caches | `docker system df`, `du -sh /data/*/runtime/*`. Logs in the reference files are size-limited. |
 
+## Failures observed on the H200 site and their fixes
+
+Each entry below happened during a recorded study. The evidence is in `results/` and
+the release archives. The fix lives in the production manifests and is scheduled for
+confirmation in [experiments/04-reliability](../experiments/04-reliability/).
+
+### KV router imbalance: 152 / 120 / 120 / 120 requests per worker
+
+**Seen in:** 8K/128K study, third aggregated run (excluded; kept under
+`results/nemotron-3-nano-8k-128k-comparison/excluded-runs/router-imbalance`). One
+worker received 152 of 512 simultaneous requests. With a cap of 136 per worker, 16
+requests queued for 37 minutes and the run reported 21,968 tokens/s instead of
+about 34,700.
+
+**Cause** (Dynamo 1.4.0, `lib/kv-router/src/scheduling/selector.rs` L138-308): the
+KV router's cost is `prefill_load_scale × max(0, prefill_blocks − overlap) +
+decode_blocks + decode_active_request_weight × active_requests`, lowest wins. With
+unique prompts the overlap is 0. With the default `decode_active_request_weight` of 0,
+requests are balanced by tokens, not count. A worker's prefill tokens leave its load
+once its prefill completes (`local.rs` L472), so during a burst the workers that finish
+prefill sooner look lighter and attract more requests. Starting to route before every
+worker registers makes this worse (`--router-min-initial-workers` defaults to 0).
+
+**Fix:** the operator graphs set `--router-decode-active-request-weight` (one prompt's
+worth of blocks per active request; experimental in 1.4.0),
+`--router-min-initial-workers` equal to the number of routable workers, and
+`--router-replica-sync` for two frontends. The lab fell back to `round-robin`;
+`tests/test_production.py` fails if any base or production manifest uses round-robin.
+Confirm with [experiments/02-kv-router](../experiments/02-kv-router/).
+
+### Endpoint returns 503 "not ready" while every pod is Ready
+
+**Seen in:** after the 8K/128K study. The frontend logged `KeyValueStoreManager.watch
+failed ... channel closed` and removed all workers. A frontend restart re-registered
+the decode workers, but the prefill worker's etcd registration was gone ("Prefill router
+deactivated"); restarting the prefill worker restored service.
+
+**Cause:** the frontend's `/health` returns 200 even with zero registered workers and
+after the prefill router deactivates (`lib/llm/src/http/service/health.rs` L63-98), so
+Kubernetes saw nothing wrong. The lab used a single etcd and lease-based registration.
+
+**Fix:** production uses Kubernetes-API discovery (the operator default; no etcd).
+The frontend runs `deploy/base/common/frontend_probe.py`. Its readiness fails unless
+`/health` lists a `generate` instance for every required component (`backend`, plus
+`prefill` in PD mode). Its liveness fails once workers that were seen stay missing for
+more than 5 minutes, so the frontend restarts and re-watches discovery. The alert
+`DynamoPrefillWorkersMissing` fires when `router_worker_registered` shows decode
+workers but no prefill workers. In the lab, restart the frontend first, then any worker
+missing from `/health`.
+
+### Prefill pod host memory swings 104 → 308 GiB and is OOM-killed at 384 GiB
+
+**Seen in:** 8K/128K diagnostics. The prefill worker was OOM-killed 2 minutes 43
+seconds after the last measured run, while a 6-request warmup was running. A
+384-request burst then swung its anonymous memory between 104 and 308 GiB, settling
+at 201 GiB during decode. Flushing the KV cache did not release it. Decode workers
+stayed at 11–13 GiB.
+
+**Mitigation:** the prefill role has its own host-memory limit (448Gi, against the
+308 GiB peak), and `--max-running-requests 32` on prefill bounds how many requests hold
+staging memory at once. The alert `DynamoPrefillHostMemoryHigh` fires at 70% of the
+limit. The allocator responsible (NIXL/UCX staging vs SGLang) is not identified:
+`TODO(verify-upstream)`, profiled in experiment 04.
+
+### Token output pauses ~0.4 s every ~11 s on every stream of a worker
+
+**Seen in:** both topologies of the 8K/128K study, about 190 pauses per request, which
+set ITL p99.9 to about 500 ms. With `--gc-warning-threshold-secs 0.1`, SGLang logged 26
+generation-2 collections in about 300 s, each 0.34–0.45 s and scanning about 890K objects.
+GPU decode steps continued; the pause was on the output path.
+
+**Mitigation:** `--gc-threshold 7000 10 100` (applied by SGLang in the engine's main
+process, `entrypoints/engine.py` L793, L1351-1355) makes generation-2 collections about
+100× rarer. Setting `SERVING_GC_FREEZE_AFTER_S` enables a `sitecustomize` hook that runs
+`gc.collect(); gc.freeze()` once after warmup, as SGLang recommends; Dynamo 1.4.0 does
+not call SGLang's `freeze_gc` itself. Before/after ITL p99.9 is scheduled in experiment 04.
+
+### Every stream on a worker freezes ~37 s just before completing
+
+**Seen in:** all aggregated 8K/128K runs. When 128 sequences of about 139K tokens finish
+within a few seconds, every stream on that worker stops for about 37 s (the 40 s worst
+ITL). It never occurred on disaggregated decode workers, which run without a radix cache
+in SGLang PD mode. That points to the radix-tree insertion of finished sequences; it is
+not proven.
+
+**Mitigation:** for workloads without prefix reuse, add the Kustomize Component
+[`deploy/overlays/production/components/no-prefix-reuse`](../deploy/overlays/production/components/no-prefix-reuse/)
+to an aggregated overlay. It adds `--disable-radix-cache`. Keep the radix cache for
+chat and agent traffic, where prefix reuse is the main TTFT lever. Confirmation run:
+experiment 04.
+
+### A second benchmark driver overwrote a cache-flush log
+
+**Seen in:** 8K/128K aggregated run 1. The workers refused the second driver's flush
+because requests were active, so the measurement was safe, but its log replaced the
+first driver's. **Fix:** `benchmarks/driver_lock.py` gives every driver an exclusive lock
+per results directory, and `clear_cache.py` appends timestamped acknowledgements to
+`study-records/cache-flush-evidence.jsonl`. `tests/test_driver_lock.py` covers both.
+
+### First disaggregated requests after a restart take about 60 s
+
+NIXL connection setup between a new prefill/decode pair happens on the first
+transferred request. Send a short warmup before measuring; every benchmark driver does.
+
 ## DeepSeek V4 / SGLang stalls after shard loading on network storage
 
 The shard progress bar can reach 100% before GPU copies finish. On the H200

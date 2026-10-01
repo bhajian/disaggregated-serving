@@ -11,6 +11,7 @@ NAMESPACE = os.environ.get('BENCH_NAMESPACE', 'deepseek-v4-pro')
 os.environ['ETCD_ENDPOINTS'] = f'http://etcd.{NAMESPACE}.svc.cluster.local:2379'
 os.environ['DYN_TCP_RPC_HOST'] = socket.gethostbyname(socket.gethostname())
 from dynamo.runtime import DistributedRuntime
+from benchmarks.driver_lock import append_evidence
 
 
 async def main():
@@ -31,7 +32,10 @@ async def main():
                     responses = [r async for r in await client.direct({}, instance, annotated=False)]
                     assert len(responses) == 1, responses
                     result = responses[0]
-                    print(json.dumps({'component': component, 'instance': instance, 'response': result}), flush=True)
+                    entry = {'component': component, 'instance': instance, 'response': result,
+                             'run_label': os.environ.get('BENCH_RUN_LABEL', ''), 'namespace': NAMESPACE}
+                    append_evidence('study-records', entry)
+                    print(json.dumps(entry), flush=True)
                     if result['status'] == 'success':
                         break
                     if ('requests are active' not in result.get('message', '')

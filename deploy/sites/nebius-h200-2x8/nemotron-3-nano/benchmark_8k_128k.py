@@ -6,7 +6,6 @@ the defaults. Each run sends --concurrency requests at once (one closed-loop wav
 import os
 import argparse
 import datetime
-import fcntl
 import json
 import pathlib
 import subprocess
@@ -33,12 +32,12 @@ if min(args.repetitions, args.concurrency, args.output_tokens) < 1:
     parser.error('repetitions, concurrency and output tokens must be positive')
 logdir = pathlib.Path('study-records')
 logdir.mkdir(exist_ok=True)
-# A second driver would clear caches under a live run and overwrite its logs.
-lock = open(logdir / '.driver.lock', 'w')
+# One driver per results directory: a second one would flush caches under a live run.
+from benchmarks.driver_lock import DriverBusy, acquire, now  # noqa: E402
 try:
-    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-except BlockingIOError:
-    sys.exit('Another benchmark driver is running in this pod')
+    LOCK = acquire(logdir)
+except DriverBusy as exc:
+    sys.exit(str(exc))
 for repetition in range(1, args.repetitions + 1):
     label = f'{args.mode}-c{args.concurrency}-o{args.output_tokens}-{args.label}-{repetition}'
     start = time.time()
@@ -52,9 +51,10 @@ for repetition in range(1, args.repetitions + 1):
     }
     code = 1
     try:
-        with (logdir / f'{label}-cache-clear.log').open('w') as output:
+        with (logdir / f'{label}-cache-clear.log').open('a') as output:
+            output.write(f'# cache clear {now()}\n'); output.flush()
             subprocess.run([sys.executable, 'clear_cache.py', args.mode, '4'], stdout=output,
-                           stderr=subprocess.STDOUT, check=True, timeout=540)
+                           stderr=subprocess.STDOUT, check=True, timeout=540, env={**os.environ, 'BENCH_RUN_LABEL': label})
         command = [
             sys.executable, '-u', '-m', 'benchmarks.long_decode',
             '--base-url', f'http://frontend.{NAMESPACE}.svc.cluster.local:8000/v1',
