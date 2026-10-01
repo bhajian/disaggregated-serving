@@ -1,0 +1,26 @@
+{
+  "nvidia.com/v1alpha1/DynamoGraphDeployment": {
+    "deprecated": true,
+    "file": "dynamographdeployment_v1alpha1.schema.json.gz",
+    "served": true,
+    "source": "deploy/operator/config/crd/bases/nvidia.com_dynamographdeployments.yaml",
+    "source_sha256": "cb078c7bff9b3b751875411b466ee7369be7635ea8e8580c7a5123a1a48c38af",
+    "storage": true
+  },
+  "nvidia.com/v1beta1/DynamoGraphDeployment": {
+    "deprecated": false,
+    "file": "dynamographdeployment_v1beta1.schema.json.gz",
+    "served": true,
+    "source": "deploy/operator/config/crd/bases/nvidia.com_dynamographdeployments.yaml",
+    "source_sha256": "cb078c7bff9b3b751875411b466ee7369be7635ea8e8580c7a5123a1a48c38af",
+    "storage": false
+  },
+  "nvidia.com/v1beta1/DynamoGraphDeploymentRequest": {
+    "deprecated": false,
+    "file": "dynamographdeploymentrequest_v1beta1.schema.json.gz",
+    "served": true,
+    "source": "deploy/operator/config/crd/bases/nvidia.com_dynamographdeploymentrequests.yaml",
+    "source_sha256": "9fb1faa69d2f1cf5b1e4b2dec45e55b91f08c53687e241e32515cc1639eefd02",
+    "storage": true
+  }
+}
