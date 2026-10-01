@@ -4,7 +4,7 @@
 
 **Goal:** the same prefill/decode split as [02](../02-dynamo-disagg-vllm/), with **SGLang** as the engine. Dynamo's frontend, router and discovery are unchanged. Only the workers and their transfer settings differ.
 
-![Disaggregated serving: prefill and decode pools with the KV cache moving between them over RDMA](../../../../assets/diagrams/agg-vs-disagg.svg)
+![Disaggregated serving: prefill and decode pools with the KV cache moving between them over RDMA](../../../../assets/diagrams/png/agg-vs-disagg.png)
 
 With SGLang, decode first contacts the prefill worker's **bootstrap server on port 8998**, then prefill sends the KV cache through SGLang's NIXL transfer engine.
 

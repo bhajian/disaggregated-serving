@@ -23,14 +23,14 @@ This repository is a reference architecture: readers must be able to understand 
 
 ## Editing diagrams
 
-Diagrams are SVG files generated from [assets/diagrams/build_diagrams.py](assets/diagrams/build_diagrams.py), so they share one palette and type scale. Edit the script, run it, and review the result in a browser. Keep one meaning per colour: rose is reserved for KV-cache movement. See [assets/diagrams/README.md](assets/diagrams/README.md).
+Diagrams are PNG files (with editable draw.io sources) generated from [assets/diagrams/src/diagrams.py](assets/diagrams/src/diagrams.py) by [tools/render_diagrams.py](tools/render_diagrams.py). Edit the spec, never the PNG.
 
 ## Checks before a pull request
 
 ```bash
 python -m pytest -q                 # offline: manifests, generator, metrics, notebook
 python tools/validate.py            # upstream Kubernetes / Compose / InferencePool schemas
-python assets/diagrams/build_diagrams.py && git diff --stat assets/diagrams
+python tools/render_diagrams.py && git diff --stat assets/diagrams
 ```
 
 ## Writing style

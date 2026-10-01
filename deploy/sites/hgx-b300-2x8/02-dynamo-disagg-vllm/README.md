@@ -4,7 +4,7 @@
 
 **Goal:** split prefill and decode onto separate 8-GPU pools on separate nodes, move the KV cache between them over InfiniBand with NIXL, and measure the difference against the [aggregated baseline](../01-aggregated/).
 
-![Life of a request in disaggregated serving: the router sends the prompt to prefill, prefill computes the KV cache, decode reads the KV blocks over RDMA and streams tokens](../../../../assets/diagrams/disagg-request-flow.svg)
+![Life of a request in disaggregated serving: the router sends the prompt to prefill, prefill computes the KV cache, decode reads the KV blocks over RDMA and streams tokens](../../../../assets/diagrams/png/agg-vs-disagg.png)
 
 New to prefill, decode, NIXL or GPUDirect RDMA? Read [blueprint 03 · Disaggregation pattern](../../../../blueprint/03-disaggregation-pattern.md) and [07 · Hardware, network and storage](../../../../blueprint/07-hardware-network-storage.md) first.
 

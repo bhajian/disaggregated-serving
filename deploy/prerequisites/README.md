@@ -4,7 +4,7 @@
 
 Complete this page once. Every deployment track assumes it is done.
 
-![Reference deployment topology](../../assets/diagrams/reference-topology.svg)
+![Reference deployment topology](../../assets/diagrams/png/b300-reference.png)
 
 **Contents**
 

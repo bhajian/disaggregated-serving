@@ -21,7 +21,7 @@ Figures are nominal vendor values, and announced parts may change. Check current
 
 ## Scale-up and scale-out
 
-![Scale-out servers vs scale-up racks](../assets/diagrams/hardware-scaling.svg)
+![Scale-out servers vs scale-up racks](../assets/diagrams/png/h200-site.png)
 
 - **Scale-up fabric (NVLink / NVSwitch):** all-to-all GPU bandwidth inside a server (8 GPUs) or a rack (72 GPUs on NVL72). This is where tensor parallelism and wide expert parallelism belong.
 - **Scale-out fabric (InfiniBand or RoCE Ethernet):** connects servers and racks, usually with **one NIC per GPU** at 400–800 Gb/s (ConnectX-7 / ConnectX-8 SuperNICs, Quantum-X800 InfiniBand, Spectrum-X Ethernet). This is where P/D transfers between servers, pipeline parallelism and data-parallel replicas go.
@@ -35,7 +35,7 @@ Figures are nominal vendor values, and announced parts may change. Check current
 
 ## The KV data path: GPUDirect RDMA over rails
 
-![How the KV cache crosses nodes](../assets/diagrams/kv-transfer-datapath.svg)
+![How the KV cache crosses nodes](../assets/diagrams/png/kv-transfer-datapath.png)
 
 - **Sharded KV.** With TP8, GPU *i* holds shard *i* of every layer's KV cache.
 - **Rail-optimized.** GPU *i* shares a PCIe switch with NIC *i*, and NIC *i* on every server connects to the same leaf ("rail"). Shard *i* crosses on rail *i*, so all eight rails work in parallel.
@@ -55,7 +55,7 @@ Figures are nominal vendor values, and announced parts may change. Check current
 
 ## Reference hardware in this repository
 
-![Reference deployment topology](../assets/diagrams/reference-topology.svg)
+![Reference deployment topology](../assets/diagrams/png/b300-reference.png)
 
 Two HGX B300 servers (8 × B300, 288 GB each) with eight 800 Gb/s InfiniBand rails per node (`mlx5_4` … `mlx5_11`), a private Ethernet control network, and local NVMe for weights. [deploy/prerequisites](../deploy/prerequisites/) shows how to verify each part.
 

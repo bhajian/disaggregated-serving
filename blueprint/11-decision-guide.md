@@ -4,7 +4,7 @@
 
 Choose the **topology** from the workload and the fabric first. The **software** comes second, because topology decisions are the expensive ones to reverse.
 
-![Choosing a serving design: decision tree from workload to topology, then control plane and engine](../assets/diagrams/decision-flow.svg)
+![Choosing a serving design: decision tree from workload to topology, then control plane and engine](../assets/diagrams/png/decision-flow.png)
 
 ## Questions, in order
 

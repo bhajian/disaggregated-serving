@@ -17,7 +17,7 @@ Disaggregated serving splits each request's two phases, **prefill** and **decode
 
 ## Aggregated vs disaggregated
 
-![Aggregated vs disaggregated serving](../assets/diagrams/agg-vs-disagg.svg)
+![Aggregated vs disaggregated serving](../assets/diagrams/png/agg-vs-disagg.png)
 
 In **aggregated** serving, every replica runs both phases in one batch on one set of GPUs. When a long prompt arrives, its prefill occupies the GPUs and every in-flight decode waits. Users mid-stream see a stall. Chunked prefill softens this but cannot remove it.
 
@@ -25,7 +25,6 @@ In **disaggregated** serving, prefill workers compute the KV cache and hand it t
 
 ## It is the microservices pattern
 
-![Disaggregated serving is the microservices pattern for inference](../assets/diagrams/microservices-analogy.svg)
 
 | Microservices concept | Disaggregated-serving equivalent |
 |---|---|
@@ -44,7 +43,7 @@ In **disaggregated** serving, prefill workers compute the KV cache and hand it t
 
 ## Life of a request
 
-![Life of a request in disaggregated serving](../assets/diagrams/disagg-request-flow.svg)
+![Life of a request in disaggregated serving](../assets/diagrams/png/agg-vs-disagg.png)
 
 1. The frontend tokenizes the request, applies the chat template and picks a prefill and a decode worker by KV overlap and load.
 2. The prefill worker computes the KV cache for the whole prompt.

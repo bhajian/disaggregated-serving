@@ -4,7 +4,7 @@
 
 A vendor-neutral architecture guide for serving large language models in production. It describes the **serving stack** layer by layer, the design principles that hold across implementations, and how to choose between today's options: **llm-d or NVIDIA Dynamo** as the control plane, **TensorRT-LLM, vLLM or SGLang** as the engine, across **dense, MoE, MLA and hybrid** models on **Hopper, Blackwell and Rubin** hardware.
 
-![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected directly to GPUs](../assets/diagrams/serving-stack.svg)
+![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected directly to GPUs](../assets/diagrams/png/serving-stack.png)
 
 ## Serving as an operating system
 

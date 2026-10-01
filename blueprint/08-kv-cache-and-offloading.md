@@ -32,7 +32,7 @@ Illustrative numbers, using the dense 70B-class example (about 160 KiB of KV per
 
 ## The hierarchy
 
-![KV cache as virtual memory: G1 GPU HBM, G2 host DRAM, G3 local NVMe, G4 shared storage; GPUDirect Storage removes the CPU bounce buffer](../assets/diagrams/kv-cache-hierarchy.svg)
+![KV cache as virtual memory: G1 GPU HBM, G2 host DRAM, G3 local NVMe, G4 shared storage; GPUDirect Storage removes the CPU bounce buffer](../assets/diagrams/png/kv-cache-hierarchy.png)
 
 | Tier | Capacity | Bandwidth | Scope | Typical content |
 |---|---|---|---|---|

@@ -4,7 +4,7 @@
 
 [llm-d](https://github.com/llm-d/llm-d) is the Kubernetes-native option for the serving control plane. It uses the same engines and the same NIXL KV transfer as Dynamo, but routes through the Kubernetes Gateway API Inference Extension and coordinates prefill/decode in a sidecar next to the decode engine. Use this track to deploy llm-d, or to compare the **control-plane layer** on identical hardware. The blueprint compares the two in [04 · Orchestration layer](../../../../blueprint/04-orchestration-layer.md).
 
-![Dynamo vs llm-d: in Dynamo the frontend and KV router coordinate prefill and decode; in llm-d an Envoy gateway asks the endpoint picker for a pod and a sidecar on the decode pod coordinates prefill](../../../../assets/diagrams/orchestrators.svg)
+![Dynamo vs llm-d: in Dynamo the frontend and KV router coordinate prefill and decode; in llm-d an Envoy gateway asks the endpoint picker for a pod and a sidecar on the decode pod coordinates prefill](../../../../assets/diagrams/png/production-topology.png)
 
 | | Dynamo (02/03) | llm-d (this track) |
 |---|---|---|

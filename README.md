@@ -11,13 +11,12 @@ This repository describes the LLM serving stack as an **operating system for inf
 
 It turns that architecture into **hand-written, runnable deployments** of aggregated and disaggregated serving, plus a benchmark kit that measures every option the same way.
 
-![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected to GPUs through GPUDirect Storage](assets/diagrams/serving-stack.svg)
+![The LLM serving stack: applications, access layer, serving control plane (Dynamo or llm-d), inference engines (TensorRT-LLM, vLLM, SGLang), model architectures, data movement, and hardware, with storage connected to GPUs through GPUDirect Storage](assets/diagrams/png/serving-stack.png)
 
 ## Why disaggregated serving
 
 Prefill is compute-bound and decode is memory-bandwidth-bound. Running both on the same GPUs makes them interfere with each other and forces one scaling unit. **Disaggregated serving splits them into services that scale independently. It is the microservices pattern applied to inference.** There is one difference: prefill hands decode *gigabytes* of KV cache per request, so the GPU fabric becomes part of the architecture.
 
-![Disaggregated serving is the microservices pattern for inference](assets/diagrams/microservices-analogy.svg)
 
 ---
 

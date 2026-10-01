@@ -4,7 +4,7 @@
 
 **Goal:** deploy the simplest production-shaped topology, where every worker serves complete requests, and measure it. This is the **baseline** for every disaggregated track.
 
-![Aggregated vs disaggregated serving: aggregated replicas run prefill and decode on the same GPUs, so long prefills stall decoding; disaggregation separates the phases and adds a KV-cache transfer](../../../../assets/diagrams/agg-vs-disagg.svg)
+![Aggregated vs disaggregated serving: aggregated replicas run prefill and decode on the same GPUs, so long prefills stall decoding; disaggregation separates the phases and adds a KV-cache transfer](../../../../assets/diagrams/png/agg-vs-disagg.png)
 
 This track deploys the **left** half of the picture. The blueprint explains the pattern in [03 · Disaggregation pattern](../../../../blueprint/03-disaggregation-pattern.md).
 

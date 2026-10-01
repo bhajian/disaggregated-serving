@@ -18,7 +18,7 @@ The serving control plane is the scheduler of the serving OS. It sits between th
 
 ## The two leading open implementations
 
-![Dynamo vs llm-d: where routing and P/D coordination live](../assets/diagrams/orchestrators.svg)
+![Dynamo vs llm-d: where routing and P/D coordination live](../assets/diagrams/png/production-topology.png)
 
 Both use the same engines and the same NIXL KV transfer underneath. They differ in **where decisions live** and **what platform they assume**.
 

@@ -4,7 +4,7 @@
 
 Every production LLM platform, whatever its vendor, is built from the same seven layers. Naming them makes choices explicit, and it makes clear which choices constrain each other.
 
-![The LLM serving stack](../assets/diagrams/serving-stack.svg)
+![The LLM serving stack](../assets/diagrams/png/serving-stack.png)
 
 ## The layers
 

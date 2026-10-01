@@ -16,7 +16,7 @@ Plain Kubernetes manifests: Deployments, Services and one ConfigMap. No operator
 | [kustomization.yaml](kustomization.yaml) | Lists the files above for `kubectl apply -k` | n/a |
 | [deployment.json](deployment.json) | Run record for the benchmark. Not a Kubernetes object. | n/a |
 
-![Reference topology: Node A runs etcd, the frontend and a worker; Node B runs a worker; Ethernet carries control traffic and InfiniBand carries KV cache](../../../../../assets/diagrams/reference-topology.svg)
+![Reference topology: Node A runs etcd, the frontend and a worker; Node B runs a worker; Ethernet carries control traffic and InfiniBand carries KV cache](../../../../../assets/diagrams/png/b300-reference.png)
 
 **Design choices worth knowing**
 

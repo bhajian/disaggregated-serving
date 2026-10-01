@@ -4,7 +4,7 @@
 
 The model is the program the serving OS runs, and its architecture sets the resource profile. Two models of the same parameter count can need completely different serving designs.
 
-![Model architecture decides the serving design](../assets/diagrams/model-architectures.svg)
+![Model architecture decides the serving design](../assets/diagrams/png/pd-parallelism.png)
 
 ## The three numbers that matter
 

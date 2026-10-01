@@ -4,7 +4,7 @@
 
 Runnable implementations of the [blueprint](../blueprint/). Each track is one combination of **orchestrator × engine × topology**, delivered as hand-written, commented files for **Docker Compose** and **Kubernetes**. Each track folder has a step-by-step guide covering deploy, verify, see results and clean up.
 
-![Reference topology: two 8 × B300 servers; Node A runs etcd, the frontend and a GPU worker, Node B runs a GPU worker; Ethernet carries control traffic, InfiniBand carries the KV cache](../assets/diagrams/reference-topology.svg)
+![Reference topology: two 8 × B300 servers; Node A runs etcd, the frontend and a GPU worker, Node B runs a GPU worker; Ethernet carries control traffic, InfiniBand carries the KV cache](../assets/diagrams/png/b300-reference.png)
 
 ## Deployment matrix
 
