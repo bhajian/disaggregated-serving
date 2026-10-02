@@ -39,3 +39,9 @@ def test_every_embedded_image_exists_and_no_svg_remains():
                 missing.append(f'{f}: {target}')
     assert not missing, missing
     assert not list((ROOT / 'assets/diagrams').glob('*.svg'))
+
+
+@pytest.mark.parametrize('name', sorted(specs()))
+def test_no_text_overflows_or_overlaps(name, tmp_path):
+    from tools.render_diagrams import draw_png
+    assert draw_png(specs()[name], tmp_path / f'{name}.png') == []

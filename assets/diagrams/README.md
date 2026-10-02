@@ -15,8 +15,13 @@ python tools/render_diagrams.py serving-stack   # one diagram
 ```
 
 Style: white background, neutral greys, one accent (NVIDIA green `#76B900`) for the
-parts Dynamo provides or the data path being highlighted, one typeface (DejaVu Sans,
-bundled with matplotlib, so renders are identical everywhere), no gradients or shadows.
+parts Dynamo provides or the data path being highlighted, one typeface (Inter, bundled in
+[fonts/](fonts/) under the SIL Open Font License, so renders are identical everywhere), no
+gradients or shadows. Text is sized to stay legible when a diagram is shown at README width
+(about 60% of its native size): 14 px minimum on a 1400 px canvas.
+
+The renderer refuses to finish if any text overflows its box or the canvas, crosses into a
+box it does not belong to, or overlaps other text, so a layout edit cannot clip a label.
 Diagrams quote measured numbers only from `results/`; anything not yet run is labelled
 UNVALIDATED.
 
