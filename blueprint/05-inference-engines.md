@@ -18,7 +18,7 @@ The engine owns the GPUs of one worker and turns a stream of requests into batch
 | **Paged KV cache** | Allocate KV in fixed-size blocks, like memory pages, so memory is not fragmented and blocks can be shared |
 | **Prefix caching** | Keep KV blocks of finished requests, so a repeated prefix skips prefill |
 | **Chunked prefill** | Split long prompts into chunks that interleave with decode steps |
-| **Speculative decoding** | Draft several tokens cheaply (MTP heads, EAGLE, n-gram) and verify them in one pass |
+| **Speculative decoding** | Draft several tokens cheaply (MTP heads, EAGLE, n-gram, block-parallel drafters such as DSpark) and verify them in one pass ([chapter 13](13-speculative-decoding.md)) |
 | **Quantization** | FP8 and FP4 (NVFP4 on Blackwell) weights and KV cache for memory and bandwidth |
 | **Parallelism** | Tensor, pipeline, expert, data-parallel attention, context parallelism ([chapter 09](09-parallelism-and-sizing.md)) |
 | **Disaggregation hooks** | Prefill-only and decode-only modes with a KV transfer connector |
@@ -46,7 +46,7 @@ An engine built around **RadixAttention** (a radix-tree prefix cache) and an eff
 | P/D transfer | Cache transceiver: UCX, NIXL | `NixlConnector`; LMCache and others | NIXL, Mooncake |
 | Parallelism | TP, PP, EP (wide EP), attention DP | TP, PP, EP, DP attention | TP, EP (wide EP), DP attention, PP |
 | Low precision | FP8, NVFP4 (strongest NVIDIA kernel coverage) | FP8, NVFP4, INT4/INT8 schemes | FP8, NVFP4, INT schemes |
-| Speculative decoding | MTP, EAGLE, draft models | EAGLE, MTP, n-gram, draft models | EAGLE, MTP, n-gram |
+| Speculative decoding | MTP, EAGLE-3, n-gram, draft models | EAGLE-3, MTP, n-gram, DSpark, draft models | EAGLE/EAGLE-3, NEXTN (MTP), n-gram, DSpark |
 | Hardware | NVIDIA | NVIDIA plus other accelerators | NVIDIA plus other accelerators |
 | Dynamo | ✓ | ✓ | ✓ |
 | llm-d | not a documented path | ✓ primary | ✓ guide |

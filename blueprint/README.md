@@ -33,6 +33,9 @@ An architecture guide for serving large language models in production. It descri
 | 10 | [Production operations](10-production-operations.md) | What changes from PoC to production: SLOs, observability, security? |
 | 11 | [Decision guide](11-decision-guide.md) | Given my model, hardware and traffic, which stack should I deploy? |
 | 12 | [Results and reconciliation](12-results-and-reconciliation.md) | What did the H200 studies measure, and how do they square with NVIDIA's published Dynamo results? |
+| 13 | [Speculative decoding](13-speculative-decoding.md) | When does drafting and verifying tokens speed up decode, and when does it cost throughput? |
+| 14 | [What makes frontier MoE models fast: Kimi K3](14-frontier-moe-techniques.md) | Which architecture, kernel, parallelism and serving levers make a 2.8T model decode at hundreds of tokens/s? |
+| 15 | [Workload-driven design](15-workload-driven-design.md) | Given the model class and the workload (chat, RAG, agents, coding, reasoning), aggregated or disaggregated, at what ratio, and which advanced methods? |
 
 ## How the blueprint relates to the rest of the repository
 

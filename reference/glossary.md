@@ -40,6 +40,13 @@ Measurement definitions match [benchmarks/README.md](../benchmarks/README.md).
 | **TP / EP / DP attention** | Tensor parallelism (each layer split across GPUs); expert parallelism (MoE experts spread across GPUs); data-parallel attention (each rank holds whole sequences' attention state, avoiding KV duplication for MLA). |
 | **MLA** | Multi-head latent attention (DeepSeek), which stores a compressed latent KV per token. |
 | **MTP** | Multi-token prediction: a draft head proposes tokens that the model verifies, a form of speculative decoding. |
+| **Speculative decoding** | A drafter proposes *k* tokens; the target model verifies them in one pass and keeps the longest accepted prefix. Lossless under standard rejection sampling ([chapter 13](../blueprint/13-speculative-decoding.md)). |
+| **Acceptance length** | Mean tokens committed per verify step, including the bonus token. SGLang reports it as `sglang:spec_accept_length`. |
+| **EAGLE / NextN / DSpark** | Drafters: EAGLE uses the target's hidden states; NextN is DeepSeek's checkpoint-native MTP head; DSpark drafts a whole block in one parallel pass (Kimi K3). |
+| **KDA** | Kimi Delta Attention: a linear-attention layer with a fixed-size recurrent state per sequence, used for 69 of Kimi K3's 93 layers. |
+| **DCP** | Decode context parallelism: shards a sequence's KV by position across decode ranks instead of replicating latent KV on every TP rank. |
+| ***R*** (prefill-to-decode work ratio) | The P:D ratio a workload needs: ISL × (1 − reuse) / OSL × *Sd* / (*Tp* × TPOT) ([chapter 15](../blueprint/15-workload-driven-design.md)). |
+| **Transfer intensity** | KV bytes moved by P/D per unit of prefill compute saved. Low for MLA, hybrid and large MoE models; high for small dense models. |
 
 ## Dynamo and Kubernetes
 

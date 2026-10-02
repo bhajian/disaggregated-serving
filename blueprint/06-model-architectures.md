@@ -60,7 +60,7 @@ Vision-language and audio models add an **encoder** stage before prefill. It is 
 | Sliding window | window (local) + context (global) | window + global KV | TP | per-layer eviction logic |
 | Multimodal | per its text backbone | + encoder outputs | separate encode pool | media preprocessing cost |
 
-**Speculative decoding** (MTP heads, EAGLE draft models) sits on top of any family. It trades extra decode compute for fewer steps, and it changes decode-pool sizing.
+**Speculative decoding** (MTP heads, EAGLE draft models) sits on top of any family. It trades extra decode compute for fewer steps, and it changes decode-pool sizing ([chapter 13](13-speculative-decoding.md)). Hybrid linear-attention MoE such as Kimi K3 combines several of these families; [chapter 14](14-frontier-moe-techniques.md) takes it apart lever by lever.
 
 ## The reference model
 

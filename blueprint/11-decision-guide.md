@@ -40,6 +40,11 @@ measured counter-examples are in [chapter 12](12-results-and-reconciliation.md))
 6. **The fabric makes the handoff cheap.** GPUDirect RDMA over InfiniBand or RoCE, or an
    NVLink domain. Over TCP, the transfer can cost more than it saves.
 
+A quantitative version of criteria 1 and 3 is the prefill-to-decode work ratio *R* and the
+minimum worker count to express it, with transfer intensity by model class
+([chapter 15](15-workload-driven-design.md)). Disaggregation is a candidate when
+0.15 ≲ *R* ≲ 7 and the fleet has at least 1 + max(*R*, 1/*R*) workers.
+
 ![When disaggregation wins](../assets/diagrams/png/when-disaggregation-wins.png)
 
 ## Questions, in order
@@ -57,6 +62,9 @@ measured counter-examples are in [chapter 12](12-results-and-reconciliation.md))
 5. **Which engine?** From model support, quantization and features (MTP, DP attention, KV
    transfer backend), measured on your hardware ([chapter 05](05-inference-engines.md),
    [engine flags](../reference/engine-flags.md)).
+   Then decide on speculative decoding from the workload's acceptance and the decode
+   concurrency ([chapter 13](13-speculative-decoding.md)), and on the other advanced methods
+   from the workload matrix ([chapter 15](15-workload-driven-design.md#5-which-advanced-methods-for-which-workload)).
 6. **Which control plane?** The Dynamo operator (graphs, Planner, KV router) or llm-d
    (Gateway API Inference Extension) ([chapter 04](04-orchestration-layer.md)).
 7. **Does KV need tiers?** Yes, if reusable prefixes exceed GPU memory ([chapter 08](08-kv-cache-and-offloading.md)).
@@ -68,6 +76,9 @@ measured counter-examples are in [chapter 12](12-results-and-reconciliation.md))
 | **Chat or agents on 2 × HGX H200**, any SLO | Aggregated replicas, KV-aware router | SGLang | [nemotron-3-nano aggregated](../deploy/overlays/production/nemotron-3-nano-h200/aggregated/) | Topology validated (results/); operator path UNVALIDATED |
 | **Mixed ISL/OSL with a tight p99 ITL SLO**, 4+ nodes or TP2/TP4 workers, InfiniBand | Disaggregated, Planner-managed P:D | SGLang or vLLM | [nemotron-3-nano disaggregated](../deploy/overlays/production/nemotron-3-nano-h200/disaggregated/) | UNVALIDATED: [experiments/01](../experiments/01-pd-ratio-sweep/), [03](../experiments/03-planner-demo/) |
 | **Large MoE / MLA** (DeepSeek-, Kimi-class) | Disaggregated; decode with wide EP + DP attention; MTP | SGLang or TensorRT-LLM | [experiments/05](../experiments/05-deepseek-layout/) | UNVALIDATED |
+| **Frontier hybrid MoE** (Kimi K3, 2.8T MXFP4) | Aggregated TP8 per B300 node for bring-up; P/D with DSpark speculation at scale, ideally on NVL72 | vLLM or SGLang (K3 patched images) | [chapter 14](14-frontier-moe-techniques.md), `kimi-k3` in [configs/models.yaml](../configs/models.yaml) | UNVALIDATED |
+| **Agentic coding** (long, highly reused context; long diffs) | KV-aware routing and prefix caching first; P/D at scale; speculative decoding on | SGLang or vLLM | [chapter 15](15-workload-driven-design.md) | Design guidance |
+| **Reasoning / thinking models** (short prompt, 8–64K output) | Aggregated; speculative decoding on; decode KV capacity (FP8 KV, DCP) | any | [chapter 13](13-speculative-decoding.md) | Design guidance |
 | **Very long prompts, short answers** (256K RAG) | Aggregated; larger prefill chunks | SGLang | [deepseek-v4-pro aggregated](../deploy/overlays/production/deepseek-v4-pro-h200/aggregated/) | Validated on H200 (lab path) |
 | **Multi-turn heavy reuse** | Any of the above + KV tiers | engine with an offload connector | [chapter 08](08-kv-cache-and-offloading.md) | Roadmap |
 | **Kubernetes platform standardizing on Gateway API Inference Extension** | Per workload | vLLM | [B300 track 04](../deploy/sites/hgx-b300-2x8/04-llm-d-disagg/) | UNVALIDATED |
@@ -80,6 +91,9 @@ measured counter-examples are in [chapter 12](12-results-and-reconciliation.md))
 | Disaggregating without RDMA | KV transfer over TCP can exceed prefill time | Aggregated with KV-aware routing until the fabric is ready |
 | Round-robin load balancing across LLM workers | Throws away prefix-cache locality | KV-aware routing with active-request weighting ([troubleshooting](../reference/troubleshooting.md#kv-router-imbalance-152--120--120--120-requests-per-worker)) |
 | Sizing a small model at TP8 because the node has 8 GPUs | All-reduce cost without benefit; no room to tune P:D | TP from weights and KV; more, smaller workers |
+| Enabling speculative decoding with a fixed draft length at peak load | Verification compute crowds out other sequences; throughput drops | Load-adaptive draft length, or off above ~16–32 sequences per decode instance ([chapter 13](13-speculative-decoding.md)) |
+| Benchmarking speculation on random or forced-length text | Acceptance is understated (random) or inflated (repetition after EOS) | Natural-length runs on real prompts at the production temperature |
+| Deciding P/D before enabling KV-aware routing | A 90% prefix hit rate can move the workload out of the disaggregation window | Measure *R* with routing on ([chapter 15](15-workload-driven-design.md)) |
 | Judging by tokens/s alone | A configuration can deliver more tokens/s while missing the SLO | Goodput at p99 TTFT and ITL |
 | Mixing images or revisions between prefill and decode | Silent KV corruption or crashes | Pin by digest and revision; verify at startup (init container) |
 | A single latency number on the dashboard | Hides which pool to scale | TTFT, ITL, queue depth and transfer metrics per pool ([deploy/observability](../deploy/observability/)) |

@@ -64,7 +64,7 @@ passed for Nemotron 3 Nano (see each study's report).
 | --- | --- | --- |
 | Reproduce the measurements | Lab manifests exactly as measured ([deploy/sites](deploy/sites/)), drivers, datasets, notebooks, raw-result archives | Hardware and cluster access |
 | Run in production | DynamoGraphDeployments ([deploy/base](deploy/base/)); production overlay with Gateway API + Envoy TLS/OIDC/rate limits, NetworkPolicies, RDMA via device plugin, Planner, KV router, two frontends ([deploy/overlays/production](deploy/overlays/production/)); operator install values ([deploy/operator](deploy/operator/)); observability ([deploy/observability](deploy/observability/)) — **UNVALIDATED** | Identity provider, DNS and certificates, storage class, SLO targets, capacity |
-| Decide | Blueprint chapters 01–12, decision guide, engine-flag review | Your traffic profile and the final call |
+| Decide | Blueprint chapters 01–15, decision guide, workload-driven design matrix, engine-flag review | Your traffic profile and the final call |
 | Measure | Open-loop load generator with goodput at SLO, sweeps, AIPerf-compatible export ([benchmarks](benchmarks/)) | Running it on your traffic |
 
 ## Deploy
@@ -110,6 +110,8 @@ Only configurations with recorded results are listed. Everything else is in
 | 04 | [Orchestration: Dynamo and llm-d](blueprint/04-orchestration-layer.md) | 10 | [Production operations](blueprint/10-production-operations.md) |
 | 05 | [Inference engines](blueprint/05-inference-engines.md) | 11 | [Decision guide](blueprint/11-decision-guide.md) |
 | 06 | [Model architectures](blueprint/06-model-architectures.md) | 12 | [Results and reconciliation](blueprint/12-results-and-reconciliation.md) |
+| 13 | [Speculative decoding](blueprint/13-speculative-decoding.md) | 14 | [Frontier MoE techniques: Kimi K3](blueprint/14-frontier-moe-techniques.md) |
+| 15 | [Workload-driven design](blueprint/15-workload-driven-design.md) | | |
 
 Reference: [glossary](reference/glossary.md) · [engine flags](reference/engine-flags.md) ·
 [troubleshooting](reference/troubleshooting.md) · [upstream verification](reference/upstream-verification.md) ·
@@ -155,7 +157,7 @@ Sources and verification: [reference/sources.md](reference/sources.md),
 
 | Path | Contents |
 | --- | --- |
-| [blueprint/](blueprint/) | Architecture chapters 01–12 |
+| [blueprint/](blueprint/) | Architecture chapters 01–15 |
 | [deploy/](deploy/) | `base/` (Dynamo graphs), `overlays/` (lab, production), `operator/`, `observability/`, `sites/` (H200 validated, B300 reference), `legacy-compose/` |
 | [benchmarks/](benchmarks/) | Load generators, metrics, sweeps and methodology |
 | [experiments/](experiments/) | Prepared, not yet run, cluster experiments |

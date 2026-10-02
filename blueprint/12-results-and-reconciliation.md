@@ -107,4 +107,4 @@ robust p99 latency. See each study's report for its full limits.
 
 ---
 
-**Back to:** [Blueprint index](README.md) · **Decide:** [chapter 11](11-decision-guide.md)
+**Next:** [13 · Speculative decoding](13-speculative-decoding.md) · **Back to:** [Blueprint index](README.md) · **Decide:** [chapter 11](11-decision-guide.md)

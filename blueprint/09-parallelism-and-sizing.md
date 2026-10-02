@@ -48,7 +48,11 @@ model with TP1–TP4 workers, chosen so the P:D ratio can follow the traffic
 
 *Design example (MLA).* For DeepSeek-class MLA models, use DP attention with wide EP on
 decode instead of TP, so each rank holds whole sequences' latent KV and experts are spread
-across the GPUs. Add MTP as a decode-side lever ([chapter 06](06-model-architectures.md)).
+across the GPUs. Add MTP as a decode-side lever ([chapter 06](06-model-architectures.md)), and decode context
+parallelism (DCP) when latent KV capacity limits concurrency ([chapter 14](14-frontier-moe-techniques.md)).
+Speculative decoding lowers TPOT and therefore *L*, so re-derive N_D with it enabled
+([chapter 13](13-speculative-decoding.md)). How the resulting P:D ratio varies by workload is in
+[chapter 15](15-workload-driven-design.md).
 
 ## Sizing the pools from SLOs
 

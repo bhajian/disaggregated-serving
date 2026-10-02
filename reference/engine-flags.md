@@ -30,3 +30,12 @@ speculative algorithm for DeepSeek V4 (`arg_groups/deepseek_v4_hook.py`). It shi
 --speculative-eagle-topk 1`, using the checkpoint's NextN head. MTP mainly lowers TPOT at
 low to moderate concurrency, a decode-side lever. It has not been run here
 (experiments/05).
+
+## Speculative decoding (DSpark) for Kimi K3
+
+Published, not run here. NVIDIA's Dynamo K3 recipe enables DSpark on vLLM with
+`--speculative-config '{"method":"dspark","model":"Inferact/Kimi-K3-DSpark","num_speculative_tokens":7}'`.
+SGLang uses `--speculative-algorithm DSPARK --speculative-draft-model-path RadixArk/Kimi-K3-DSpark
+--speculative-dspark-block-size 7`. The repository's `kimi-k3` profile keeps speculation off
+for first bring-up. Reduce the draft length as decode concurrency rises
+([chapter 13](../blueprint/13-speculative-decoding.md#why-the-gain-disappears-at-high-concurrency)).
