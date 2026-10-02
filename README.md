@@ -1,14 +1,36 @@
-# LLM Inference Blueprint: NVIDIA Dynamo on Kubernetes
+# LLM Inference Blueprint
 
-A reference architecture, deployment kit and benchmark methodology for serving large
-language models with NVIDIA Dynamo. It covers aggregated and disaggregated (prefill/decode)
-serving, SGLang and vLLM engines, and operator-managed graphs on Kubernetes. Every
-measured number in this repository comes from a recorded run in [results/](results/), with
-pinned images, request hashes and cache-reset evidence. Everything not yet run is marked
-**UNVALIDATED**.
+A vendor-neutral reference architecture, deployment kit and benchmark methodology for
+serving large language models. It treats the serving stack as a **supercomputer for
+inference** in layers, where every layer is a choice and the choices must fit together:
+
+- **Serving control plane:** NVIDIA Dynamo or llm-d
+- **Inference engines:** SGLang, vLLM or TensorRT-LLM
+- **Model architectures:** dense, MoE, MLA, hybrid Mamba and sliding window
+- **Data movement and memory:** NIXL, NCCL, UCX, GPUDirect RDMA and Storage, KV tiering
+- **Hardware:** Hopper, Blackwell and Rubin, scale-out HGX servers or scale-up NVL72 racks
+
+It covers aggregated and disaggregated (prefill/decode) serving. Every measured number
+comes from a recorded run in [results/](results/), with pinned images, request hashes and
+cache-reset evidence. The measured path today is **Dynamo 1.4.0 + SGLang on 2 × HGX H200**.
+llm-d, vLLM and the B300 tracks are reference manifests, and TensorRT-LLM is on the
+[roadmap](ROADMAP.md). Everything not yet run is marked **UNVALIDATED**.
 
 **Audience:** platform and ML infrastructure teams sizing and operating LLM inference on
-NVIDIA HGX systems.
+NVIDIA GPUs.
+
+![The LLM serving stack, layer by layer, with what is validated, reference and roadmap](assets/diagrams/png/serving-stack.png)
+
+### Stack coverage
+
+| Layer | Option | Status in this repository |
+| --- | --- | --- |
+| Control plane | NVIDIA Dynamo 1.4.0 | Validated on H200 (lab manifests); operator-managed graphs and production overlay UNVALIDATED |
+| Control plane | llm-d | Reference manifests for B300 ([04-llm-d-disagg](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/)), UNVALIDATED |
+| Engine | SGLang 0.5.16 | Validated on H200 |
+| Engine | vLLM 0.26.0 | Reference tracks for B300 ([02](deploy/sites/hgx-b300-2x8/02-dynamo-disagg-vllm/), [04](deploy/sites/hgx-b300-2x8/04-llm-d-disagg/)), UNVALIDATED |
+| Engine | TensorRT-LLM | [Roadmap](ROADMAP.md) |
+| Hardware | HGX H200 / HGX B300 / NVL72 | Validated / reference / roadmap |
 
 ## Validated results: 2 × HGX H200
 
@@ -74,7 +96,7 @@ Only configurations with recorded results are listed. Everything else is in
 
 ## Architecture
 
-![LLM serving stack](assets/diagrams/png/serving-stack.png)
+![Two control planes: NVIDIA Dynamo and llm-d](assets/diagrams/png/control-planes.png)
 
 ![Dynamo production topology on Kubernetes](assets/diagrams/png/production-topology.png)
 

@@ -22,9 +22,10 @@ UNVALIDATED.
 
 | Diagram | Used in |
 | --- | --- |
-| [serving-stack](png/serving-stack.png) | README, blueprint 01 |
+| [serving-stack](png/serving-stack.png) | README, blueprint index and 01 |
+| [control-planes](png/control-planes.png) | README, blueprint 04 |
 | [agg-vs-disagg](png/agg-vs-disagg.png) | blueprint 03, deploy tracks |
-| [production-topology](png/production-topology.png) | README, blueprint 04 and 10 |
+| [production-topology](png/production-topology.png) | README, blueprint 04 |
 | [decision-flow](png/decision-flow.png) | blueprint 11 |
 | [when-disaggregation-wins](png/when-disaggregation-wins.png) | blueprint 11 and 12 |
 | [pd-parallelism](png/pd-parallelism.png) | blueprint 06 and 09 |

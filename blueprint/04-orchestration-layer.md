@@ -24,11 +24,13 @@ The serving control plane sits between the API and the engines and decides **whe
 
 ## The two leading open implementations
 
-![Dynamo vs llm-d: where routing and P/D coordination live](../assets/diagrams/png/production-topology.png)
+![Dynamo vs llm-d: where routing and P/D coordination live](../assets/diagrams/png/control-planes.png)
 
 Both use the same engines and the same NIXL KV transfer underneath. They differ in **where decisions live** and **what platform they assume**.
 
 ### NVIDIA Dynamo
+
+![Dynamo production topology on Kubernetes (UNVALIDATED)](../assets/diagrams/png/production-topology.png)
 
 An engine-agnostic inference runtime that runs on bare Docker hosts or Kubernetes.
 

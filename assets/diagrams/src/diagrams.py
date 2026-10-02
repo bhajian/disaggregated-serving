@@ -11,29 +11,114 @@ Element types:
 DIAGRAMS = {}
 
 # ----------------------------------------------------------------------------- 1. serving stack
-_layers = [
-    ('Clients and API edge', 'OpenAI-compatible HTTP · Gateway API + Envoy: TLS, OIDC/JWT, per-tenant rate limits',
-     'deploy/overlays/production/gateway'),
-    ('Control plane', 'Dynamo frontend: preprocessing, KV-aware router · Planner (SLA autoscaling) · llm-d EPP',
-     'deploy/base · overlays/production'),
-    ('Inference engines', 'SGLang · vLLM · TensorRT-LLM: continuous batching, paged KV, CUDA graphs, TP/EP/DP',
-     'engine flags per profile'),
-    ('KV transfer and cache', 'NIXL over UCX: GPUDirect RDMA on InfiniBand, NVLink in-node · KV tiers and offload',
-     'UCX / NIXL settings'),
-    ('Kubernetes platform', 'Dynamo operator (DynamoGraphDeployment) · Grove + KAI gang scheduling\nWorker discovery through the Kubernetes API (no etcd)',
-     'deploy/operator'),
-    ('Accelerated infrastructure', 'NVIDIA GPU Operator · Network Operator (RDMA device plugin) · DCGM · HGX H200 / B300',
-     'overlays/production/operators'),
+# Status of each part: 'v' validated on H200 (results/), 'r' manifests or reference, not yet run,
+# 'p' roadmap (ROADMAP.md), '' generic. Draws as accent, plain, ghost and soft boxes.
+_STYLE = {'v': 'accent', 'r': 'plain', 'p': 'ghost', '': 'soft'}
+_X0, _X1, _GAP = 300, 1560, 14
+
+
+def _row(y, h, items, x0=_X0 + 20, x1=_X1 - 20, size=12):
+    """Equal-width boxes across [x0, x1]; items are (label, sub, status)."""
+    w = (x1 - x0 - _GAP * (len(items) - 1)) / len(items)
+    return [{'x': x0 + i * (w + _GAP), 'y': y, 'w': w, 'h': h, 'label': label, 'style': _STYLE[st], 'size': size,
+             **({'sub': sub} if sub else {}), **({} if st == 'v' else {'weight': 'normal'} if not sub else {})}
+            for i, (label, sub, st) in enumerate(items)]
+
+
+def _layer(y, h, label, decides):
+    return ({'x': _X0, 'y': y, 'w': _X1 - _X0, 'h': h, 'label': label.upper(), 'style': 'soft'},
+            {'x': 40, 'y': y + 14, 'text': decides, 'size': 11.5, 'color': 'muted', 'style': 'italic'})
+
+
+_LAYERS = [  # (y, height, label, what the layer decides)
+    (100, 110, 'Applications', 'what the workload looks like:\nprompt and output lengths, reuse'),
+    (226, 110, 'Access layer', 'who may call, how much,\nover which API'),
+    (352, 290, 'Serving control plane', 'where each request runs,\nhow many workers of each role'),
+    (658, 160, 'Inference engines', 'how a batch runs on a GPU'),
+    (834, 130, 'Model architectures', 'KV size per token\nand the parallelism that fits'),
+    (980, 130, 'Data movement and memory', 'how KV and activations\nmove between GPUs and tiers'),
+    (1126, 250, 'Hardware', 'memory, bandwidth and\nthe size of the NVLink domain'),
 ]
+_groups, _texts = zip(*(_layer(*l) for l in _LAYERS))
+_PLANES = [
+    {'x': _X0 + 20, 'y': 390, 'w': 600, 'h': 236, 'label': 'NVIDIA Dynamo  ·  engine-agnostic, Docker or Kubernetes',
+     'style': 'ghost', 'badge': 'RUN ON H200', 'badge_color': 'accent_ink'},
+    {'x': _X0 + 640, 'y': 390, 'w': 600, 'h': 236, 'label': 'llm-d  ·  Kubernetes-native, Gateway API',
+     'style': 'ghost', 'badge': 'REFERENCE · NOT YET RUN'},
+]
+
 DIAGRAMS['serving-stack'] = {
-    'size': (1400, 760), 'title': 'LLM serving stack',
-    'subtitle': 'Each layer depends only on the layer below it. The right column shows where this repository configures it.',
-    'boxes': [b for i, (name, detail, where) in enumerate(_layers) for b in (
-        {'x': 40, 'y': 110 + i * 100, 'w': 300, 'h': 84, 'label': name, 'style': 'accent' if i in (1, 3) else 'soft', 'size': 14},
-        {'x': 356, 'y': 110 + i * 100, 'w': 720, 'h': 84, 'label': detail, 'style': 'plain', 'size': 11.5, 'weight': 'normal'},
-        {'x': 1092, 'y': 110 + i * 100, 'w': 268, 'h': 84, 'label': where, 'style': 'ghost', 'size': 11})],
-    'texts': [{'x': 1092, 'y': 88, 'text': 'In this repository', 'size': 11, 'color': 'muted', 'weight': 'bold'},
-              {'x': 40, 'y': 724, 'text': 'Green: the layers NVIDIA Dynamo provides. Grey: layers it builds on.', 'size': 11, 'color': 'muted'}],
+    'size': (1600, 1460), 'title': 'The LLM serving stack',
+    'subtitle': 'A supercomputer for inference: every layer is a choice, and the choices must fit together. '
+                'The engine must support the model; the control plane must support the engine.',
+    'groups': [*_groups, *_PLANES],
+    'boxes': [
+        *_row(140, 54, [('Chat assistants', '', ''), ('Agents and tools', '', ''), ('RAG and search', '', ''), ('Batch and offline', '', '')]),
+        *_row(266, 54, [('OpenAI-compatible API', '', 'v'), ('Gateway API · Envoy', '', 'r'), ('AuthN/Z · quotas', '', 'r'), ('TLS · rate limits', '', 'r')]),
+        *_row(430, 82, [('Frontend + KV router', 'OpenAI API · prefix-aware', 'v'), ('Planner', 'SLA scaling of P and D', 'r'),
+                        ('Operator · Grove', 'graph CRD · gang scheduling', 'r')], x0=_X0 + 36, x1=_X0 + 604, size=11.5),
+        *_row(526, 82, [('NIXL transfer', 'KV between workers', 'v'), ('Discovery', 'Kubernetes API or etcd', 'v'),
+                        ('KV block manager', 'G1–G4 tiers', 'p')], x0=_X0 + 36, x1=_X0 + 604, size=11.5),
+        *_row(430, 82, [('Envoy gateway', 'Inference Extension', 'r'), ('Endpoint picker', 'prefix · load · P/D scorers', 'r'),
+                        ('P/D routing sidecar', 'on the decode pod', 'r')], x0=_X0 + 656, x1=_X0 + 1224, size=11.5),
+        *_row(526, 82, [('InferencePool', 'selects model servers', 'r'), ('KV-cache indexer', 'cluster prefix index', 'r'),
+                        ('Variant autoscaler', 'per-role scaling', 'r')], x0=_X0 + 656, x1=_X0 + 1224, size=11.5),
+        *_row(696, 72, [('TensorRT-LLM', 'NVIDIA-optimized kernels · NVFP4', 'p'), ('vLLM', 'broad model and hardware support', 'r'),
+                        ('SGLang', 'RadixAttention · agentic workloads', 'v')], size=13),
+        *_row(872, 72, [('Dense', 'GQA attention', ''), ('MoE', 'sparse experts · DeepSeek V4', 'v'), ('MLA', 'latent KV', ''),
+                        ('Hybrid', 'Mamba + attention · Nemotron 3', 'v'), ('Sliding window', 'bounded KV', ''), ('Multimodal', 'vision encoder', '')]),
+        *_row(1018, 72, [('NIXL', 'KV transfer API', 'v'), ('NCCL', 'TP / EP collectives', 'v'), ('UCX', 'RDMA transport', 'v'),
+                         ('GPUDirect RDMA', 'NIC ↔ GPU', 'v'), ('GPUDirect Storage', 'NVMe ↔ GPU', 'p'), ('KV tiering', 'GPU → host → NVMe', 'p')]),
+        *_row(1164, 72, [('HGX H200', 'Hopper · 8 GPUs per server', 'v'), ('HGX B300', 'Blackwell · 8 GPUs per server', 'r'),
+                         ('GB200 · GB300 NVL72', 'rack-scale NVLink', 'p'), ('Vera Rubin', 'next generation', 'p')], size=13),
+        {'x': _X0 + 20, 'y': 1252, 'w': _X1 - _X0 - 40, 'h': 44, 'label': 'Scale-up fabric  ·  NVLink / NVSwitch, inside a server or an NVL72 rack',
+         'style': 'shade', 'size': 12, 'weight': 'normal'},
+        {'x': _X0 + 20, 'y': 1310, 'w': _X1 - _X0 - 40, 'h': 44, 'label': 'Scale-out fabric  ·  InfiniBand · Spectrum-X Ethernet (RoCE) · ConnectX SuperNICs',
+         'style': 'dark', 'size': 12},
+        {'x': 300, 'y': 1396, 'w': 190, 'h': 36, 'label': 'Validated on H200', 'style': 'accent', 'size': 11},
+        {'x': 504, 'y': 1396, 'w': 230, 'h': 36, 'label': 'Manifests or reference, not yet run', 'style': 'plain', 'size': 11, 'weight': 'normal'},
+        {'x': 748, 'y': 1396, 'w': 120, 'h': 36, 'label': 'Roadmap', 'style': 'ghost', 'size': 11, 'weight': 'normal'},
+        {'x': 882, 'y': 1396, 'w': 120, 'h': 36, 'label': 'Generic', 'style': 'soft', 'size': 11, 'weight': 'normal'},
+    ],
+    'texts': [{'x': 40, 'y': 82 + 18, 'text': 'WHAT THE LAYER DECIDES', 'size': 10.5, 'color': 'muted', 'weight': 'bold'},
+              *({**t, 'y': t['y'] + 16} for t in _texts),
+              {'x': _X0 + 20, 'y': 782, 'text': 'shared techniques: continuous batching · paged KV cache · chunked prefill · prefix caching · speculative decoding',
+               'size': 11, 'color': 'muted'},
+              {'x': 1020, 'y': 1406, 'text': 'Status from results/ and ROADMAP.md.', 'size': 11, 'color': 'muted'}],
+}
+
+# ----------------------------------------------------------------------------- 1b. control planes
+DIAGRAMS['control-planes'] = {
+    'size': (1400, 760), 'title': 'Two control planes: NVIDIA Dynamo and llm-d',
+    'subtitle': 'Both run SGLang or vLLM workers, split prefill from decode and move KV over NIXL. They differ in where routing and P/D coordination live.',
+    'groups': [
+        {'x': 40, 'y': 100, 'w': 640, 'h': 580, 'label': 'NVIDIA Dynamo', 'style': 'ghost', 'badge': 'RUN ON H200', 'badge_color': 'accent_ink'},
+        {'x': 720, 'y': 100, 'w': 640, 'h': 580, 'label': 'llm-d', 'style': 'ghost', 'badge': 'REFERENCE · NOT YET RUN'},
+    ],
+    'boxes': [
+        {'x': 80, 'y': 150, 'w': 560, 'h': 80, 'label': 'Dynamo frontend', 'sub': 'OpenAI API · tokenization · KV-aware router', 'style': 'accent'},
+        {'x': 80, 'y': 390, 'w': 270, 'h': 80, 'label': 'Planner', 'sub': 'SLA autoscaling of\nprefill and decode', 'style': 'soft'},
+        {'x': 370, 'y': 390, 'w': 270, 'h': 80, 'label': 'Operator + Grove', 'sub': 'DynamoGraphDeployment\ngang scheduling', 'style': 'soft'},
+        {'x': 80, 'y': 260, 'w': 270, 'h': 90, 'label': 'Prefill workers', 'sub': 'SGLang · vLLM · TRT-LLM'},
+        {'x': 370, 'y': 260, 'w': 270, 'h': 90, 'label': 'Decode workers', 'sub': 'SGLang · vLLM · TRT-LLM'},
+        {'x': 80, 'y': 510, 'w': 560, 'h': 60, 'label': 'Discovery: Kubernetes API (operator default) or etcd', 'style': 'ghost', 'size': 11, 'weight': 'normal'},
+        {'x': 80, 'y': 590, 'w': 560, 'h': 60, 'label': 'P/D coordination: the frontend picks both workers', 'style': 'ghost', 'size': 11, 'weight': 'normal'},
+        {'x': 760, 'y': 150, 'w': 560, 'h': 80, 'label': 'Gateway (Gateway API)', 'sub': 'Envoy-based gateway + Inference Extension', 'style': 'soft'},
+        {'x': 760, 'y': 260, 'w': 560, 'h': 90, 'label': 'Endpoint picker (EPP)', 'sub': 'pluggable scorers: prefix cache, load, P/D decision\nInferencePool selects the model servers', 'style': 'soft'},
+        {'x': 760, 'y': 390, 'w': 270, 'h': 80, 'label': 'Prefill pods', 'sub': 'vLLM · SGLang'},
+        {'x': 1050, 'y': 390, 'w': 270, 'h': 80, 'label': 'Decode pods', 'sub': 'routing sidecar drives P/D'},
+        {'x': 760, 'y': 510, 'w': 560, 'h': 60, 'label': 'Discovery: Kubernetes API (InferencePool, labels)', 'style': 'ghost', 'size': 11, 'weight': 'normal'},
+        {'x': 760, 'y': 590, 'w': 560, 'h': 60, 'label': 'P/D coordination: a sidecar on the decode pod calls prefill', 'style': 'ghost', 'size': 11, 'weight': 'normal'},
+    ],
+    'arrows': [
+        {'points': [(215, 230), (215, 260)]},
+        {'points': [(505, 230), (505, 260)]},
+        {'points': [(350, 305), (370, 305)], 'style': 'accent', 'label': 'KV · NIXL', 'label_at': (360, 365)},
+        {'points': [(1185, 350), (1185, 390)]},
+        {'points': [(1050, 430), (1030, 430)], 'style': 'accent'},
+        {'points': [(1040, 230), (1040, 260)]},
+    ],
+    'texts': [{'x': 40, 'y': 704, 'text': 'In this repository: Dynamo graphs and lab manifests are measured on H200 (results/); llm-d manifests exist for the B300 reference topology (deploy/sites/hgx-b300-2x8/04-llm-d-disagg).', 'size': 11, 'color': 'muted'}],
 }
 
 # ----------------------------------------------------------------------------- 2. aggregated vs disaggregated
